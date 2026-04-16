@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Virgil</string>
+    <string name="fall_detection_channel">Fall Detection</string>
+    <string name="fall_detection_running">Virgil is watching over you</string>
+    <string name="dead_man_switch_channel">Check-In</string>
+    <string name="dead_man_switch_running">Check-in timer active</string>
+    <string name="emergency_sms_default">URGENT: I may need help. I have not responded to my safety check. This is an automatic alert from Virgil.</string>
+    <string name="checkin_notification_title">Are you there?</string>
+    <string name="checkin_notification_body">Tap to confirm you are OK</string>
+</resources>
