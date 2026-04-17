@@ -10,7 +10,7 @@
 
 1. **Virgil gets 2-3 days/week.** The rest goes to income track (DINUM, NLnet, BSC) and PreuJust distribution.
 2. **Ship ugly, iterate fast.** The first Play Store version doesn't need to be beautiful. It needs to work.
-3. **No feature creep.** Two features: fall detection + dead man's switch. That's it until v1.0 is on the store with real users.
+3. **No feature creep.** Two features: fall detection + check-in. That's it until v1.0 is on the store with real users.
 4. **Test on real devices every week.** Not the emulator. Your actual phones.
 5. **Track one number:** active installs. Not GitHub stars, not downloads. Active installs.
 
@@ -32,7 +32,7 @@
 
 **Done when:** You can demo the app to someone and it doesn't crash.
 
-### Week 2 — Apr 23-29: Dead man's switch end-to-end
+### Week 2 — Apr 23-29: Check-in end-to-end
 
 - [ ] Set check-in interval to 1 minute for testing
 - [ ] Verify: no interaction → notification appears after interval

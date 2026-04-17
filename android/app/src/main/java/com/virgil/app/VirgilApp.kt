@@ -34,21 +34,32 @@ class VirgilApp : Application() {
 
         val checkinChannel = NotificationChannel(
             CHANNEL_CHECKIN,
-            getString(R.string.dead_man_switch_channel),
+            getString(R.string.checkin_channel),
             NotificationManager.IMPORTANCE_HIGH
         ).apply {
-            description = "Check-in reminders from the dead man's switch"
+            description = "Check-in reminders when Virgil hasn't seen you in a while"
+            enableVibration(true)
+        }
+
+        val permissionChannel = NotificationChannel(
+            CHANNEL_PERMISSION,
+            getString(R.string.permission_channel),
+            NotificationManager.IMPORTANCE_HIGH
+        ).apply {
+            description = "Warns you when a required permission has been revoked"
             enableVibration(true)
         }
 
         manager.createNotificationChannel(fallChannel)
         manager.createNotificationChannel(alertChannel)
         manager.createNotificationChannel(checkinChannel)
+        manager.createNotificationChannel(permissionChannel)
     }
 
     companion object {
         const val CHANNEL_FALL_DETECTION = "fall_detection"
         const val CHANNEL_EMERGENCY = "emergency"
         const val CHANNEL_CHECKIN = "checkin"
+        const val CHANNEL_PERMISSION = "permission"
     }
 }

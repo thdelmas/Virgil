@@ -1,0 +1,54 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Amber glow filling the glass body -->
+    <path
+        android:fillColor="#F4A261"
+        android:pathData="M44,48 L64,48 L64,76 L44,76 Z" />
+
+    <!-- Warm flame at center -->
+    <path
+        android:fillColor="#FFD166"
+        android:pathData="M54,58 m-3.5,0 a3.5,3.5 0 1,0 7,0 a3.5,3.5 0 1,0 -7,0" />
+
+    <!-- Dome and shoulder cap -->
+    <path
+        android:fillColor="#E0E1DD"
+        android:pathData="M38,44 C38,38 46,36 54,36 C62,36 70,38 70,44 L70,48 L38,48 Z" />
+
+    <!-- Left vertical frame -->
+    <path
+        android:fillColor="#E0E1DD"
+        android:pathData="M40,48 L44,48 L44,76 L40,76 Z" />
+
+    <!-- Right vertical frame -->
+    <path
+        android:fillColor="#E0E1DD"
+        android:pathData="M64,48 L68,48 L68,76 L64,76 Z" />
+
+    <!-- Center mullion -->
+    <path
+        android:fillColor="#E0E1DD"
+        android:pathData="M53,48 L55,48 L55,76 L53,76 Z" />
+
+    <!-- Wide base -->
+    <path
+        android:fillColor="#E0E1DD"
+        android:pathData="M36,76 L72,76 L68,84 L40,84 Z" />
+
+    <!-- Hanger stem -->
+    <path
+        android:fillColor="#E0E1DD"
+        android:pathData="M52.5,32 L55.5,32 L55.5,38 L52.5,38 Z" />
+
+    <!-- Hanger ring -->
+    <path
+        android:strokeColor="#E0E1DD"
+        android:strokeWidth="3"
+        android:fillColor="#00000000"
+        android:pathData="M54,28 m-4,0 a4,4 0 1,0 8,0 a4,4 0 1,0 -8,0" />
+
+</vector>

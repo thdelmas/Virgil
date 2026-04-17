@@ -3,9 +3,24 @@
     <string name="app_name">Virgil</string>
     <string name="fall_detection_channel">Fall Detection</string>
     <string name="fall_detection_running">Virgil is watching over you</string>
-    <string name="dead_man_switch_channel">Check-In</string>
-    <string name="dead_man_switch_running">Check-in timer active</string>
+    <string name="checkin_channel">Check-In</string>
+    <string name="checkin_running">Check-in timer active</string>
     <string name="emergency_sms_default">URGENT: I may need help. I have not responded to my safety check. This is an automatic alert from Virgil.</string>
     <string name="checkin_notification_title">Are you there?</string>
     <string name="checkin_notification_body">Tap to confirm you are OK</string>
+    <string name="permission_channel">Permission Alerts</string>
+    <string name="permission_lost_title">Virgil needs a permission back</string>
+    <string name="permission_lost_body">The following required permission(s) were revoked: %1$s. Virgil cannot alert your contacts until they are restored. Tap to review.</string>
+    <string name="emergency_siren_title">Emergency siren active</string>
+    <string name="emergency_siren_body">Tap to silence. Stops automatically after 5 minutes.</string>
+    <string name="emergency_siren_silence">Silence</string>
+    <string name="send_test_button">Send test message</string>
+    <string name="test_sms_message">[Virgil TEST] This is a test from your safety app. No emergency — just checking that alerts and location work.</string>
+    <string name="test_confirm_title">Send test alert?</string>
+    <string name="test_confirm_body">This will send a test SMS (clearly marked as a test) with your current location to %1$d emergency contact(s). No call will be placed.</string>
+    <string name="test_confirm_send">Send test</string>
+    <string name="test_confirm_cancel">Cancel</string>
+    <string name="test_sent_toast">Test message sent — check your contacts received it.</string>
+    <string name="test_sent_with_location">Test SMS sent with location ✓</string>
+    <string name="test_sent_no_location">Test SMS sent, but location was unavailable. Check Android Settings → Location is on.</string>
 </resources>

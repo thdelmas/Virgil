@@ -38,7 +38,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.virgil.app.data.EmergencyPreferences
+import com.virgil.app.service.AttentionSound
 import com.virgil.app.service.EmergencyDispatcher
+import com.virgil.app.service.EmergencySirenService
 import com.virgil.app.service.FallDetectionService
 import com.virgil.app.ui.theme.VirgilTheme
 import kotlinx.coroutines.delay
@@ -53,6 +55,8 @@ class EmergencyCountdownActivity : ComponentActivity() {
 
     private lateinit var prefs: EmergencyPreferences
     private lateinit var dispatcher: EmergencyDispatcher
+
+    private var sirenHandedOff = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -71,10 +75,13 @@ class EmergencyCountdownActivity : ComponentActivity() {
                     title = title,
                     onCancel = {
                         stopVibration()
+                        AttentionSound.stop()
                         finish()
                     },
                     onExpired = {
                         stopVibration()
+                        sirenHandedOff = true
+                        EmergencySirenService.start(this)
                         triggerEmergency()
                     },
                 )
@@ -82,6 +89,12 @@ class EmergencyCountdownActivity : ComponentActivity() {
         }
 
         startVibration()
+        AttentionSound.playEmergencySiren(this)
+    }
+
+    override fun onDestroy() {
+        if (!sirenHandedOff) AttentionSound.stop()
+        super.onDestroy()
     }
 
     private fun showOverLockScreen() {

@@ -4,15 +4,20 @@ import android.app.Notification
 import android.app.PendingIntent
 import android.app.Service
 import android.content.Intent
+import android.content.pm.ServiceInfo
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
+import android.os.Handler
 import android.os.IBinder
+import android.os.Looper
 import androidx.core.app.NotificationCompat
+import com.virgil.app.BuildConfig
 import com.virgil.app.R
 import com.virgil.app.VirgilApp
 import com.virgil.app.analysis.FallDetectionAlgorithm
+import com.virgil.app.permissions.PermissionMonitor
 import com.virgil.app.ui.MainActivity
 import com.virgil.app.ui.emergency.EmergencyCountdownActivity
 import kotlin.math.sqrt
@@ -26,6 +31,7 @@ class FallDetectionService : Service(), SensorEventListener {
     private lateinit var sensorManager: SensorManager
     private var accelerometer: Sensor? = null
     private val algorithm = FallDetectionAlgorithm()
+    private var isListening = false
 
     override fun onCreate() {
         super.onCreate()
@@ -34,27 +40,41 @@ class FallDetectionService : Service(), SensorEventListener {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        if (intent?.action == ACTION_STOP) {
-            stopForeground(STOP_FOREGROUND_REMOVE)
-            stopSelf()
-            return START_NOT_STICKY
+        when (intent?.action) {
+            ACTION_STOP -> {
+                stopSensor()
+                stopForeground(STOP_FOREGROUND_REMOVE)
+                stopSelf()
+                return START_NOT_STICKY
+            }
+            ACTION_DEBUG_REPLAY -> if (BuildConfig.DEBUG) {
+                val magnitudes = intent.getFloatArrayExtra(EXTRA_DEBUG_MAGNITUDES)
+                val delays = intent.getLongArrayExtra(EXTRA_DEBUG_DELAYS)
+                val label = intent.getStringExtra(EXTRA_DEBUG_LABEL) ?: "unnamed"
+                if (magnitudes != null && delays != null && magnitudes.size == delays.size) {
+                    startForeground(
+                        NOTIFICATION_ID,
+                        buildNotification(),
+                        ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE
+                    )
+                    replayTrace(label, magnitudes, delays)
+                }
+                return START_STICKY
+            }
         }
 
-        startForeground(NOTIFICATION_ID, buildNotification())
-
-        accelerometer?.let { sensor ->
-            sensorManager.registerListener(
-                this,
-                sensor,
-                SensorManager.SENSOR_DELAY_GAME,
-            )
-        }
-
+        startForeground(
+            NOTIFICATION_ID,
+            buildNotification(),
+            ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE
+        )
+        startSensor()
+        PermissionMonitor.check(this)
         return START_STICKY
     }
 
     override fun onDestroy() {
-        sensorManager.unregisterListener(this)
+        stopSensor()
         super.onDestroy()
     }
 
@@ -75,6 +95,49 @@ class FallDetectionService : Service(), SensorEventListener {
     }
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
+
+    private fun startSensor() {
+        if (isListening) return
+        accelerometer?.let { sensor ->
+            sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_GAME)
+            isListening = true
+        }
+    }
+
+    private fun stopSensor() {
+        if (!isListening) return
+        sensorManager.unregisterListener(this)
+        isListening = false
+    }
+
+    private fun replayTrace(label: String, magnitudes: FloatArray, delays: LongArray) {
+        val wasListening = isListening
+        stopSensor()
+        algorithm.reset()
+
+        val handler = Handler(Looper.getMainLooper())
+        val base = System.currentTimeMillis()
+        var offset = 0L
+
+        android.util.Log.i(TAG, "debug replay start: $label (${magnitudes.size} samples)")
+
+        for (i in magnitudes.indices) {
+            offset += delays[i]
+            val t = base + offset
+            val mag = magnitudes[i]
+            handler.postDelayed({
+                if (algorithm.processSample(mag, t)) {
+                    android.util.Log.i(TAG, "debug replay: fall detected in '$label'")
+                    onFallDetected()
+                }
+            }, offset)
+        }
+
+        handler.postDelayed({
+            android.util.Log.i(TAG, "debug replay end: $label")
+            if (wasListening) startSensor()
+        }, offset + 500L)
+    }
 
     private fun onFallDetected() {
         val intent = Intent(this, EmergencyCountdownActivity::class.java).apply {
@@ -111,7 +174,12 @@ class FallDetectionService : Service(), SensorEventListener {
     companion object {
         const val NOTIFICATION_ID = 1
         const val ACTION_STOP = "com.virgil.app.STOP_FALL_DETECTION"
+        const val ACTION_DEBUG_REPLAY = "com.virgil.app.DEBUG_REPLAY"
         const val EXTRA_PEAK_ACCEL = "peak_accel"
         const val EXTRA_TRIGGER_TYPE = "trigger_type"
+        const val EXTRA_DEBUG_MAGNITUDES = "debug_magnitudes"
+        const val EXTRA_DEBUG_DELAYS = "debug_delays"
+        const val EXTRA_DEBUG_LABEL = "debug_label"
+        private const val TAG = "FallDetectionService"
     }
 }

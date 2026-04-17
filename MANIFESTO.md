@@ -16,7 +16,7 @@ Virgil does.
 
 **Fall detection.** Your phone detects a hard fall — free-fall, impact, then stillness. A countdown appears. If you don't tap "I'm OK" within 30 seconds, Virgil sends your GPS location to your emergency contacts and calls the first one.
 
-**Dead man's switch.** You set a check-in interval — say, every 6 hours during the day. If your phone sees no sign of life (no screen unlock, no movement, no tap), it asks if you're OK. If you don't respond, same thing: alert your contacts with your location.
+**Check-in.** You set an interval — say, every 6 hours during the day. If your phone sees no sign of life (no screen unlock, no movement, no tap), it asks if you're OK. If you don't respond, same thing: alert your contacts with your location.
 
 That's it. Two features. Both save lives.
 
@@ -24,7 +24,7 @@ That's it. Two features. Both save lives.
 
 ## What It Is Not
 
-Virgil is not a medical device. It does not diagnose anything. It does not monitor health. It does not talk to doctors, hospitals, or insurance companies.
+Virgil is not a medical device. It does not diagnose anything. It does not monitor health. It does not talk to doctors, hospitals, or insurance companies. <!-- compliance-allow: legal disclaimer required by docs/COMPLIANCE.md §1 -->
 
 Virgil is a phone app that notices when something might be wrong and tells the people you trust.
 
@@ -50,7 +50,7 @@ Virgil works in any country, in any language, on any Android phone with an accel
 
 ### 5. Battery-conscious
 
-A guardian that kills your phone battery is no guardian at all. Virgil uses efficient sensor batching and minimal wake-ups. The dead man's switch checks activity signals the OS already tracks — it doesn't poll sensors continuously.
+A guardian that kills your phone battery is no guardian at all. Virgil uses efficient sensor batching and minimal wake-ups. The check-in feature uses activity signals the OS already tracks — it doesn't poll sensors continuously.
 
 ---
 
@@ -77,7 +77,7 @@ Emergency countdown (30 seconds, full screen, vibration)
   No response?     --> SMS with GPS location to all contacts + call primary contact
 ```
 
-### Dead Man's Switch
+### Check-In
 
 ```
 Check-in timer (user-configured interval, e.g. every 6 hours)
@@ -110,8 +110,8 @@ Has the user interacted with the phone since last check?
 ## Who This Is For
 
 - An elderly parent living alone
-- Anyone recovering from surgery or illness at home
-- A person with a condition that causes fainting or seizures
+- Anyone at home by themselves who wants a simple safety net
+- Someone prone to moments of reduced awareness or balance trouble
 - Someone hiking or working alone in a remote area
 - Anyone who wants a safety net that doesn't cost money or require hardware
 

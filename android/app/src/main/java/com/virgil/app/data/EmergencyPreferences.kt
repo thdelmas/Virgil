@@ -22,10 +22,10 @@ class EmergencyPreferences(private val context: Context) {
     private val messageKey = stringPreferencesKey("sms_message")
     private val fallEnabledKey = booleanPreferencesKey("fall_detection_enabled")
     private val countdownKey = intPreferencesKey("countdown_seconds")
-    private val dmsEnabledKey = booleanPreferencesKey("dead_man_switch_enabled")
-    private val dmsIntervalKey = longPreferencesKey("dms_interval_hours")
-    private val dmsSleepStartKey = intPreferencesKey("dms_sleep_start_hour")
-    private val dmsSleepEndKey = intPreferencesKey("dms_sleep_end_hour")
+    private val checkInEnabledKey = booleanPreferencesKey("checkin_enabled")
+    private val checkInIntervalKey = longPreferencesKey("checkin_interval_hours")
+    private val checkInSleepStartKey = intPreferencesKey("checkin_sleep_start_hour")
+    private val checkInSleepEndKey = intPreferencesKey("checkin_sleep_end_hour")
 
     val contacts: Flow<List<EmergencyContact>> = context.dataStore.data.map { prefs ->
         val json = prefs[contactsKey] ?: "[]"
@@ -46,23 +46,23 @@ class EmergencyPreferences(private val context: Context) {
         prefs[countdownKey] ?: 30
     }
 
-    val deadManSwitchEnabled: Flow<Boolean> = context.dataStore.data.map { prefs ->
-        prefs[dmsEnabledKey] ?: false
+    val checkInEnabled: Flow<Boolean> = context.dataStore.data.map { prefs ->
+        prefs[checkInEnabledKey] ?: false
     }
 
     /** Check-in interval in hours. */
-    val dmsIntervalHours: Flow<Long> = context.dataStore.data.map { prefs ->
-        prefs[dmsIntervalKey] ?: 6L
+    val checkInIntervalHours: Flow<Long> = context.dataStore.data.map { prefs ->
+        prefs[checkInIntervalKey] ?: 6L
     }
 
     /** Hour of day when sleep mode starts (check-ins paused). */
-    val dmsSleepStartHour: Flow<Int> = context.dataStore.data.map { prefs ->
-        prefs[dmsSleepStartKey] ?: 23
+    val checkInSleepStartHour: Flow<Int> = context.dataStore.data.map { prefs ->
+        prefs[checkInSleepStartKey] ?: 23
     }
 
     /** Hour of day when sleep mode ends (check-ins resume). */
-    val dmsSleepEndHour: Flow<Int> = context.dataStore.data.map { prefs ->
-        prefs[dmsSleepEndKey] ?: 7
+    val checkInSleepEndHour: Flow<Int> = context.dataStore.data.map { prefs ->
+        prefs[checkInSleepEndKey] ?: 7
     }
 
     suspend fun saveContacts(contacts: List<EmergencyContact>) {
@@ -89,18 +89,18 @@ class EmergencyPreferences(private val context: Context) {
         context.dataStore.edit { it[countdownKey] = seconds }
     }
 
-    suspend fun setDeadManSwitchEnabled(enabled: Boolean) {
-        context.dataStore.edit { it[dmsEnabledKey] = enabled }
+    suspend fun setCheckInEnabled(enabled: Boolean) {
+        context.dataStore.edit { it[checkInEnabledKey] = enabled }
     }
 
-    suspend fun setDmsIntervalHours(hours: Long) {
-        context.dataStore.edit { it[dmsIntervalKey] = hours }
+    suspend fun setCheckInIntervalHours(hours: Long) {
+        context.dataStore.edit { it[checkInIntervalKey] = hours }
     }
 
-    suspend fun setDmsSleepHours(start: Int, end: Int) {
+    suspend fun setCheckInSleepHours(start: Int, end: Int) {
         context.dataStore.edit {
-            it[dmsSleepStartKey] = start
-            it[dmsSleepEndKey] = end
+            it[checkInSleepStartKey] = start
+            it[checkInSleepEndKey] = end
         }
     }
 

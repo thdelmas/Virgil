@@ -11,11 +11,14 @@ import androidx.core.app.NotificationCompat
 import com.virgil.app.R
 import com.virgil.app.VirgilApp
 import com.virgil.app.data.EmergencyPreferences
+import com.virgil.app.data.InteractionTracker
 import com.virgil.app.ui.emergency.EmergencyCountdownActivity
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
 import java.util.Calendar
 
 /**
- * Receives check-in alarms from [DeadManSwitchService].
+ * Receives check-in alarms from [CheckInService].
  * Checks if the user has interacted with the phone recently.
  * If not, shows a check-in notification. If that goes unanswered
  * after 5 minutes, triggers emergency countdown.
@@ -24,23 +27,26 @@ class CheckInReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
         val prefs = EmergencyPreferences(context)
+        val force = intent.getBooleanExtra(EXTRA_FORCE, false)
 
         // Check if we're in sleep hours
         if (isDuringSleepHours(context)) {
-            // Reschedule — DeadManSwitchService will handle next alarm
-            restartService(context)
+            // Reschedule — CheckInService will handle next alarm
+            if (!force) restartService(context)
             return
         }
 
-        // Check if user has interacted with the phone recently
-        if (hasRecentInteraction(context)) {
+        // Binary recent-interaction gate is skipped for baseline-triggered
+        // escalations: those already decided activity is anomalously low.
+        if (!force && hasRecentInteraction(context)) {
             // User is active, just reschedule
             restartService(context)
             return
         }
 
-        // No recent activity — show check-in notification
+        // No recent activity — show check-in notification and ring
         showCheckInNotification(context)
+        AttentionSound.playCheckInRing(context)
 
         // If no response in 5 minutes, trigger emergency
         Handler(Looper.getMainLooper()).postDelayed({
@@ -50,6 +56,7 @@ class CheckInReceiver : BroadcastReceiver() {
             val stillPending = activeNotifications.any { it.id == NOTIFICATION_ID }
             if (stillPending) {
                 nm.cancel(NOTIFICATION_ID)
+                AttentionSound.stop()
                 triggerEmergency(context)
             }
         }, GRACE_PERIOD_MS)
@@ -57,13 +64,12 @@ class CheckInReceiver : BroadcastReceiver() {
 
     private fun isDuringSleepHours(context: Context): Boolean {
         val hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
-        // Default sleep hours: 23-7
-        val prefs = context.getSharedPreferences("virgil_quick", Context.MODE_PRIVATE)
-        val sleepStart = prefs.getInt("sleep_start", 23)
-        val sleepEnd = prefs.getInt("sleep_end", 7)
+        val prefs = EmergencyPreferences(context)
+        val (sleepStart, sleepEnd) = runBlocking {
+            prefs.checkInSleepStartHour.first() to prefs.checkInSleepEndHour.first()
+        }
 
         return if (sleepStart > sleepEnd) {
-            // Overnight range (e.g. 23-7)
             hour >= sleepStart || hour < sleepEnd
         } else {
             hour in sleepStart until sleepEnd
@@ -71,10 +77,11 @@ class CheckInReceiver : BroadcastReceiver() {
     }
 
     private fun hasRecentInteraction(context: Context): Boolean {
-        // Check if screen has been unlocked in the last interval period
-        // Using a simple heuristic: check if the device is interactive
-        val powerManager = context.getSystemService(android.os.PowerManager::class.java)
-        return powerManager.isInteractive
+        val intervalHours = runBlocking {
+            EmergencyPreferences(context).checkInIntervalHours.first()
+        }
+        val windowMs = intervalHours * 3600L * 1000L
+        return InteractionTracker.isRecent(context, windowMs)
     }
 
     private fun showCheckInNotification(context: Context) {
@@ -110,12 +117,13 @@ class CheckInReceiver : BroadcastReceiver() {
     }
 
     private fun restartService(context: Context) {
-        val intent = Intent(context, DeadManSwitchService::class.java)
+        val intent = Intent(context, CheckInService::class.java)
         context.startForegroundService(intent)
     }
 
     companion object {
         const val NOTIFICATION_ID = 0x5649 // "VI"
         const val GRACE_PERIOD_MS = 5 * 60 * 1000L // 5 minutes
+        const val EXTRA_FORCE = "force"
     }
 }

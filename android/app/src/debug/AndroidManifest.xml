@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <application>
+        <receiver
+            android:name=".debug.DebugFallTriggerReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.virgil.app.DEBUG_TRIGGER_FALL" />
+            </intent-filter>
+        </receiver>
+
+        <receiver
+            android:name=".debug.SensorRecorderReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.virgil.app.DEBUG_RECORD_START" />
+                <action android:name="com.virgil.app.DEBUG_RECORD_STOP" />
+            </intent-filter>
+        </receiver>
+
+        <service
+            android:name=".debug.SensorRecorderService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="debug_only_accelerometer_recording_for_local_development" />
+        </service>
+    </application>
+
+</manifest>

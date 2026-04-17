@@ -4,16 +4,20 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import com.virgil.app.data.EmergencyPreferences
+import com.virgil.app.permissions.PermissionMonitor
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 
 /**
- * Restarts fall detection and dead man's switch services after device boot.
+ * Restarts fall detection and check-in services after device boot or app update.
  */
 class BootReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
-        if (intent.action != Intent.ACTION_BOOT_COMPLETED) return
+        when (intent.action) {
+            Intent.ACTION_BOOT_COMPLETED, Intent.ACTION_MY_PACKAGE_REPLACED -> Unit
+            else -> return
+        }
 
         val prefs = EmergencyPreferences(context)
 
@@ -24,11 +28,13 @@ class BootReceiver : BroadcastReceiver() {
             )
         }
 
-        val dmsEnabled = runBlocking { prefs.deadManSwitchEnabled.first() }
-        if (dmsEnabled) {
+        val checkInEnabled = runBlocking { prefs.checkInEnabled.first() }
+        if (checkInEnabled) {
             context.startForegroundService(
-                Intent(context, DeadManSwitchService::class.java)
+                Intent(context, CheckInService::class.java)
             )
         }
+
+        PermissionMonitor.check(context)
     }
 }

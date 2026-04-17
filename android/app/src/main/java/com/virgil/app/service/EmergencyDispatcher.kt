@@ -21,8 +21,18 @@ class EmergencyDispatcher(private val context: Context) {
 
     private val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
 
-    fun dispatch(contacts: List<EmergencyContact>, messageTemplate: String) {
-        if (contacts.isEmpty()) return
+    fun dispatch(
+        contacts: List<EmergencyContact>,
+        messageTemplate: String,
+        isTest: Boolean = false,
+        onComplete: (locationAvailable: Boolean) -> Unit = {},
+    ) {
+        if (contacts.isEmpty()) {
+            onComplete(false)
+            return
+        }
+
+        if (!isTest) PanicBroadcast.emit(context)
 
         getLocation { location ->
             val message = buildMessage(messageTemplate, location)
@@ -31,8 +41,12 @@ class EmergencyDispatcher(private val context: Context) {
                 sendSms(contact.phone, message)
             }
 
-            val primaryContact = contacts.firstOrNull { it.isPrimary } ?: contacts.first()
-            makeCall(primaryContact.phone)
+            if (!isTest) {
+                val primaryContact = contacts.firstOrNull { it.isPrimary } ?: contacts.first()
+                makeCall(primaryContact.phone)
+            }
+
+            onComplete(location != null)
         }
     }
 
@@ -49,14 +63,25 @@ class EmergencyDispatcher(private val context: Context) {
             Priority.PRIORITY_HIGH_ACCURACY,
             cancellationToken.token,
         ).addOnSuccessListener { location ->
-            callback(location)
+            // getCurrentLocation returns null-on-success when the system can't
+            // produce a fix (location services off, no satellites, cold start).
+            // Fall through to lastLocation in that case.
+            if (location != null) callback(location) else fallbackToLast(callback)
         }.addOnFailureListener {
-            fusedLocationClient.lastLocation.addOnSuccessListener { last ->
-                callback(last)
-            }.addOnFailureListener {
-                callback(null)
-            }
+            fallbackToLast(callback)
         }
+    }
+
+    private fun fallbackToLast(callback: (Location?) -> Unit) {
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION)
+            != PackageManager.PERMISSION_GRANTED
+        ) {
+            callback(null)
+            return
+        }
+        fusedLocationClient.lastLocation
+            .addOnSuccessListener { callback(it) }
+            .addOnFailureListener { callback(null) }
     }
 
     private fun buildMessage(template: String, location: Location?): String {
@@ -78,7 +103,14 @@ class EmergencyDispatcher(private val context: Context) {
         ) return
 
         val smsManager = context.getSystemService(SmsManager::class.java)
-        val parts = smsManager.divideMessage(message)
+        val parts = try {
+            smsManager.divideMessage(message)
+        } catch (_: SecurityException) {
+            // divideMessage → getGroupIdLevel1 requires READ_PHONE_STATE on some
+            // OEMs (Android 11+). We refuse to declare that permission, so split
+            // manually at the UCS-2 multipart segment size (safe for any encoding).
+            ArrayList(message.chunked(SMS_CHUNK_SIZE))
+        }
         smsManager.sendMultipartTextMessage(phone, null, parts, null, null)
     }
 
@@ -92,5 +124,9 @@ class EmergencyDispatcher(private val context: Context) {
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         }
         context.startActivity(callIntent)
+    }
+
+    private companion object {
+        const val SMS_CHUNK_SIZE = 67
     }
 }
