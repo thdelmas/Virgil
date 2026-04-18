@@ -142,195 +142,78 @@ class MainActivity : ComponentActivity() {
                                 return@Scaffold
                             }
 
-                            Column(
+                            val ctx = LocalContext.current
+                            var showTestDialog by remember { mutableStateOf(false) }
+
+                            HomeScreen(
                                 modifier = Modifier
                                     .fillMaxSize()
-                                    .padding(padding)
-                                    .padding(horizontal = 24.dp)
-                                    .verticalScroll(rememberScrollState()),
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                            ) {
-                                Spacer(modifier = Modifier.height(24.dp))
+                                    .padding(padding),
+                                fallEnabled = fallEnabled,
+                                checkInEnabled = checkInEnabled,
+                                contacts = contacts,
+                                intervalHours = intervalHours,
+                                onToggleFall = { newValue ->
+                                    scope.launch { prefs.setFallDetectionEnabled(newValue) }
+                                    if (newValue) startFallDetection() else stopFallDetection()
+                                },
+                                onToggleCheckIn = { newValue ->
+                                    scope.launch { prefs.setCheckInEnabled(newValue) }
+                                    if (newValue) startCheckIn() else stopCheckIn()
+                                },
+                                onTest = { showTestDialog = true },
+                            )
 
-                                // --- Fall Detection ---
-                                Icon(
-                                    Icons.Default.Shield,
-                                    contentDescription = null,
-                                    modifier = Modifier.height(64.dp),
-                                    tint = if (fallEnabled) {
-                                        MaterialTheme.colorScheme.primary
-                                    } else {
-                                        MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
+                            if (showTestDialog) {
+                                AlertDialog(
+                                    onDismissRequest = { showTestDialog = false },
+                                    title = {
+                                        Text(stringResource(R.string.test_confirm_title))
                                     },
-                                )
-
-                                Spacer(modifier = Modifier.height(12.dp))
-
-                                Text(
-                                    text = if (fallEnabled) "Fall Detection Active"
-                                        else "Fall Detection Off",
-                                    style = MaterialTheme.typography.headlineSmall,
-                                )
-
-                                if (contacts.isEmpty()) {
-                                    Spacer(modifier = Modifier.height(4.dp))
-                                    Text(
-                                        text = "Add emergency contacts in Settings to enable",
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.error,
-                                    )
-                                }
-
-                                Spacer(modifier = Modifier.height(16.dp))
-
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.Center,
-                                    verticalAlignment = Alignment.CenterVertically,
-                                ) {
-                                    Text("Enable", style = MaterialTheme.typography.titleMedium)
-                                    Spacer(modifier = Modifier.padding(8.dp))
-                                    Switch(
-                                        checked = fallEnabled,
-                                        onCheckedChange = { newValue ->
-                                            scope.launch {
-                                                prefs.setFallDetectionEnabled(newValue)
-                                            }
-                                            if (newValue) startFallDetection()
-                                            else stopFallDetection()
-                                        },
-                                        enabled = contacts.isNotEmpty(),
-                                    )
-                                }
-
-                                Spacer(modifier = Modifier.height(48.dp))
-
-                                // --- Check-In ---
-                                Icon(
-                                    painter = painterResource(
-                                        com.virgil.app.R.drawable.ic_lantern
-                                    ),
-                                    contentDescription = null,
-                                    modifier = Modifier.height(64.dp),
-                                    tint = if (checkInEnabled) {
-                                        MaterialTheme.colorScheme.secondary
-                                    } else {
-                                        MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
-                                    },
-                                )
-
-                                Spacer(modifier = Modifier.height(12.dp))
-
-                                Text(
-                                    text = if (checkInEnabled) "Check-In Active"
-                                        else "Check-In Off",
-                                    style = MaterialTheme.typography.headlineSmall,
-                                )
-
-                                if (checkInEnabled) {
-                                    Text(
-                                        text = "Every ${intervalHours}h during waking hours",
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onSurface
-                                            .copy(alpha = 0.6f),
-                                    )
-                                }
-
-                                Spacer(modifier = Modifier.height(16.dp))
-
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.Center,
-                                    verticalAlignment = Alignment.CenterVertically,
-                                ) {
-                                    Text("Enable", style = MaterialTheme.typography.titleMedium)
-                                    Spacer(modifier = Modifier.padding(8.dp))
-                                    Switch(
-                                        checked = checkInEnabled,
-                                        onCheckedChange = { newValue ->
-                                            scope.launch {
-                                                prefs.setCheckInEnabled(newValue)
-                                            }
-                                            if (newValue) startCheckIn()
-                                            else stopCheckIn()
-                                        },
-                                        enabled = contacts.isNotEmpty(),
-                                    )
-                                }
-
-                                Spacer(modifier = Modifier.height(16.dp))
-
-                                Text(
-                                    text = "${contacts.size} emergency contact(s) configured",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
-                                )
-
-                                Spacer(modifier = Modifier.height(16.dp))
-
-                                val ctx = LocalContext.current
-                                var showTestDialog by remember { mutableStateOf(false) }
-
-                                OutlinedButton(
-                                    onClick = { showTestDialog = true },
-                                    enabled = contacts.isNotEmpty(),
-                                ) {
-                                    Text(stringResource(R.string.send_test_button))
-                                }
-
-                                if (showTestDialog) {
-                                    AlertDialog(
-                                        onDismissRequest = { showTestDialog = false },
-                                        title = {
-                                            Text(stringResource(R.string.test_confirm_title))
-                                        },
-                                        text = {
-                                            Text(
-                                                stringResource(
-                                                    R.string.test_confirm_body,
-                                                    contacts.size,
-                                                )
+                                    text = {
+                                        Text(
+                                            stringResource(
+                                                R.string.test_confirm_body,
+                                                contacts.size,
                                             )
-                                        },
-                                        confirmButton = {
-                                            TextButton(onClick = {
-                                                showTestDialog = false
+                                        )
+                                    },
+                                    confirmButton = {
+                                        TextButton(onClick = {
+                                            showTestDialog = false
+                                            Toast.makeText(
+                                                ctx,
+                                                ctx.getString(R.string.test_sent_toast),
+                                                Toast.LENGTH_SHORT,
+                                            ).show()
+                                            EmergencyDispatcher(ctx).dispatch(
+                                                contacts = contacts,
+                                                messageTemplate = ctx.getString(
+                                                    R.string.test_sms_message
+                                                ),
+                                                isTest = true,
+                                            ) { locationAvailable ->
+                                                val resId = if (locationAvailable) {
+                                                    R.string.test_sent_with_location
+                                                } else {
+                                                    R.string.test_sent_no_location
+                                                }
                                                 Toast.makeText(
                                                     ctx,
-                                                    ctx.getString(R.string.test_sent_toast),
-                                                    Toast.LENGTH_SHORT,
+                                                    ctx.getString(resId),
+                                                    Toast.LENGTH_LONG,
                                                 ).show()
-                                                EmergencyDispatcher(ctx).dispatch(
-                                                    contacts = contacts,
-                                                    messageTemplate = ctx.getString(
-                                                        R.string.test_sms_message
-                                                    ),
-                                                    isTest = true,
-                                                ) { locationAvailable ->
-                                                    val resId = if (locationAvailable) {
-                                                        R.string.test_sent_with_location
-                                                    } else {
-                                                        R.string.test_sent_no_location
-                                                    }
-                                                    Toast.makeText(
-                                                        ctx,
-                                                        ctx.getString(resId),
-                                                        Toast.LENGTH_LONG,
-                                                    ).show()
-                                                }
-                                            }) {
-                                                Text(stringResource(R.string.test_confirm_send))
                                             }
-                                        },
-                                        dismissButton = {
-                                            TextButton(onClick = { showTestDialog = false }) {
-                                                Text(stringResource(R.string.test_confirm_cancel))
-                                            }
-                                        },
-                                    )
-                                }
-
-                                Spacer(modifier = Modifier.height(24.dp))
+                                        }) {
+                                            Text(stringResource(R.string.test_confirm_send))
+                                        }
+                                    },
+                                    dismissButton = {
+                                        TextButton(onClick = { showTestDialog = false }) {
+                                            Text(stringResource(R.string.test_confirm_cancel))
+                                        }
+                                    },
+                                )
                             }
                         }
                     }
