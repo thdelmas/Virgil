@@ -32,10 +32,13 @@ class EmergencyPreferences(private val context: Context) {
         parseContacts(json)
     }
 
-    val smsMessage: Flow<String> = context.dataStore.data.map { prefs ->
-        prefs[messageKey] ?: context.getString(
-            com.virgil.app.R.string.emergency_sms_default
-        )
+    /**
+     * User-customised SMS template, or `null` if the user hasn't overridden the
+     * default. A null return lets the dispatcher pull a localized default
+     * per-contact (one message per recipient language).
+     */
+    val smsMessageOverride: Flow<String?> = context.dataStore.data.map { prefs ->
+        prefs[messageKey]?.takeIf { it.isNotBlank() }
     }
 
     val fallDetectionEnabled: Flow<Boolean> = context.dataStore.data.map { prefs ->
@@ -72,13 +75,16 @@ class EmergencyPreferences(private val context: Context) {
                 put("name", contact.name)
                 put("phone", contact.phone)
                 put("isPrimary", contact.isPrimary)
+                contact.languageCode?.let { put("language", it) }
             })
         }
         context.dataStore.edit { it[contactsKey] = jsonArray.toString() }
     }
 
-    suspend fun saveSmsMessage(message: String) {
-        context.dataStore.edit { it[messageKey] = message }
+    suspend fun saveSmsMessage(message: String?) {
+        context.dataStore.edit {
+            if (message.isNullOrBlank()) it.remove(messageKey) else it[messageKey] = message
+        }
     }
 
     suspend fun setFallDetectionEnabled(enabled: Boolean) {
@@ -114,6 +120,7 @@ class EmergencyPreferences(private val context: Context) {
                     name = obj.getString("name"),
                     phone = obj.getString("phone"),
                     isPrimary = obj.optBoolean("isPrimary", false),
+                    languageCode = obj.optString("language", "").takeIf { it.isNotBlank() },
                 )
             )
         }

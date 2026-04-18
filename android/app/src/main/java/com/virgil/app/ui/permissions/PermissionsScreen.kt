@@ -52,9 +52,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import com.virgil.app.R
 import com.virgil.app.permissions.PermissionChecker
 import com.virgil.app.permissions.PermissionMonitor
 import com.virgil.app.permissions.PermissionState
@@ -93,13 +95,13 @@ fun PermissionsScreen(onBack: (() -> Unit)? = null) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Permissions") },
+                title = { Text(stringResource(R.string.permissions_title)) },
                 navigationIcon = {
                     if (onBack != null) {
                         IconButton(onClick = onBack) {
                             Icon(
                                 Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = "Back",
+                                contentDescription = stringResource(R.string.permissions_back),
                             )
                         }
                     }
@@ -145,18 +147,18 @@ private fun Header(missingMandatory: Int) {
     Spacer(modifier = Modifier.height(8.dp))
     val (title, subtitle, color) = when (missingMandatory) {
         0 -> Triple(
-            "All set",
-            "Virgil has everything it needs to look after you.",
+            stringResource(R.string.permissions_all_set_title),
+            stringResource(R.string.permissions_all_set_body),
             MaterialTheme.colorScheme.primary,
         )
         1 -> Triple(
-            "One more thing",
-            "Tap the button below to let Virgil help.",
+            stringResource(R.string.permissions_one_more_title),
+            stringResource(R.string.permissions_one_more_body),
             MaterialTheme.colorScheme.error,
         )
         else -> Triple(
-            "A few quick steps",
-            "Virgil needs your help with $missingMandatory things before it can watch over you.",
+            stringResource(R.string.permissions_few_steps_title),
+            stringResource(R.string.permissions_few_steps_body, missingMandatory),
             MaterialTheme.colorScheme.error,
         )
     }
@@ -189,12 +191,12 @@ private fun PermissionCard(
                 Spacer(modifier = Modifier.size(16.dp))
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = state.permission.title,
+                        text = stringResource(state.permission.titleRes),
                         style = MaterialTheme.typography.titleLarge,
                     )
                     if (!state.permission.mandatory) {
                         Text(
-                            text = "Optional",
+                            text = stringResource(R.string.permissions_optional),
                             style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f),
                         )
@@ -205,7 +207,7 @@ private fun PermissionCard(
             Spacer(modifier = Modifier.height(10.dp))
 
             Text(
-                text = state.permission.rationale,
+                text = stringResource(state.permission.rationaleRes),
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.85f),
             )
@@ -230,7 +232,7 @@ private fun PermissionCard(
                     },
                 ) {
                     Text(
-                        text = "Turn on",
+                        text = stringResource(R.string.onboarding_turn_on),
                         style = MaterialTheme.typography.titleMedium,
                     )
                 }
@@ -253,13 +255,13 @@ private fun GrantedRow(onManage: () -> Unit) {
         )
         Spacer(modifier = Modifier.size(10.dp))
         Text(
-            text = "Working",
+            text = stringResource(R.string.permissions_working),
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.primary,
         )
         Spacer(modifier = Modifier.weight(1f))
         androidx.compose.material3.TextButton(onClick = onManage) {
-            Text("Change")
+            Text(stringResource(R.string.permissions_change))
         }
     }
 }

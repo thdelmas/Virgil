@@ -1,21 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- App -->
     <string name="app_name">Virgil</string>
+
+    <!-- Notification channels -->
     <string name="fall_detection_channel">Fall Detection</string>
     <string name="fall_detection_running">Virgil is watching over you</string>
+    <string name="fall_channel_description">Persistent notification while fall detection is active</string>
+    <string name="emergency_channel">Emergency Alert</string>
+    <string name="emergency_channel_description">Emergency alert when a fall or missed check-in is detected</string>
     <string name="checkin_channel">Check-In</string>
+    <string name="checkin_channel_description">Check-in reminders when Virgil hasn\'t seen you in a while</string>
     <string name="checkin_running">Check-in timer active</string>
-    <string name="emergency_sms_default">URGENT: I may need help. I have not responded to my safety check. This is an automatic alert from Virgil.</string>
     <string name="checkin_notification_title">Are you there?</string>
     <string name="checkin_notification_body">Tap to confirm you are OK</string>
     <string name="permission_channel">Permission Alerts</string>
+    <string name="permission_channel_description">Warns you when a required permission has been revoked</string>
     <string name="permission_lost_title">Virgil needs a permission back</string>
     <string name="permission_lost_body">The following required permission(s) were revoked: %1$s. Virgil cannot alert your contacts until they are restored. Tap to review.</string>
     <string name="emergency_siren_title">Emergency siren active</string>
     <string name="emergency_siren_body">Tap to silence. Stops automatically after 5 minutes.</string>
     <string name="emergency_siren_silence">Silence</string>
-    <string name="send_test_button">Send test message</string>
+    <string name="fall_notification_stop">Stop</string>
+
+    <!-- Emergency SMS -->
+    <string name="emergency_sms_default">URGENT: I may need help. I have not responded to my safety check. This is an automatic alert from Virgil.</string>
     <string name="test_sms_message">[Virgil TEST] This is a test from your safety app. No emergency — just checking that alerts and location work.</string>
+    <string name="sms_location_unavailable">(Location unavailable)</string>
+    <string name="sms_location_label">Location</string>
+    <string name="sms_accuracy">Accuracy: %1$dm</string>
+    <string name="sms_age_minutes">(%1$d min old)</string>
+    <string name="sms_age_hours">(%1$dh %2$dmin old)</string>
+
+    <!-- Home screen -->
+    <string name="home_top_permissions">Permissions</string>
+    <string name="home_top_settings">Settings</string>
+    <string name="home_watching">Virgil is watching over you</string>
+    <string name="home_ready">Ready when you are</string>
+    <string name="home_turn_on_prompt">Turn on what you\'d like below.</string>
+    <string name="home_feature_fall_title">If I fall</string>
+    <string name="home_feature_fall_on">Virgil is watching. We\'ll text %1$s with your location.</string>
+    <string name="home_feature_fall_off">Virgil can watch for falls while you go about your day.</string>
+    <string name="home_feature_checkin_title">Check-in</string>
+    <string name="home_feature_checkin_on">Virgil gently checks on you every %1$dh during the day.</string>
+    <string name="home_feature_checkin_off">Virgil can gently check that you\'re OK during the day.</string>
+    <string name="home_send_test_button">Send a test message</string>
+    <string name="home_contacts_summary_one">Virgil will reach %1$s if you need help.</string>
+    <string name="home_contacts_summary_two">Virgil will reach %1$s and 1 other if you need help.</string>
+    <string name="home_contacts_summary_many">Virgil will reach %1$s and %2$d others if you need help.</string>
+    <string name="home_disclaimer">Virgil is a personal safety tool, not a medical device. It may miss falls or send false alerts. Stay as careful as you would without it.</string> <!-- compliance-allow: legal disclaimer required by docs/COMPLIANCE.md §6 -->
+
+    <!-- Empty home -->
+    <string name="empty_home_title">Almost ready</string>
+    <string name="empty_home_body">Add the person Virgil should call for help, and you\'re all set.</string>
+    <string name="empty_home_add">Add someone</string>
+
+    <!-- Test dialog -->
     <string name="test_confirm_title">Send test alert?</string>
     <string name="test_confirm_body">This will send a test SMS (clearly marked as a test) with your current location to %1$d emergency contact(s). No call will be placed.</string>
     <string name="test_confirm_send">Send test</string>
@@ -23,5 +63,91 @@
     <string name="test_sent_toast">Test message sent — check your contacts received it.</string>
     <string name="test_sent_with_location">Test SMS sent with location ✓</string>
     <string name="test_sent_no_location">Test SMS sent, but location was unavailable. Check Android Settings → Location is on.</string>
-    <string name="home_disclaimer">Virgil is a personal safety tool, not a medical device. It may miss falls or send false alerts. Stay as careful as you would without it.</string> <!-- compliance-allow: legal disclaimer required by docs/COMPLIANCE.md §6 -->
+    <string name="send_test_button">Send test message</string>
+
+    <!-- Countdown -->
+    <string name="countdown_title_fall">Fall Detected</string>
+    <string name="countdown_title_no_response">No Response Detected</string>
+    <string name="countdown_before">Emergency alert in</string>
+    <string name="countdown_seconds_label">seconds</string>
+    <string name="countdown_im_ok">I\'m OK</string>
+    <string name="countdown_tap_cancel">Tap to cancel</string>
+
+    <!-- Settings -->
+    <string name="settings_language_title">Language</string>
+    <string name="settings_language_desc">Language used for the app and default emergency messages.</string>
+    <string name="settings_language_system">Use system language</string>
+    <string name="settings_contacts_title">Emergency Contacts</string>
+    <string name="settings_contacts_desc">The primary contact (star) will be called. All contacts receive SMS.</string>
+    <string name="settings_contact_primary">Primary contact</string>
+    <string name="settings_contact_set_primary">Set as primary</string>
+    <string name="settings_contact_remove">Remove</string>
+    <string name="settings_contact_add">Add contact</string>
+    <string name="settings_contact_language_label">SMS language</string>
+    <string name="settings_contact_language_system">Same as app</string>
+    <string name="settings_message_title">Emergency Message</string>
+    <string name="settings_message_desc">GPS location is appended automatically. Leave blank to use the translated default per contact.</string>
+    <string name="settings_message_save">Save message</string>
+    <string name="settings_quiet_title">Quiet hours</string>
+    <string name="settings_quiet_desc">Check-ins are paused during this window (24-hour clock, 0–23).</string>
+    <string name="settings_quiet_start">Start</string>
+    <string name="settings_quiet_end">End</string>
+    <string name="settings_quiet_save">Save quiet hours</string>
+
+    <!-- Add-contact dialog -->
+    <string name="dialog_add_title">Add Emergency Contact</string>
+    <string name="dialog_pick_from_contacts">Pick from contacts</string>
+    <string name="dialog_name">Name</string>
+    <string name="dialog_phone">Phone number</string>
+    <string name="dialog_add">Add</string>
+    <string name="dialog_cancel">Cancel</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_welcome_title">Welcome</string>
+    <string name="onboarding_welcome_body">Virgil quietly watches over you. If you fall or don\'t respond, Virgil asks for help.\n\nLet\'s set things up — just a few simple steps.</string>
+    <string name="onboarding_begin">Let\'s begin</string>
+    <string name="onboarding_turn_on">Turn on</string>
+    <string name="onboarding_not_now">Not now</string>
+    <string name="onboarding_done_title">All set</string>
+    <string name="onboarding_done_body">Virgil is watching over you.</string>
+    <string name="onboarding_continue">Continue</string>
+    <string name="onboarding_contact_title">Who should Virgil call?</string>
+    <string name="onboarding_contact_body">The person Virgil will text with your location if you need help.</string>
+    <string name="onboarding_pick_contacts">Choose from my contacts</string>
+    <string name="onboarding_save">Save</string>
+
+    <!-- Permissions screen -->
+    <string name="permissions_title">Permissions</string>
+    <string name="permissions_back">Back</string>
+    <string name="permissions_all_set_title">All set</string>
+    <string name="permissions_all_set_body">Virgil has everything it needs to look after you.</string>
+    <string name="permissions_one_more_title">One more thing</string>
+    <string name="permissions_one_more_body">Tap the button below to let Virgil help.</string>
+    <string name="permissions_few_steps_title">A few quick steps</string>
+    <string name="permissions_few_steps_body">Virgil needs your help with %1$d things before it can watch over you.</string>
+    <string name="permissions_working">Working</string>
+    <string name="permissions_change">Change</string>
+    <string name="permissions_optional">Optional</string>
+
+    <!-- Permission entries -->
+    <string name="perm_sms_title">Send text messages</string>
+    <string name="perm_sms_rationale">If you fall, Virgil will text your family to let them know.</string>
+    <string name="perm_location_title">Know where you are</string>
+    <string name="perm_location_rationale">So your family can find you if something happens.</string>
+    <string name="perm_notifications_title">Show reminders</string>
+    <string name="perm_notifications_rationale">So Virgil can gently check in with you during the day.</string>
+    <string name="perm_exact_alarm_title">Remind you on time</string>
+    <string name="perm_exact_alarm_rationale">So Virgil\'s check-ins come exactly when they should.</string>
+    <string name="perm_full_screen_title">Show on locked screen</string>
+    <string name="perm_full_screen_rationale">So you can cancel a false alarm without unlocking the phone.</string>
+    <string name="perm_call_title">Call your family</string>
+    <string name="perm_call_rationale">After texting, Virgil can also call your closest person. This one is optional.</string>
+
+    <!-- Language names (shown in the language picker — each one stays in its own language) -->
+    <string name="language_name_en">English</string>
+    <string name="language_name_fr">Français</string>
+    <string name="language_name_es">Español</string>
+    <string name="language_name_ca">Català</string>
+    <string name="language_name_pt">Português</string>
+    <string name="language_name_eu">Euskara</string>
 </resources>

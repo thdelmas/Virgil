@@ -1,6 +1,7 @@
 package com.virgil.app.ui.emergency
 
 import android.app.KeyguardManager
+import android.content.Context
 import android.os.Build
 import android.os.Bundle
 import android.os.VibrationEffect
@@ -33,10 +34,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.virgil.app.R
+import com.virgil.app.data.AppLocale
 import com.virgil.app.data.EmergencyPreferences
 import com.virgil.app.service.AttentionSound
 import com.virgil.app.service.EmergencyDispatcher
@@ -58,6 +62,10 @@ class EmergencyCountdownActivity : ComponentActivity() {
 
     private var sirenHandedOff = false
 
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(AppLocale.wrap(newBase))
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -67,12 +75,16 @@ class EmergencyCountdownActivity : ComponentActivity() {
         dispatcher = EmergencyDispatcher(this)
 
         val triggerType = intent.getStringExtra(FallDetectionService.EXTRA_TRIGGER_TYPE) ?: "fall"
-        val title = if (triggerType == "fall") "Fall Detected" else "No Response Detected"
+        val titleRes = if (triggerType == "fall") {
+            R.string.countdown_title_fall
+        } else {
+            R.string.countdown_title_no_response
+        }
 
         setContent {
             VirgilTheme {
                 CountdownScreen(
-                    title = title,
+                    titleRes = titleRes,
                     onCancel = {
                         stopVibration()
                         AttentionSound.stop()
@@ -139,10 +151,10 @@ class EmergencyCountdownActivity : ComponentActivity() {
 
     private fun triggerEmergency() {
         val contacts = runBlocking { prefs.contacts.first() }
-        val message = runBlocking { prefs.smsMessage.first() }
+        val customTemplate = runBlocking { prefs.smsMessageOverride.first() }
 
         if (contacts.isNotEmpty()) {
-            dispatcher.dispatch(contacts, message)
+            dispatcher.dispatch(contacts, customTemplate)
         }
 
         finish()
@@ -151,7 +163,7 @@ class EmergencyCountdownActivity : ComponentActivity() {
 
 @Composable
 fun CountdownScreen(
-    title: String = "Fall Detected",
+    titleRes: Int = R.string.countdown_title_fall,
     totalSeconds: Int = 30,
     onCancel: () -> Unit,
     onExpired: () -> Unit,
@@ -183,7 +195,7 @@ fun CountdownScreen(
             verticalArrangement = Arrangement.Center,
         ) {
             Text(
-                text = title,
+                text = stringResource(titleRes),
                 color = Color.White,
                 fontSize = 32.sp,
                 fontWeight = FontWeight.Bold,
@@ -192,7 +204,7 @@ fun CountdownScreen(
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "Emergency alert in",
+                text = stringResource(R.string.countdown_before),
                 color = Color.White.copy(alpha = 0.8f),
                 fontSize = 18.sp,
             )
@@ -207,7 +219,7 @@ fun CountdownScreen(
             )
 
             Text(
-                text = "seconds",
+                text = stringResource(R.string.countdown_seconds_label),
                 color = Color.White.copy(alpha = 0.8f),
                 fontSize = 18.sp,
             )
@@ -225,7 +237,7 @@ fun CountdownScreen(
                 shape = CircleShape,
             ) {
                 Text(
-                    text = "I'm OK",
+                    text = stringResource(R.string.countdown_im_ok),
                     color = Color(0xFFB71C1C),
                     fontSize = 36.sp,
                     fontWeight = FontWeight.Bold,
@@ -236,7 +248,7 @@ fun CountdownScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = "Tap to cancel",
+                text = stringResource(R.string.countdown_tap_cancel),
                 color = Color.White.copy(alpha = 0.7f),
                 fontSize = 14.sp,
             )

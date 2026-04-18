@@ -146,9 +146,27 @@ class EmergencyDispatcher(private val context: Context) {
         context.startActivity(callIntent)
     }
 
+    internal sealed interface AgeInfo {
+        data object Fresh : AgeInfo
+        data class Minutes(val minutes: Int) : AgeInfo
+        data class Hours(val hours: Int, val minutes: Int) : AgeInfo
+    }
+
     internal companion object {
         const val SMS_CHUNK_SIZE = 67
         private const val FRESH_THRESHOLD_SEC = 60L
+
+        internal fun classifyAge(ageMs: Long): AgeInfo {
+            val ageSec = ageMs.coerceAtLeast(0L) / 1000
+            return when {
+                ageSec < FRESH_THRESHOLD_SEC -> AgeInfo.Fresh
+                ageSec < 3600 -> AgeInfo.Minutes((ageSec / 60).toInt())
+                else -> AgeInfo.Hours(
+                    (ageSec / 3600).toInt(),
+                    ((ageSec % 3600) / 60).toInt(),
+                )
+            }
+        }
 
         internal fun formatLocation(
             context: Context,
@@ -157,26 +175,19 @@ class EmergencyDispatcher(private val context: Context) {
             accuracyM: Int,
             ageMs: Long,
         ): String {
-            val ageSuffix = formatAge(context, ageMs)
+            val ageSuffix = when (val info = classifyAge(ageMs)) {
+                AgeInfo.Fresh -> ""
+                is AgeInfo.Minutes -> context.getString(R.string.sms_age_minutes, info.minutes)
+                is AgeInfo.Hours -> context.getString(
+                    R.string.sms_age_hours, info.hours, info.minutes
+                )
+            }
             val locationWord = context.getString(R.string.sms_location_label)
             val accuracyLine = context.getString(R.string.sms_accuracy, accuracyM)
             val head = if (ageSuffix.isEmpty()) "$locationWord:" else "$locationWord $ageSuffix:"
             return "\n\n$head https://maps.google.com/?q=$lat,$lon" +
                 "\n($lat, $lon)" +
                 "\n$accuracyLine"
-        }
-
-        private fun formatAge(context: Context, ageMs: Long): String {
-            val ageSec = ageMs / 1000
-            return when {
-                ageSec < FRESH_THRESHOLD_SEC -> ""
-                ageSec < 3600 -> context.getString(R.string.sms_age_minutes, (ageSec / 60).toInt())
-                else -> {
-                    val hours = (ageSec / 3600).toInt()
-                    val minutes = ((ageSec % 3600) / 60).toInt()
-                    context.getString(R.string.sms_age_hours, hours, minutes)
-                }
-            }
         }
     }
 }

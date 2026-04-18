@@ -2,6 +2,7 @@ package com.virgil.app.permissions
 
 import android.Manifest
 import android.os.Build
+import com.virgil.app.R
 
 /**
  * Single source of truth for every permission Virgil asks of the user.
@@ -11,8 +12,8 @@ import android.os.Build
 enum class VirgilPermission(
     val id: String,
     val androidName: String?,
-    val title: String,
-    val rationale: String,
+    val titleRes: Int,
+    val rationaleRes: Int,
     val mandatory: Boolean,
     val minSdk: Int = Build.VERSION_CODES.BASE,
     val kind: Kind = Kind.Runtime,
@@ -20,30 +21,30 @@ enum class VirgilPermission(
     SMS(
         id = "sms",
         androidName = Manifest.permission.SEND_SMS,
-        title = "Send text messages",
-        rationale = "If you fall, Virgil will text your family to let them know.",
+        titleRes = R.string.perm_sms_title,
+        rationaleRes = R.string.perm_sms_rationale,
         mandatory = true,
     ),
     LOCATION(
         id = "location",
         androidName = Manifest.permission.ACCESS_FINE_LOCATION,
-        title = "Know where you are",
-        rationale = "So your family can find you if something happens.",
+        titleRes = R.string.perm_location_title,
+        rationaleRes = R.string.perm_location_rationale,
         mandatory = true,
     ),
     NOTIFICATIONS(
         id = "notifications",
         androidName = Manifest.permission.POST_NOTIFICATIONS,
-        title = "Show reminders",
-        rationale = "So Virgil can gently check in with you during the day.",
+        titleRes = R.string.perm_notifications_title,
+        rationaleRes = R.string.perm_notifications_rationale,
         mandatory = true,
         minSdk = Build.VERSION_CODES.TIRAMISU,
     ),
     EXACT_ALARM(
         id = "exact_alarm",
         androidName = null,
-        title = "Remind you on time",
-        rationale = "So Virgil's check-ins come exactly when they should.",
+        titleRes = R.string.perm_exact_alarm_title,
+        rationaleRes = R.string.perm_exact_alarm_rationale,
         mandatory = true,
         minSdk = Build.VERSION_CODES.S,
         kind = Kind.ExactAlarm,
@@ -51,8 +52,8 @@ enum class VirgilPermission(
     FULL_SCREEN_INTENT(
         id = "full_screen_intent",
         androidName = null,
-        title = "Show on locked screen",
-        rationale = "So you can cancel a false alarm without unlocking the phone.",
+        titleRes = R.string.perm_full_screen_title,
+        rationaleRes = R.string.perm_full_screen_rationale,
         mandatory = true,
         minSdk = Build.VERSION_CODES.TIRAMISU,
         kind = Kind.FullScreenIntent,
@@ -60,8 +61,8 @@ enum class VirgilPermission(
     CALL(
         id = "call",
         androidName = Manifest.permission.CALL_PHONE,
-        title = "Call your family",
-        rationale = "After texting, Virgil can also call your closest person. This one is optional.",
+        titleRes = R.string.perm_call_title,
+        rationaleRes = R.string.perm_call_rationale,
         mandatory = false,
     );
 

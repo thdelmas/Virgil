@@ -61,10 +61,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import com.virgil.app.R
 import com.virgil.app.permissions.PermissionChecker
 import com.virgil.app.permissions.PermissionMonitor
 import com.virgil.app.permissions.VirgilPermission
@@ -179,20 +181,19 @@ private fun WelcomeStep(onBegin: () -> Unit) {
             BigIcon(Icons.Filled.Shield)
             Spacer(Modifier.height(40.dp))
             Text(
-                "Welcome",
+                stringResource(R.string.onboarding_welcome_title),
                 style = MaterialTheme.typography.displaySmall,
                 textAlign = TextAlign.Center,
             )
             Spacer(Modifier.height(16.dp))
             Text(
-                text = "Virgil quietly watches over you. If you fall or don't respond, " +
-                    "Virgil asks for help.\n\nLet's set things up — just a few simple steps.",
+                text = stringResource(R.string.onboarding_welcome_body),
                 style = MaterialTheme.typography.bodyLarge,
                 textAlign = TextAlign.Center,
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
             )
         },
-        primaryAction = { PrimaryButton("Let's begin", onBegin) },
+        primaryAction = { PrimaryButton(stringResource(R.string.onboarding_begin), onBegin) },
     )
 }
 
@@ -210,24 +211,24 @@ private fun PermissionStep(
             BigIcon(iconFor(permission))
             Spacer(Modifier.height(32.dp))
             Text(
-                permission.title,
+                stringResource(permission.titleRes),
                 style = MaterialTheme.typography.headlineMedium,
                 textAlign = TextAlign.Center,
             )
             Spacer(Modifier.height(16.dp))
             Text(
-                permission.rationale,
+                stringResource(permission.rationaleRes),
                 style = MaterialTheme.typography.bodyLarge,
                 textAlign = TextAlign.Center,
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
             )
         },
         primaryAction = {
-            PrimaryButton("Turn on", onTurnOn)
+            PrimaryButton(stringResource(R.string.onboarding_turn_on), onTurnOn)
             Spacer(Modifier.height(4.dp))
             TextButton(onClick = onSkip) {
                 Text(
-                    "Not now",
+                    stringResource(R.string.onboarding_not_now),
                     style = MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                 )
@@ -244,19 +245,19 @@ private fun DoneStep(onFinish: () -> Unit) {
             BigIcon(Icons.Filled.CheckCircle)
             Spacer(Modifier.height(40.dp))
             Text(
-                "All set",
+                stringResource(R.string.onboarding_done_title),
                 style = MaterialTheme.typography.displaySmall,
                 textAlign = TextAlign.Center,
             )
             Spacer(Modifier.height(16.dp))
             Text(
-                "Virgil is watching over you.",
+                stringResource(R.string.onboarding_done_body),
                 style = MaterialTheme.typography.bodyLarge,
                 textAlign = TextAlign.Center,
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
             )
         },
-        primaryAction = { PrimaryButton("Continue", onFinish) },
+        primaryAction = { PrimaryButton(stringResource(R.string.onboarding_continue), onFinish) },
     )
 }
 
@@ -379,13 +380,13 @@ private fun ContactStep(
             BigIcon(Icons.Filled.Favorite)
             Spacer(Modifier.height(28.dp))
             Text(
-                "Who should Virgil call?",
+                stringResource(R.string.onboarding_contact_title),
                 style = MaterialTheme.typography.headlineMedium,
                 textAlign = TextAlign.Center,
             )
             Spacer(Modifier.height(12.dp))
             Text(
-                "The person Virgil will text with your location if you need help.",
+                stringResource(R.string.onboarding_contact_body),
                 style = MaterialTheme.typography.bodyLarge,
                 textAlign = TextAlign.Center,
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
@@ -405,13 +406,13 @@ private fun ContactStep(
             ) {
                 Icon(Icons.Filled.Contacts, contentDescription = null)
                 Spacer(Modifier.size(8.dp))
-                Text("Choose from my contacts")
+                Text(stringResource(R.string.onboarding_pick_contacts))
             }
             Spacer(Modifier.height(20.dp))
             OutlinedTextField(
                 value = name,
                 onValueChange = { name = it },
-                label = { Text("Name") },
+                label = { Text(stringResource(R.string.dialog_name)) },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
             )
@@ -419,7 +420,7 @@ private fun ContactStep(
             OutlinedTextField(
                 value = phone,
                 onValueChange = { phone = it },
-                label = { Text("Phone number") },
+                label = { Text(stringResource(R.string.dialog_phone)) },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
@@ -432,11 +433,16 @@ private fun ContactStep(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(64.dp),
-            ) { Text("Save", style = MaterialTheme.typography.titleMedium) }
+            ) {
+                Text(
+                    stringResource(R.string.onboarding_save),
+                    style = MaterialTheme.typography.titleMedium,
+                )
+            }
             Spacer(Modifier.height(4.dp))
             TextButton(onClick = onSkip) {
                 Text(
-                    "Not now",
+                    stringResource(R.string.onboarding_not_now),
                     style = MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                 )

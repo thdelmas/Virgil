@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Virgil</string>
+
+    <string name="fall_detection_channel">Erorketen detekzioa</string>
+    <string name="fall_detection_running">Virgil zure zaintzan dago</string>
+    <string name="fall_channel_description">Jakinarazpen iraunkorra erorketen detekzioa aktibo dagoen bitartean</string>
+    <string name="emergency_channel">Larrialdi abisua</string>
+    <string name="emergency_channel_description">Erorketa edo segurtasun egiaztapenari erantzunik ez egotean abisua</string>
+    <string name="checkin_channel">Segurtasun egiaztapena</string>
+    <string name="checkin_channel_description">Virgilek denbora batean ikusi ez zaituen gogorarazpenak</string>
+    <string name="checkin_running">Egiaztapen tenporizadorea aktibo</string>
+    <string name="checkin_notification_title">Hor zaude?</string>
+    <string name="checkin_notification_body">Sakatu ongi zaudela berresteko</string>
+    <string name="permission_channel">Baimenen abisuak</string>
+    <string name="permission_channel_description">Beharrezkoa den baimen bat kenduta dagoenean abisatzen dizu</string>
+    <string name="permission_lost_title">Virgilek baimen bat behar du</string>
+    <string name="permission_lost_body">Baimen hauek kendu dira: %1$s. Virgilek ezin ditu zure kontaktuak ohartarazi leheneratu arte. Sakatu berrikusteko.</string>
+    <string name="emergency_siren_title">Larrialdi sirena aktibo</string>
+    <string name="emergency_siren_body">Sakatu isiltzeko. 5 minuturen buruan automatikoki gelditzen da.</string>
+    <string name="emergency_siren_silence">Isildu</string>
+    <string name="fall_notification_stop">Gelditu</string>
+
+    <string name="emergency_sms_default">LARRIALDIA: baliteke laguntza behar izatea. Ez dut nire segurtasun egiaztapenari erantzun. Virgilen abisu automatikoa da hau.</string>
+    <string name="test_sms_message">[Virgil PROBA] Zure segurtasun aplikazioaren proba bat da. Larrialdirik ez — abisuak eta kokapena ondo dabiltzan egiaztatzen.</string>
+    <string name="sms_location_unavailable">(Kokapena eskuragarri ez)</string>
+    <string name="sms_location_label">Kokapena</string>
+    <string name="sms_accuracy">Zehaztasuna: %1$d m</string>
+    <string name="sms_age_minutes">(duela %1$d min)</string>
+    <string name="sms_age_hours">(duela %1$d h %2$d min)</string>
+
+    <string name="home_top_permissions">Baimenak</string>
+    <string name="home_top_settings">Ezarpenak</string>
+    <string name="home_watching">Virgil zure zaintzan dago</string>
+    <string name="home_ready">Prest zu prest zaudenean</string>
+    <string name="home_turn_on_prompt">Aktibatu nahi duzuna behean.</string>
+    <string name="home_feature_fall_title">Erortzen banaiz</string>
+    <string name="home_feature_fall_on">Virgil adi dago. SMS bat bidaliko diogu %1$s pertsonari zure kokapenarekin.</string>
+    <string name="home_feature_fall_off">Virgilek erorketen gaineko zaintza egin dezake zuk bizitzari ekiten diozun bitartean.</string>
+    <string name="home_feature_checkin_title">Egiaztapena</string>
+    <string name="home_feature_checkin_on">Virgilek modu leunean galdetuko dizu %1$d orduro egunean zehar.</string>
+    <string name="home_feature_checkin_off">Virgilek modu leunean galde diezazuke egunean zehar nola zauden.</string>
+    <string name="home_send_test_button">Bidali proba mezua</string>
+    <string name="home_contacts_summary_one">Virgilek %1$s jakinaraziko du laguntza behar baduzu.</string>
+    <string name="home_contacts_summary_two">Virgilek %1$s eta beste pertsona bat jakinaraziko ditu laguntza behar baduzu.</string>
+    <string name="home_contacts_summary_many">Virgilek %1$s eta beste %2$d pertsona jakinaraziko ditu laguntza behar baduzu.</string>
+    <string name="home_disclaimer">Virgil segurtasun pertsonaleko tresna bat da, ez gailu mediko bat. Erorketak huts ditzake edo abisu faltsuak bidal ditzake. Izan kontuz berau gabe izango zinatekeen bezalaxe.</string>
+
+    <string name="empty_home_title">Ia prest</string>
+    <string name="empty_home_body">Gehitu Virgilek laguntza eskatzeko deitu beharko liokeen pertsona, eta dena prest egongo da.</string>
+    <string name="empty_home_add">Norbait gehitu</string>
+
+    <string name="test_confirm_title">Proba abisua bidali?</string>
+    <string name="test_confirm_body">Proba SMS bat bidaliko da (proba gisa argi markatuta) zure oraingo kokapenarekin %1$d larrialdi-kontakturi. Ez da deirik egingo.</string>
+    <string name="test_confirm_send">Proba bidali</string>
+    <string name="test_confirm_cancel">Utzi</string>
+    <string name="test_sent_toast">Proba mezua bidalita — egiaztatu zure kontaktuek jaso dutela.</string>
+    <string name="test_sent_with_location">Proba SMS bidalita kokapenarekin ✓</string>
+    <string name="test_sent_no_location">Proba SMS bidalita, baina kokapena ez zegoen eskuragarri. Egiaztatu Android Ezarpenak → Kokapena piztuta dagoela.</string>
+    <string name="send_test_button">Bidali proba mezua</string>
+
+    <string name="countdown_title_fall">Erorketa detektatuta</string>
+    <string name="countdown_title_no_response">Erantzunik ez</string>
+    <string name="countdown_before">Larrialdi abisua honetan</string>
+    <string name="countdown_seconds_label">segundo</string>
+    <string name="countdown_im_ok">Ongi nago</string>
+    <string name="countdown_tap_cancel">Sakatu bertan behera uzteko</string>
+
+    <string name="settings_language_title">Hizkuntza</string>
+    <string name="settings_language_desc">Aplikaziorako eta lehenetsitako larrialdi mezuetarako hizkuntza.</string>
+    <string name="settings_language_system">Sistemaren hizkuntza</string>
+    <string name="settings_contacts_title">Larrialdi-kontaktuak</string>
+    <string name="settings_contacts_desc">Kontaktu nagusiari (izarra) deituko zaio. Guztiek SMS jasotzen dute.</string>
+    <string name="settings_contact_primary">Kontaktu nagusia</string>
+    <string name="settings_contact_set_primary">Nagusi gisa ezarri</string>
+    <string name="settings_contact_remove">Kendu</string>
+    <string name="settings_contact_add">Gehitu kontaktua</string>
+    <string name="settings_contact_language_label">SMSaren hizkuntza</string>
+    <string name="settings_contact_language_system">Aplikazioaren berbera</string>
+    <string name="settings_message_title">Larrialdi mezua</string>
+    <string name="settings_message_desc">GPS kokapena automatikoki eransten da. Utzi hutsik kontaktu bakoitzerako lehenetsitako mezu itzulia erabiltzeko.</string>
+    <string name="settings_message_save">Gorde mezua</string>
+    <string name="settings_quiet_title">Ordu isilak</string>
+    <string name="settings_quiet_desc">Egiaztapenak pausatuta daude tarte honetan (24 orduko formatua, 0–23).</string>
+    <string name="settings_quiet_start">Hasiera</string>
+    <string name="settings_quiet_end">Amaiera</string>
+    <string name="settings_quiet_save">Gorde orduak</string>
+
+    <string name="dialog_add_title">Gehitu larrialdi kontaktua</string>
+    <string name="dialog_pick_from_contacts">Hautatu kontaktuetatik</string>
+    <string name="dialog_name">Izena</string>
+    <string name="dialog_phone">Telefono zenbakia</string>
+    <string name="dialog_add">Gehitu</string>
+    <string name="dialog_cancel">Utzi</string>
+
+    <string name="onboarding_welcome_title">Ongi etorri</string>
+    <string name="onboarding_welcome_body">Virgilek zaindu egiten zaitu isilka. Erortzen bazara edo erantzuten ez baduzu, Virgilek laguntza eskatuko du.\n\nKonfigura dezagun — urrats erraz batzuk.</string>
+    <string name="onboarding_begin">Has gaitezen</string>
+    <string name="onboarding_turn_on">Aktibatu</string>
+    <string name="onboarding_not_now">Orain ez</string>
+    <string name="onboarding_done_title">Dena prest</string>
+    <string name="onboarding_done_body">Virgil zure zaintzan dago.</string>
+    <string name="onboarding_continue">Jarraitu</string>
+    <string name="onboarding_contact_title">Nori deitu behar dio Virgilek?</string>
+    <string name="onboarding_contact_body">Virgilek zure kokapenarekin SMS bidaliko dio pertsona horri laguntza behar baduzu.</string>
+    <string name="onboarding_pick_contacts">Hautatu nire kontaktuetatik</string>
+    <string name="onboarding_save">Gorde</string>
+
+    <string name="permissions_title">Baimenak</string>
+    <string name="permissions_back">Atzera</string>
+    <string name="permissions_all_set_title">Dena prest</string>
+    <string name="permissions_all_set_body">Virgilek dena du zu zaintzeko.</string>
+    <string name="permissions_one_more_title">Gauza bat gehiago</string>
+    <string name="permissions_one_more_body">Sakatu beheko botoia Virgilek lagundu diezazun.</string>
+    <string name="permissions_few_steps_title">Urrats azkar batzuk</string>
+    <string name="permissions_few_steps_body">Virgilek zure laguntza behar du %1$d gauzarekin zu zaindu ahal izateko.</string>
+    <string name="permissions_working">Aktibo</string>
+    <string name="permissions_change">Aldatu</string>
+    <string name="permissions_optional">Aukerakoa</string>
+
+    <string name="perm_sms_title">Bidali SMSak</string>
+    <string name="perm_sms_rationale">Erortzen bazara, Virgilek SMS bidaliko die zure senideei jakinarazteko.</string>
+    <string name="perm_location_title">Non zauden jakin</string>
+    <string name="perm_location_rationale">Zerbait gertatzen bazaizu zure senideek aurki zaitzaten.</string>
+    <string name="perm_notifications_title">Gogorarazpenak erakutsi</string>
+    <string name="perm_notifications_rationale">Virgilek egunean zehar modu leunean egiaztatu ahal izateko.</string>
+    <string name="perm_exact_alarm_title">Ordu zehatzean abisatu</string>
+    <string name="perm_exact_alarm_rationale">Virgilen egiaztapenak behar duten unean justu iristeko.</string>
+    <string name="perm_full_screen_title">Blokeatutako pantailan erakutsi</string>
+    <string name="perm_full_screen_rationale">Alarma faltsu bat ezeztatzeko telefonoa desblokeatu gabe.</string>
+    <string name="perm_call_title">Zure senideei deitu</string>
+    <string name="perm_call_rationale">SMSaren ondoren, Virgilek hurbileneko pertsonari dei diezaioke. Aukerakoa.</string>
+
+    <string name="language_name_en">English</string>
+    <string name="language_name_fr">Français</string>
+    <string name="language_name_es">Español</string>
+    <string name="language_name_ca">Català</string>
+    <string name="language_name_pt">Português</string>
+    <string name="language_name_eu">Euskara</string>
+</resources>

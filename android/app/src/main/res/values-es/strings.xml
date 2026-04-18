@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Virgil</string>
+
+    <string name="fall_detection_channel">Detección de caídas</string>
+    <string name="fall_detection_running">Virgil te está cuidando</string>
+    <string name="fall_channel_description">Notificación persistente mientras la detección de caídas está activa</string>
+    <string name="emergency_channel">Alerta de emergencia</string>
+    <string name="emergency_channel_description">Alerta al detectar una caída o la falta de respuesta al control de seguridad</string>
+    <string name="checkin_channel">Control de seguridad</string>
+    <string name="checkin_channel_description">Recordatorios cuando Virgil no te ha visto en un rato</string>
+    <string name="checkin_running">Temporizador de control activo</string>
+    <string name="checkin_notification_title">¿Estás ahí?</string>
+    <string name="checkin_notification_body">Toca para confirmar que estás bien</string>
+    <string name="permission_channel">Alertas de permisos</string>
+    <string name="permission_channel_description">Te avisa cuando se ha revocado un permiso necesario</string>
+    <string name="permission_lost_title">Virgil necesita un permiso</string>
+    <string name="permission_lost_body">Se han revocado los siguientes permisos: %1$s. Virgil no puede alertar a tus contactos hasta que se restauren. Toca para revisar.</string>
+    <string name="emergency_siren_title">Sirena de emergencia activa</string>
+    <string name="emergency_siren_body">Toca para silenciar. Se detiene automáticamente tras 5 minutos.</string>
+    <string name="emergency_siren_silence">Silenciar</string>
+    <string name="fall_notification_stop">Detener</string>
+
+    <string name="emergency_sms_default">URGENTE: puede que necesite ayuda. No he respondido a mi control de seguridad. Esta es una alerta automática de Virgil.</string>
+    <string name="test_sms_message">[Virgil PRUEBA] Esto es una prueba de tu app de seguridad. Sin emergencia — solo estoy comprobando que las alertas y la ubicación funcionan.</string>
+    <string name="sms_location_unavailable">(Ubicación no disponible)</string>
+    <string name="sms_location_label">Ubicación</string>
+    <string name="sms_accuracy">Precisión: %1$d m</string>
+    <string name="sms_age_minutes">(hace %1$d min)</string>
+    <string name="sms_age_hours">(hace %1$d h %2$d min)</string>
+
+    <string name="home_top_permissions">Permisos</string>
+    <string name="home_top_settings">Ajustes</string>
+    <string name="home_watching">Virgil te está cuidando</string>
+    <string name="home_ready">Listo cuando tú lo estés</string>
+    <string name="home_turn_on_prompt">Activa lo que quieras a continuación.</string>
+    <string name="home_feature_fall_title">Si me caigo</string>
+    <string name="home_feature_fall_on">Virgil está vigilando. Enviaremos un SMS a %1$s con tu ubicación.</string>
+    <string name="home_feature_fall_off">Virgil puede vigilar caídas mientras haces tu vida.</string>
+    <string name="home_feature_checkin_title">Control</string>
+    <string name="home_feature_checkin_on">Virgil te saluda suavemente cada %1$d h durante el día.</string>
+    <string name="home_feature_checkin_off">Virgil puede preguntarte suavemente si estás bien durante el día.</string>
+    <string name="home_send_test_button">Enviar mensaje de prueba</string>
+    <string name="home_contacts_summary_one">Virgil avisará a %1$s si necesitas ayuda.</string>
+    <string name="home_contacts_summary_two">Virgil avisará a %1$s y 1 persona más si necesitas ayuda.</string>
+    <string name="home_contacts_summary_many">Virgil avisará a %1$s y %2$d personas más si necesitas ayuda.</string>
+    <string name="home_disclaimer">Virgil es una herramienta de seguridad personal, no un dispositivo médico. Puede no detectar caídas o enviar falsas alertas. Mantén la misma prudencia que tendrías sin él.</string>
+
+    <string name="empty_home_title">Ya casi</string>
+    <string name="empty_home_body">Añade la persona a la que Virgil debe llamar para pedir ayuda y estará todo listo.</string>
+    <string name="empty_home_add">Añadir a alguien</string>
+
+    <string name="test_confirm_title">¿Enviar alerta de prueba?</string>
+    <string name="test_confirm_body">Se enviará un SMS de prueba (claramente marcado como tal) con tu ubicación actual a %1$d contacto(s) de emergencia. No se realizará ninguna llamada.</string>
+    <string name="test_confirm_send">Enviar prueba</string>
+    <string name="test_confirm_cancel">Cancelar</string>
+    <string name="test_sent_toast">Mensaje de prueba enviado — comprueba que tus contactos lo han recibido.</string>
+    <string name="test_sent_with_location">SMS de prueba enviado con ubicación ✓</string>
+    <string name="test_sent_no_location">SMS de prueba enviado, pero la ubicación no estaba disponible. Comprueba en Ajustes de Android que la ubicación esté activada.</string>
+    <string name="send_test_button">Enviar mensaje de prueba</string>
+
+    <string name="countdown_title_fall">Caída detectada</string>
+    <string name="countdown_title_no_response">Sin respuesta detectada</string>
+    <string name="countdown_before">Alerta de emergencia en</string>
+    <string name="countdown_seconds_label">segundos</string>
+    <string name="countdown_im_ok">Estoy bien</string>
+    <string name="countdown_tap_cancel">Toca para cancelar</string>
+
+    <string name="settings_language_title">Idioma</string>
+    <string name="settings_language_desc">Idioma usado para la app y los mensajes de emergencia por defecto.</string>
+    <string name="settings_language_system">Idioma del sistema</string>
+    <string name="settings_contacts_title">Contactos de emergencia</string>
+    <string name="settings_contacts_desc">El contacto principal (estrella) recibirá la llamada. Todos reciben SMS.</string>
+    <string name="settings_contact_primary">Contacto principal</string>
+    <string name="settings_contact_set_primary">Marcar como principal</string>
+    <string name="settings_contact_remove">Eliminar</string>
+    <string name="settings_contact_add">Añadir contacto</string>
+    <string name="settings_contact_language_label">Idioma del SMS</string>
+    <string name="settings_contact_language_system">Igual que la app</string>
+    <string name="settings_message_title">Mensaje de emergencia</string>
+    <string name="settings_message_desc">La ubicación GPS se añade automáticamente. Déjalo en blanco para usar el mensaje por defecto traducido para cada contacto.</string>
+    <string name="settings_message_save">Guardar mensaje</string>
+    <string name="settings_quiet_title">Horas de silencio</string>
+    <string name="settings_quiet_desc">Los controles se pausan en esta franja (formato 24 h, 0–23).</string>
+    <string name="settings_quiet_start">Inicio</string>
+    <string name="settings_quiet_end">Fin</string>
+    <string name="settings_quiet_save">Guardar horas</string>
+
+    <string name="dialog_add_title">Añadir contacto de emergencia</string>
+    <string name="dialog_pick_from_contacts">Elegir de los contactos</string>
+    <string name="dialog_name">Nombre</string>
+    <string name="dialog_phone">Número de teléfono</string>
+    <string name="dialog_add">Añadir</string>
+    <string name="dialog_cancel">Cancelar</string>
+
+    <string name="onboarding_welcome_title">Bienvenido</string>
+    <string name="onboarding_welcome_body">Virgil te cuida en silencio. Si te caes o no respondes, Virgil pide ayuda.\n\nVamos a configurarlo — son solo unos pasos sencillos.</string>
+    <string name="onboarding_begin">Empezar</string>
+    <string name="onboarding_turn_on">Activar</string>
+    <string name="onboarding_not_now">Ahora no</string>
+    <string name="onboarding_done_title">Todo listo</string>
+    <string name="onboarding_done_body">Virgil te está cuidando.</string>
+    <string name="onboarding_continue">Continuar</string>
+    <string name="onboarding_contact_title">¿A quién debe avisar Virgil?</string>
+    <string name="onboarding_contact_body">La persona a la que Virgil enviará un SMS con tu ubicación si necesitas ayuda.</string>
+    <string name="onboarding_pick_contacts">Elegir de mis contactos</string>
+    <string name="onboarding_save">Guardar</string>
+
+    <string name="permissions_title">Permisos</string>
+    <string name="permissions_back">Atrás</string>
+    <string name="permissions_all_set_title">Todo listo</string>
+    <string name="permissions_all_set_body">Virgil tiene todo lo que necesita para cuidarte.</string>
+    <string name="permissions_one_more_title">Una cosa más</string>
+    <string name="permissions_one_more_body">Toca el botón de abajo para que Virgil pueda ayudarte.</string>
+    <string name="permissions_few_steps_title">Unos pasos rápidos</string>
+    <string name="permissions_few_steps_body">Virgil necesita tu ayuda con %1$d cosas antes de poder cuidarte.</string>
+    <string name="permissions_working">Funcionando</string>
+    <string name="permissions_change">Cambiar</string>
+    <string name="permissions_optional">Opcional</string>
+
+    <string name="perm_sms_title">Enviar SMS</string>
+    <string name="perm_sms_rationale">Si te caes, Virgil avisará a tu familia por mensaje.</string>
+    <string name="perm_location_title">Saber dónde estás</string>
+    <string name="perm_location_rationale">Para que tu familia pueda encontrarte si pasa algo.</string>
+    <string name="perm_notifications_title">Mostrar recordatorios</string>
+    <string name="perm_notifications_rationale">Para que Virgil pueda saludarte suavemente durante el día.</string>
+    <string name="perm_exact_alarm_title">Avisarte a la hora exacta</string>
+    <string name="perm_exact_alarm_rationale">Para que los controles de Virgil lleguen justo cuando deben.</string>
+    <string name="perm_full_screen_title">Mostrar en pantalla bloqueada</string>
+    <string name="perm_full_screen_rationale">Para que puedas cancelar una falsa alarma sin desbloquear el móvil.</string>
+    <string name="perm_call_title">Llamar a tu familia</string>
+    <string name="perm_call_rationale">Además del SMS, Virgil puede llamar a tu persona más cercana. Opcional.</string>
+
+    <string name="language_name_en">English</string>
+    <string name="language_name_fr">Français</string>
+    <string name="language_name_es">Español</string>
+    <string name="language_name_ca">Català</string>
+    <string name="language_name_pt">Português</string>
+    <string name="language_name_eu">Euskara</string>
+</resources>

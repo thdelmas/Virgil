@@ -25,16 +25,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.virgil.app.R
 
 @Composable
 fun AddContactDialog(
     onDismiss: () -> Unit,
-    onAdd: (name: String, phone: String) -> Unit,
+    onAdd: (name: String, phone: String, languageCode: String?) -> Unit,
 ) {
     var name by remember { mutableStateOf("") }
     var phone by remember { mutableStateOf("") }
+    var languageCode by remember { mutableStateOf<String?>(null) }
     val context = LocalContext.current
 
     val pickContactLauncher = rememberLauncherForActivityResult(
@@ -63,7 +66,7 @@ fun AddContactDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Add Emergency Contact") },
+        title = { Text(stringResource(R.string.dialog_add_title)) },
         text = {
             Column {
                 OutlinedButton(
@@ -79,13 +82,13 @@ fun AddContactDialog(
                 ) {
                     Icon(Icons.Default.Contacts, contentDescription = null)
                     Spacer(modifier = Modifier.height(0.dp))
-                    Text("  Pick from contacts")
+                    Text("  " + stringResource(R.string.dialog_pick_from_contacts))
                 }
                 Spacer(modifier = Modifier.height(12.dp))
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
-                    label = { Text("Name") },
+                    label = { Text(stringResource(R.string.dialog_name)) },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
                 )
@@ -93,24 +96,35 @@ fun AddContactDialog(
                 OutlinedTextField(
                     value = phone,
                     onValueChange = { phone = it },
-                    label = { Text("Phone number") },
+                    label = { Text(stringResource(R.string.dialog_phone)) },
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
                     modifier = Modifier.fillMaxWidth(),
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+                Text(
+                    text = stringResource(R.string.settings_contact_language_label),
+                    style = androidx.compose.material3.MaterialTheme.typography.labelMedium,
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                LanguageDropdown(
+                    selectedCode = languageCode,
+                    systemLabel = stringResource(R.string.settings_contact_language_system),
+                    onSelect = { languageCode = it },
                 )
             }
         },
         confirmButton = {
             TextButton(
-                onClick = { onAdd(name.trim(), phone.trim()) },
+                onClick = { onAdd(name.trim(), phone.trim(), languageCode) },
                 enabled = name.isNotBlank() && phone.isNotBlank(),
             ) {
-                Text("Add")
+                Text(stringResource(R.string.dialog_add))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text(stringResource(R.string.dialog_cancel))
             }
         },
     )

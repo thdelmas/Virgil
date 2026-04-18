@@ -1,5 +1,6 @@
 package com.virgil.app.ui
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
@@ -46,6 +47,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.virgil.app.data.AppLocale
 import com.virgil.app.data.EmergencyContact
 import com.virgil.app.data.EmergencyPreferences
 import com.virgil.app.data.InteractionTracker
@@ -66,6 +68,10 @@ import kotlinx.coroutines.runBlocking
 class MainActivity : ComponentActivity() {
 
     private lateinit var prefs: EmergencyPreferences
+
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(AppLocale.wrap(newBase))
+    }
 
     override fun onResume() {
         super.onResume()
@@ -110,14 +116,16 @@ class MainActivity : ComponentActivity() {
                         Scaffold(
                             topBar = {
                                 TopAppBar(
-                                    title = { Text("Virgil") },
+                                    title = { Text(stringResource(R.string.app_name)) },
                                     actions = {
                                         IconButton(onClick = {
                                             navController.navigate("permissions")
                                         }) {
                                             Icon(
                                                 Icons.Default.Lock,
-                                                contentDescription = "Permissions",
+                                                contentDescription = stringResource(
+                                                    R.string.home_top_permissions
+                                                ),
                                             )
                                         }
                                         IconButton(onClick = {
@@ -125,7 +133,9 @@ class MainActivity : ComponentActivity() {
                                         }) {
                                             Icon(
                                                 Icons.Default.Settings,
-                                                contentDescription = "Settings",
+                                                contentDescription = stringResource(
+                                                    R.string.home_top_settings
+                                                ),
                                             )
                                         }
                                     },
@@ -188,9 +198,7 @@ class MainActivity : ComponentActivity() {
                                             ).show()
                                             EmergencyDispatcher(ctx).dispatch(
                                                 contacts = contacts,
-                                                messageTemplate = ctx.getString(
-                                                    R.string.test_sms_message
-                                                ),
+                                                customTemplate = null,
                                                 isTest = true,
                                             ) { locationAvailable ->
                                                 val resId = if (locationAvailable) {
@@ -220,19 +228,27 @@ class MainActivity : ComponentActivity() {
 
                     composable("settings") {
                         val contacts by prefs.contacts.collectAsState(initial = emptyList())
-                        val message by prefs.smsMessage.collectAsState(initial = "")
+                        val customMessage by prefs.smsMessageOverride
+                            .collectAsState(initial = null)
                         val sleepStart by prefs.checkInSleepStartHour
                             .collectAsState(initial = 23)
                         val sleepEnd by prefs.checkInSleepEndHour
                             .collectAsState(initial = 7)
+                        val ctx = LocalContext.current
+                        val currentLanguage = remember { AppLocale.read(ctx) }
 
                         EmergencySettingsScreen(
                             contacts = contacts,
-                            smsMessage = message,
+                            smsMessageOverride = customMessage,
+                            appLanguageCode = currentLanguage,
                             sleepStartHour = sleepStart,
                             sleepEndHour = sleepEnd,
                             onSaveContacts = { scope.launch { prefs.saveContacts(it) } },
                             onSaveMessage = { scope.launch { prefs.saveSmsMessage(it) } },
+                            onSaveAppLanguage = { newCode ->
+                                AppLocale.write(ctx, newCode)
+                                recreate()
+                            },
                             onSaveSleepHours = { s, e ->
                                 scope.launch { prefs.setCheckInSleepHours(s, e) }
                             },
@@ -316,12 +332,12 @@ private fun EmptyHome(modifier: Modifier, onAddContact: () -> Unit) {
         )
         Spacer(modifier = Modifier.height(24.dp))
         Text(
-            "Almost ready",
+            stringResource(R.string.empty_home_title),
             style = MaterialTheme.typography.headlineMedium,
         )
         Spacer(modifier = Modifier.height(12.dp))
         Text(
-            text = "Add the person Virgil should call for help, and you're all set.",
+            text = stringResource(R.string.empty_home_body),
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.75f),
             textAlign = androidx.compose.ui.text.style.TextAlign.Center,
@@ -333,7 +349,10 @@ private fun EmptyHome(modifier: Modifier, onAddContact: () -> Unit) {
                 .fillMaxWidth()
                 .height(64.dp),
         ) {
-            Text("Add someone", style = MaterialTheme.typography.titleMedium)
+            Text(
+                stringResource(R.string.empty_home_add),
+                style = MaterialTheme.typography.titleMedium,
+            )
         }
         Spacer(modifier = Modifier.height(24.dp))
     }

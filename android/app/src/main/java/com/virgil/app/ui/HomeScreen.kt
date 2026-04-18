@@ -71,14 +71,16 @@ fun HomeScreen(
         Spacer(Modifier.height(16.dp))
 
         Text(
-            text = if (anyOn) "Virgil is watching over you" else "Ready when you are",
+            text = stringResource(
+                if (anyOn) R.string.home_watching else R.string.home_ready
+            ),
             style = MaterialTheme.typography.headlineSmall,
             textAlign = TextAlign.Center,
         )
         if (!anyOn) {
             Spacer(Modifier.height(6.dp))
             Text(
-                "Turn on what you'd like below.",
+                stringResource(R.string.home_turn_on_prompt),
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                 textAlign = TextAlign.Center,
@@ -100,11 +102,11 @@ fun HomeScreen(
                     modifier = Modifier.size(40.dp),
                 )
             },
-            title = "If I fall",
+            title = stringResource(R.string.home_feature_fall_title),
             description = if (fallEnabled) {
-                "Virgil is watching. We'll text $primaryName with your location."
+                stringResource(R.string.home_feature_fall_on, primaryName)
             } else {
-                "Virgil can watch for falls while you go about your day."
+                stringResource(R.string.home_feature_fall_off)
             },
             checked = fallEnabled,
             onCheckedChange = onToggleFall,
@@ -121,11 +123,11 @@ fun HomeScreen(
                     modifier = Modifier.size(40.dp),
                 )
             },
-            title = "Check-in",
+            title = stringResource(R.string.home_feature_checkin_title),
             description = if (checkInEnabled) {
-                "Virgil gently checks on you every ${intervalHours}h during the day."
+                stringResource(R.string.home_feature_checkin_on, intervalHours.toInt())
             } else {
-                "Virgil can gently check that you're OK during the day."
+                stringResource(R.string.home_feature_checkin_off)
             },
             checked = checkInEnabled,
             onCheckedChange = onToggleCheckIn,
@@ -139,7 +141,10 @@ fun HomeScreen(
                 .fillMaxWidth()
                 .height(52.dp),
         ) {
-            Text("Send a test message", style = MaterialTheme.typography.titleMedium)
+            Text(
+                stringResource(R.string.home_send_test_button),
+                style = MaterialTheme.typography.titleMedium,
+            )
         }
 
         Spacer(Modifier.height(20.dp))
@@ -228,9 +233,14 @@ private fun DisclaimerBanner() {
     }
 }
 
+@Composable
 private fun contactSummary(contacts: List<EmergencyContact>, primaryName: String): String =
     when (contacts.size) {
-        1 -> "Virgil will reach $primaryName if you need help."
-        2 -> "Virgil will reach $primaryName and 1 other if you need help."
-        else -> "Virgil will reach $primaryName and ${contacts.size - 1} others if you need help."
+        1 -> stringResource(R.string.home_contacts_summary_one, primaryName)
+        2 -> stringResource(R.string.home_contacts_summary_two, primaryName)
+        else -> stringResource(
+            R.string.home_contacts_summary_many,
+            primaryName,
+            contacts.size - 1,
+        )
     }

@@ -166,7 +166,11 @@ class FallDetectionService : Service(), SensorEventListener {
             .setContentText(getString(R.string.fall_detection_running))
             .setSmallIcon(android.R.drawable.ic_dialog_info)
             .setContentIntent(openApp)
-            .addAction(android.R.drawable.ic_delete, "Stop", stopIntent)
+            .addAction(
+                android.R.drawable.ic_delete,
+                getString(R.string.fall_notification_stop),
+                stopIntent,
+            )
             .setOngoing(true)
             .build()
     }

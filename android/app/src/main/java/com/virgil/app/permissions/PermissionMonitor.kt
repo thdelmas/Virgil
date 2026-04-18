@@ -37,7 +37,7 @@ object PermissionMonitor {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
 
-        val titles = missing.joinToString { it.title }
+        val titles = missing.joinToString { context.getString(it.titleRes) }
         val body = context.getString(R.string.permission_lost_body, titles)
 
         val notif = NotificationCompat.Builder(context, VirgilApp.CHANNEL_PERMISSION)

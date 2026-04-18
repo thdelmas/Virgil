@@ -3,8 +3,14 @@ package com.virgil.app
 import android.app.Application
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.content.Context
+import com.virgil.app.data.AppLocale
 
 class VirgilApp : Application() {
+
+    override fun attachBaseContext(base: Context) {
+        super.attachBaseContext(AppLocale.wrap(base))
+    }
 
     override fun onCreate() {
         super.onCreate()
@@ -19,15 +25,15 @@ class VirgilApp : Application() {
             getString(R.string.fall_detection_channel),
             NotificationManager.IMPORTANCE_LOW
         ).apply {
-            description = "Persistent notification while fall detection is active"
+            description = getString(R.string.fall_channel_description)
         }
 
         val alertChannel = NotificationChannel(
             CHANNEL_EMERGENCY,
-            "Emergency Alert",
+            getString(R.string.emergency_channel),
             NotificationManager.IMPORTANCE_HIGH
         ).apply {
-            description = "Emergency alert when a fall or missed check-in is detected"
+            description = getString(R.string.emergency_channel_description)
             enableVibration(true)
             vibrationPattern = longArrayOf(0, 500, 200, 500, 200, 500)
         }
@@ -37,7 +43,7 @@ class VirgilApp : Application() {
             getString(R.string.checkin_channel),
             NotificationManager.IMPORTANCE_HIGH
         ).apply {
-            description = "Check-in reminders when Virgil hasn't seen you in a while"
+            description = getString(R.string.checkin_channel_description)
             enableVibration(true)
         }
 
@@ -46,7 +52,7 @@ class VirgilApp : Application() {
             getString(R.string.permission_channel),
             NotificationManager.IMPORTANCE_HIGH
         ).apply {
-            description = "Warns you when a required permission has been revoked"
+            description = getString(R.string.permission_channel_description)
             enableVibration(true)
         }
 
