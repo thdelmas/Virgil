@@ -19,6 +19,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.CallReceived
+import androidx.compose.material.icons.automirrored.filled.PhoneCallback
 import androidx.compose.material.icons.filled.Alarm
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Contacts
@@ -158,6 +160,7 @@ fun OnboardingFlow(
                                 activity?.let(::openExactAlarmSettings)
                             VirgilPermission.Kind.FullScreenIntent ->
                                 activity?.let(::openFullScreenIntentSettings)
+                            VirgilPermission.Kind.CallScreeningRole -> Unit
                         }
                     },
                     onSkip = { advance() },
@@ -389,6 +392,8 @@ private fun iconFor(permission: VirgilPermission): ImageVector = when (permissio
     VirgilPermission.EXACT_ALARM -> Icons.Filled.Alarm
     VirgilPermission.FULL_SCREEN_INTENT -> Icons.Filled.ScreenLockPortrait
     VirgilPermission.CALL -> Icons.Filled.Phone
+    VirgilPermission.ANSWER_CALLS -> Icons.AutoMirrored.Filled.PhoneCallback
+    VirgilPermission.CALL_SCREENING -> Icons.AutoMirrored.Filled.CallReceived
 }
 
 private fun openExactAlarmSettings(activity: Activity) {

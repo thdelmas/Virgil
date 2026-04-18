@@ -74,6 +74,7 @@ class EmergencyDispatcher(private val context: Context) {
             }
 
             if (!isTest) {
+                AutoAnswer.arm(context)
                 val primaryContact = contacts.firstOrNull { it.isPrimary } ?: contacts.first()
                 makeCall(primaryContact.phone)
             }

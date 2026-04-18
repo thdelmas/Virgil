@@ -26,6 +26,8 @@ class EmergencyPreferences(private val context: Context) {
     private val checkInIntervalKey = longPreferencesKey("checkin_interval_hours")
     private val checkInSleepStartKey = intPreferencesKey("checkin_sleep_start_hour")
     private val checkInSleepEndKey = intPreferencesKey("checkin_sleep_end_hour")
+    private val autoAnswerEnabledKey = booleanPreferencesKey("auto_answer_enabled")
+    private val autoAnswerArmedUntilKey = longPreferencesKey("auto_answer_armed_until_ms")
 
     val contacts: Flow<List<EmergencyContact>> = context.dataStore.data.map { prefs ->
         val json = prefs[contactsKey] ?: "[]"
@@ -68,6 +70,25 @@ class EmergencyPreferences(private val context: Context) {
         prefs[checkInSleepEndKey] ?: 7
     }
 
+    /**
+     * Whether Virgil may auto-accept incoming calls from saved emergency
+     * contacts during the armed window after an alert. Off by default —
+     * opting in requires granting the Call Screening role.
+     */
+    val autoAnswerEnabled: Flow<Boolean> = context.dataStore.data.map { prefs ->
+        prefs[autoAnswerEnabledKey] ?: false
+    }
+
+    /**
+     * Epoch-millis until which the screener should auto-accept calls from
+     * emergency contacts. 0 (default) means "not armed". Reading this is
+     * the cheapest way for the always-resident screening service to decide
+     * whether to act, without pulling a coroutine.
+     */
+    val autoAnswerArmedUntilMs: Flow<Long> = context.dataStore.data.map { prefs ->
+        prefs[autoAnswerArmedUntilKey] ?: 0L
+    }
+
     suspend fun saveContacts(contacts: List<EmergencyContact>) {
         val jsonArray = JSONArray()
         for (contact in contacts) {
@@ -108,6 +129,14 @@ class EmergencyPreferences(private val context: Context) {
             it[checkInSleepStartKey] = start
             it[checkInSleepEndKey] = end
         }
+    }
+
+    suspend fun setAutoAnswerEnabled(enabled: Boolean) {
+        context.dataStore.edit { it[autoAnswerEnabledKey] = enabled }
+    }
+
+    suspend fun setAutoAnswerArmedUntil(epochMs: Long) {
+        context.dataStore.edit { it[autoAnswerArmedUntilKey] = epochMs }
     }
 
     private fun parseContacts(json: String): List<EmergencyContact> {

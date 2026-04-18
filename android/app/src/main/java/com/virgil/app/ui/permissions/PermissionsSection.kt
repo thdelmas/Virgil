@@ -20,7 +20,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import android.app.role.RoleManager
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.CallReceived
+import androidx.compose.material.icons.automirrored.filled.PhoneCallback
 import androidx.compose.material.icons.filled.Alarm
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.LocationOn
@@ -135,6 +138,8 @@ internal fun LazyListScope.permissionsSection(
                             activity?.let(::openExactAlarmSettings)
                         VirgilPermission.Kind.FullScreenIntent ->
                             activity?.let(::openFullScreenIntentSettings)
+                        VirgilPermission.Kind.CallScreeningRole ->
+                            activity?.let(::requestCallScreeningRole)
                     }
                 },
                 onManage = { activity?.let(::openAppSettings) },
@@ -313,6 +318,8 @@ private fun iconFor(permission: VirgilPermission): ImageVector = when (permissio
     VirgilPermission.EXACT_ALARM -> Icons.Filled.Alarm
     VirgilPermission.FULL_SCREEN_INTENT -> Icons.Filled.ScreenLockPortrait
     VirgilPermission.CALL -> Icons.Filled.Phone
+    VirgilPermission.ANSWER_CALLS -> Icons.AutoMirrored.Filled.PhoneCallback
+    VirgilPermission.CALL_SCREENING -> Icons.AutoMirrored.Filled.CallReceived
 }
 
 private fun openAppSettings(activity: Activity) {
@@ -340,4 +347,11 @@ private fun openFullScreenIntentSettings(activity: Activity) {
             data = Uri.fromParts("package", activity.packageName, null)
         }
     )
+}
+
+private fun requestCallScreeningRole(activity: Activity) {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return
+    val rm = activity.getSystemService(RoleManager::class.java) ?: return
+    if (!rm.isRoleAvailable(RoleManager.ROLE_CALL_SCREENING)) return
+    activity.startActivity(rm.createRequestRoleIntent(RoleManager.ROLE_CALL_SCREENING))
 }

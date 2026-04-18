@@ -64,9 +64,25 @@ enum class VirgilPermission(
         titleRes = R.string.perm_call_title,
         rationaleRes = R.string.perm_call_rationale,
         mandatory = false,
+    ),
+    ANSWER_CALLS(
+        id = "answer_calls",
+        androidName = Manifest.permission.ANSWER_PHONE_CALLS,
+        titleRes = R.string.perm_answer_title,
+        rationaleRes = R.string.perm_answer_rationale,
+        mandatory = false,
+    ),
+    CALL_SCREENING(
+        id = "call_screening",
+        androidName = null,
+        titleRes = R.string.perm_call_screening_title,
+        rationaleRes = R.string.perm_call_screening_rationale,
+        mandatory = false,
+        minSdk = Build.VERSION_CODES.Q,
+        kind = Kind.CallScreeningRole,
     );
 
-    enum class Kind { Runtime, ExactAlarm, FullScreenIntent }
+    enum class Kind { Runtime, ExactAlarm, FullScreenIntent, CallScreeningRole }
 
     fun appliesOnThisDevice(): Boolean = Build.VERSION.SDK_INT >= minSdk
 

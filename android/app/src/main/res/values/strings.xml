@@ -112,6 +112,22 @@
     <string name="settings_quiet_end">End</string>
     <string name="settings_quiet_save">Save quiet hours</string>
 
+    <!-- Auto-answer (callback from emergency contacts during an alert) -->
+    <string name="settings_auto_answer_title">Answer callbacks hands-free</string>
+    <string name="settings_auto_answer_desc">After Virgil sends an alert, your contacts often call back to check on you. Optional — off by default.</string>
+    <string name="settings_auto_answer_switch">Auto-answer emergency contacts</string>
+    <string name="settings_auto_answer_needs_contact">Add an emergency contact first.</string>
+    <string name="settings_auto_answer_explainer">For 15 minutes after an alert, if one of your saved emergency contacts calls you, Virgil will pick up automatically, silence the siren, turn on the speaker, and raise the call volume — so you can hear and talk without reaching the phone. Unknown callers always ring normally. Turn this off any time.</string>
+    <string name="settings_auto_answer_role_needed">To answer calls for you, Virgil needs to be your Call Screener in Android settings.</string>
+    <string name="settings_auto_answer_role_button">Make Virgil my Call Screener</string>
+    <string name="settings_auto_answer_role_granted">Virgil is your Call Screener ✓</string>
+
+    <!-- Auto-answer permissions -->
+    <string name="perm_answer_title">Pick up calls for you</string>
+    <string name="perm_answer_rationale">So Virgil can answer a callback from your emergency contact without you reaching the phone. Used only while an alert is active.</string>
+    <string name="perm_call_screening_title">Be your Call Screener</string>
+    <string name="perm_call_screening_rationale">Lets Virgil recognise an incoming call from one of your saved contacts and pick up hands-free. Other callers are never affected.</string>
+
     <!-- Testing section (Settings screen) -->
     <string name="testing_title">Testing</string>
     <string name="testing_desc">Send a test SMS to all your emergency contacts (clearly marked as a test) to confirm the message and your location arrive.</string>
