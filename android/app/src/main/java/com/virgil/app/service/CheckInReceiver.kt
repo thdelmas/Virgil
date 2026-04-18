@@ -45,20 +45,20 @@ class CheckInReceiver : BroadcastReceiver() {
         }
 
         // No recent activity — show check-in notification and ring
+        val shownAt = System.currentTimeMillis()
         showCheckInNotification(context)
         AttentionSound.playCheckInRing(context)
 
-        // If no response in 5 minutes, trigger emergency
+        // If the user hasn't explicitly dismissed within the grace period, escalate.
+        // Explicit dismiss (tap or swipe on the check-in notification) beats any
+        // fuzzy "is it still in the tray" check, which can race with the tap handler.
         Handler(Looper.getMainLooper()).postDelayed({
+            val dismissedAfterShow =
+                InteractionTracker.lastCheckInDismissMs(context) >= shownAt
             val nm = context.getSystemService(NotificationManager::class.java)
-            // If notification is still showing, user didn't respond
-            val activeNotifications = nm.activeNotifications
-            val stillPending = activeNotifications.any { it.id == NOTIFICATION_ID }
-            if (stillPending) {
-                nm.cancel(NOTIFICATION_ID)
-                AttentionSound.stop()
-                triggerEmergency(context)
-            }
+            nm?.cancel(NOTIFICATION_ID)
+            AttentionSound.stop()
+            if (!dismissedAfterShow) triggerEmergency(context)
         }, GRACE_PERIOD_MS)
     }
 

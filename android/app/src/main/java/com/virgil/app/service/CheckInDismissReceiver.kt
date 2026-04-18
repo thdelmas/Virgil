@@ -13,15 +13,13 @@ import com.virgil.app.data.InteractionTracker
 class CheckInDismissReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
-        InteractionTracker.record(context)
+        InteractionTracker.recordCheckInDismiss(context)
 
         AttentionSound.stop()
 
-        // Cancel the check-in notification
         val nm = context.getSystemService(NotificationManager::class.java)
         nm?.cancel(CheckInReceiver.NOTIFICATION_ID)
 
-        // Restart the check-in service to reschedule next check-in
         val serviceIntent = Intent(context, CheckInService::class.java)
         context.startForegroundService(serviceIntent)
     }
