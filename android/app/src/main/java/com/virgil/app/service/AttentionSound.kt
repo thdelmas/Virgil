@@ -30,18 +30,28 @@ object AttentionSound {
         .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
         .build()
 
-    /** Loop the system alarm tone until [stop]. Familiar, escalating, hard to sleep through. */
+    private val ringAttributes = AudioAttributes.Builder()
+        .setUsage(AudioAttributes.USAGE_ALARM)
+        .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+        .build()
+
+    /**
+     * Loop the user's default phone ringtone until [stop]. A check-in is a
+     * "hey, are you OK?" — not an emergency — so we use the familiar ring, not
+     * the alarm clock. Routed through USAGE_ALARM so it still bypasses silent
+     * and DND (missing it would defeat the whole point).
+     */
     @Synchronized
     fun playCheckInRing(context: Context) {
         stop()
-        val uri = RingtoneManager.getActualDefaultRingtoneUri(context, RingtoneManager.TYPE_ALARM)
-            ?: RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
+        val uri = RingtoneManager.getActualDefaultRingtoneUri(context, RingtoneManager.TYPE_RINGTONE)
             ?: RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE)
+            ?: RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
             ?: return
 
         ringtonePlayer = runCatching {
             MediaPlayer().apply {
-                setAudioAttributes(alarmAttributes)
+                setAudioAttributes(ringAttributes)
                 setDataSource(context, uri)
                 isLooping = true
                 prepare()
