@@ -31,8 +31,10 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.virgil.app.data.EmergencyContact
 
@@ -40,11 +42,16 @@ import com.virgil.app.data.EmergencyContact
 fun EmergencySettingsScreen(
     contacts: List<EmergencyContact>,
     smsMessage: String,
+    sleepStartHour: Int,
+    sleepEndHour: Int,
     onSaveContacts: (List<EmergencyContact>) -> Unit,
     onSaveMessage: (String) -> Unit,
+    onSaveSleepHours: (Int, Int) -> Unit,
 ) {
     val editableContacts = remember(contacts) { mutableStateListOf(*contacts.toTypedArray()) }
     var editingMessage by remember(smsMessage) { mutableStateOf(smsMessage) }
+    var editingSleepStart by remember(sleepStartHour) { mutableStateOf(sleepStartHour.toString()) }
+    var editingSleepEnd by remember(sleepEndHour) { mutableStateOf(sleepEndHour.toString()) }
     var showAddDialog by remember { mutableStateOf(false) }
 
     Scaffold(
@@ -115,6 +122,61 @@ fun EmergencySettingsScreen(
                 Spacer(modifier = Modifier.height(8.dp))
                 TextButton(onClick = { onSaveMessage(editingMessage) }) {
                     Text("Save message")
+                }
+            }
+
+            item {
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = "Quiet hours",
+                    style = MaterialTheme.typography.headlineSmall,
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "Check-ins are paused during this window " +
+                        "(24-hour clock, 0–23).",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    OutlinedTextField(
+                        value = editingSleepStart,
+                        onValueChange = { input ->
+                            editingSleepStart = input.filter(Char::isDigit).take(2)
+                        },
+                        label = { Text("Start") },
+                        modifier = Modifier.weight(1f),
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Number,
+                        ),
+                        singleLine = true,
+                    )
+                    OutlinedTextField(
+                        value = editingSleepEnd,
+                        onValueChange = { input ->
+                            editingSleepEnd = input.filter(Char::isDigit).take(2)
+                        },
+                        label = { Text("End") },
+                        modifier = Modifier.weight(1f),
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Number,
+                        ),
+                        singleLine = true,
+                    )
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+                TextButton(onClick = {
+                    val s = editingSleepStart.toIntOrNull()
+                        ?.coerceIn(0, 23) ?: sleepStartHour
+                    val e = editingSleepEnd.toIntOrNull()
+                        ?.coerceIn(0, 23) ?: sleepEndHour
+                    onSaveSleepHours(s, e)
+                }) {
+                    Text("Save quiet hours")
                 }
             }
 

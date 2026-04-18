@@ -4,7 +4,11 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import com.virgil.app.data.ActivityBaseline
+import com.virgil.app.data.EmergencyPreferences
 import com.virgil.app.permissions.PermissionMonitor
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
+import java.util.Calendar
 
 /**
  * Fires hourly alongside the hard-cap check-in alarm. When today's recent
@@ -17,12 +21,26 @@ class BaselineCheckReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         PermissionMonitor.check(context)
 
+        if (isDuringSleepHours(context)) return
         if (!ActivityBaseline(context).isAnomalouslyQuiet(LOOKBACK_HOURS)) return
 
         val forward = Intent(context, CheckInReceiver::class.java).apply {
             putExtra(CheckInReceiver.EXTRA_FORCE, true)
         }
         context.sendBroadcast(forward)
+    }
+
+    private fun isDuringSleepHours(context: Context): Boolean {
+        val hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
+        val prefs = EmergencyPreferences(context)
+        val (sleepStart, sleepEnd) = runBlocking {
+            prefs.checkInSleepStartHour.first() to prefs.checkInSleepEndHour.first()
+        }
+        return if (sleepStart > sleepEnd) {
+            hour >= sleepStart || hour < sleepEnd
+        } else {
+            hour in sleepStart until sleepEnd
+        }
     }
 
     companion object {

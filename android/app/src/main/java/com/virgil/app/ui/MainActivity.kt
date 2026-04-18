@@ -221,12 +221,21 @@ class MainActivity : ComponentActivity() {
                     composable("settings") {
                         val contacts by prefs.contacts.collectAsState(initial = emptyList())
                         val message by prefs.smsMessage.collectAsState(initial = "")
+                        val sleepStart by prefs.checkInSleepStartHour
+                            .collectAsState(initial = 23)
+                        val sleepEnd by prefs.checkInSleepEndHour
+                            .collectAsState(initial = 7)
 
                         EmergencySettingsScreen(
                             contacts = contacts,
                             smsMessage = message,
+                            sleepStartHour = sleepStart,
+                            sleepEndHour = sleepEnd,
                             onSaveContacts = { scope.launch { prefs.saveContacts(it) } },
                             onSaveMessage = { scope.launch { prefs.saveSmsMessage(it) } },
+                            onSaveSleepHours = { s, e ->
+                                scope.launch { prefs.setCheckInSleepHours(s, e) }
+                            },
                         )
                     }
 
