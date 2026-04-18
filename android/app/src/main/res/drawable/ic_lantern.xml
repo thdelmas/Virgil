@@ -4,41 +4,51 @@
     android:viewportWidth="24"
     android:viewportHeight="24">
 
+    <!-- Amber glow filling the glass body -->
+    <path
+        android:fillColor="#F4A261"
+        android:pathData="M8,10.5 L16,10.5 L16,17.5 L8,17.5 Z" />
+
+    <!-- Warm flame core -->
+    <path
+        android:fillColor="#FFD166"
+        android:pathData="M12,14 m-1.2,0 a1.2,1.2 0 1,0 2.4,0 a1.2,1.2 0 1,0 -2.4,0" />
+
     <!-- Hanger ring -->
     <path
-        android:strokeColor="#FFFFFF"
+        android:strokeColor="#E0E1DD"
         android:strokeWidth="1.5"
         android:fillColor="#00000000"
         android:pathData="M12,3.5 m-1.75,0 a1.75,1.75 0 1,0 3.5,0 a1.75,1.75 0 1,0 -3.5,0" />
 
     <!-- Stem -->
     <path
-        android:fillColor="#FFFFFF"
+        android:fillColor="#E0E1DD"
         android:pathData="M11.25,5.5 L12.75,5.5 L12.75,7.5 L11.25,7.5 Z" />
 
     <!-- Dome -->
     <path
-        android:fillColor="#FFFFFF"
+        android:fillColor="#E0E1DD"
         android:pathData="M7,10 C7,8 9,7 12,7 C15,7 17,8 17,10 L17,10.5 L7,10.5 Z" />
 
     <!-- Left frame -->
     <path
-        android:fillColor="#FFFFFF"
+        android:fillColor="#E0E1DD"
         android:pathData="M7,10.5 L8,10.5 L8,17.5 L7,17.5 Z" />
 
     <!-- Right frame -->
     <path
-        android:fillColor="#FFFFFF"
+        android:fillColor="#E0E1DD"
         android:pathData="M16,10.5 L17,10.5 L17,17.5 L16,17.5 Z" />
 
     <!-- Center mullion -->
     <path
-        android:fillColor="#FFFFFF"
+        android:fillColor="#E0E1DD"
         android:pathData="M11.5,10.5 L12.5,10.5 L12.5,17.5 L11.5,17.5 Z" />
 
     <!-- Base -->
     <path
-        android:fillColor="#FFFFFF"
+        android:fillColor="#E0E1DD"
         android:pathData="M6,17.5 L18,17.5 L17,19.5 L7,19.5 Z" />
 
 </vector>

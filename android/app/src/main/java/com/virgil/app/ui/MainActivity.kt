@@ -3,45 +3,30 @@ package com.virgil.app.ui
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Shield
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.ui.res.painterResource
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
@@ -55,10 +40,8 @@ import com.virgil.app.permissions.PermissionChecker
 import com.virgil.app.permissions.PermissionMonitor
 import com.virgil.app.R
 import com.virgil.app.service.CheckInService
-import com.virgil.app.service.EmergencyDispatcher
 import com.virgil.app.service.FallDetectionService
 import com.virgil.app.ui.permissions.OnboardingFlow
-import com.virgil.app.ui.permissions.PermissionsScreen
 import com.virgil.app.ui.settings.EmergencySettingsScreen
 import com.virgil.app.ui.theme.VirgilTheme
 import kotlinx.coroutines.flow.first
@@ -84,10 +67,10 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         prefs = EmergencyPreferences(this)
 
-        val openPermissionsOnStart =
-            intent?.getBooleanExtra(EXTRA_OPEN_PERMISSIONS, false) ?: false
+        val openSettingsOnStart =
+            intent?.getBooleanExtra(EXTRA_OPEN_SETTINGS, false) ?: false
         val startHasContacts = runBlocking { prefs.contacts.first().isNotEmpty() }
-        val needsOnboarding = !openPermissionsOnStart &&
+        val needsOnboarding = !openSettingsOnStart &&
             (PermissionChecker.missingMandatory(this).isNotEmpty() || !startHasContacts)
 
         setContent {
@@ -97,7 +80,7 @@ class MainActivity : ComponentActivity() {
 
                 LaunchedEffect(Unit) {
                     when {
-                        openPermissionsOnStart -> navController.navigate("permissions")
+                        openSettingsOnStart -> navController.navigate("settings")
                         needsOnboarding -> navController.navigate("onboarding")
                     }
                 }
@@ -118,16 +101,6 @@ class MainActivity : ComponentActivity() {
                                 TopAppBar(
                                     title = { Text(stringResource(R.string.app_name)) },
                                     actions = {
-                                        IconButton(onClick = {
-                                            navController.navigate("permissions")
-                                        }) {
-                                            Icon(
-                                                Icons.Default.Lock,
-                                                contentDescription = stringResource(
-                                                    R.string.home_top_permissions
-                                                ),
-                                            )
-                                        }
                                         IconButton(onClick = {
                                             navController.navigate("settings")
                                         }) {
@@ -152,9 +125,6 @@ class MainActivity : ComponentActivity() {
                                 return@Scaffold
                             }
 
-                            val ctx = LocalContext.current
-                            var showTestDialog by remember { mutableStateOf(false) }
-
                             HomeScreen(
                                 modifier = Modifier
                                     .fillMaxSize()
@@ -171,58 +141,7 @@ class MainActivity : ComponentActivity() {
                                     scope.launch { prefs.setCheckInEnabled(newValue) }
                                     if (newValue) startCheckIn() else stopCheckIn()
                                 },
-                                onTest = { showTestDialog = true },
                             )
-
-                            if (showTestDialog) {
-                                AlertDialog(
-                                    onDismissRequest = { showTestDialog = false },
-                                    title = {
-                                        Text(stringResource(R.string.test_confirm_title))
-                                    },
-                                    text = {
-                                        Text(
-                                            stringResource(
-                                                R.string.test_confirm_body,
-                                                contacts.size,
-                                            )
-                                        )
-                                    },
-                                    confirmButton = {
-                                        TextButton(onClick = {
-                                            showTestDialog = false
-                                            Toast.makeText(
-                                                ctx,
-                                                ctx.getString(R.string.test_sent_toast),
-                                                Toast.LENGTH_SHORT,
-                                            ).show()
-                                            EmergencyDispatcher(ctx).dispatch(
-                                                contacts = contacts,
-                                                customTemplate = null,
-                                                isTest = true,
-                                            ) { locationAvailable ->
-                                                val resId = if (locationAvailable) {
-                                                    R.string.test_sent_with_location
-                                                } else {
-                                                    R.string.test_sent_no_location
-                                                }
-                                                Toast.makeText(
-                                                    ctx,
-                                                    ctx.getString(resId),
-                                                    Toast.LENGTH_LONG,
-                                                ).show()
-                                            }
-                                        }) {
-                                            Text(stringResource(R.string.test_confirm_send))
-                                        }
-                                    },
-                                    dismissButton = {
-                                        TextButton(onClick = { showTestDialog = false }) {
-                                            Text(stringResource(R.string.test_confirm_cancel))
-                                        }
-                                    },
-                                )
-                            }
                         }
                     }
 
@@ -234,8 +153,7 @@ class MainActivity : ComponentActivity() {
                             .collectAsState(initial = 23)
                         val sleepEnd by prefs.checkInSleepEndHour
                             .collectAsState(initial = 7)
-                        val ctx = LocalContext.current
-                        val currentLanguage = remember { AppLocale.read(ctx) }
+                        val currentLanguage = AppLocale.read(this@MainActivity)
 
                         EmergencySettingsScreen(
                             contacts = contacts,
@@ -246,20 +164,12 @@ class MainActivity : ComponentActivity() {
                             onSaveContacts = { scope.launch { prefs.saveContacts(it) } },
                             onSaveMessage = { scope.launch { prefs.saveSmsMessage(it) } },
                             onSaveAppLanguage = { newCode ->
-                                AppLocale.write(ctx, newCode)
+                                AppLocale.write(this@MainActivity, newCode)
                                 recreate()
                             },
                             onSaveSleepHours = { s, e ->
                                 scope.launch { prefs.setCheckInSleepHours(s, e) }
                             },
-                        )
-                    }
-
-                    composable("permissions") {
-                        PermissionsScreen(
-                            onBack = if (navController.previousBackStackEntry != null) {
-                                { navController.popBackStack() }
-                            } else null,
                         )
                     }
 
@@ -313,7 +223,7 @@ class MainActivity : ComponentActivity() {
     }
 
     companion object {
-        const val EXTRA_OPEN_PERMISSIONS = "open_permissions"
+        const val EXTRA_OPEN_SETTINGS = "open_settings"
     }
 }
 

@@ -31,20 +31,25 @@ class EmergencyDispatcher(private val context: Context) {
 
     private val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
 
+    enum class TriggerType { FALL, NO_RESPONSE }
+
     data class Result(val locationAvailable: Boolean, val smsSent: Int, val smsFailed: Int)
 
     /**
      * @param customTemplate overrides the built-in default for every contact
      *     when non-null; when null, each contact receives the built-in default
-     *     translated into their own language.
+     *     translated into their own language. The default differs per
+     *     [triggerType] so responders can triage — fall vs missed check-in
+     *     mean different things.
      */
     fun dispatch(
         contacts: List<EmergencyContact>,
         customTemplate: String?,
+        triggerType: TriggerType = TriggerType.FALL,
         isTest: Boolean = false,
         onComplete: (Result) -> Unit = {},
     ) {
-        Log.i(TAG, "dispatch: contacts=${contacts.size} isTest=$isTest")
+        Log.i(TAG, "dispatch: contacts=${contacts.size} trigger=$triggerType isTest=$isTest")
         if (contacts.isEmpty()) {
             onComplete(Result(locationAvailable = false, smsSent = 0, smsFailed = 0))
             return
@@ -52,14 +57,18 @@ class EmergencyDispatcher(private val context: Context) {
 
         if (!isTest) PanicBroadcast.emit(context)
 
+        val defaultRes = when {
+            isTest -> R.string.test_sms_message
+            triggerType == TriggerType.FALL -> R.string.emergency_sms_fall
+            else -> R.string.emergency_sms_no_response
+        }
+
         getLocation { location ->
             var sent = 0
             var failed = 0
             for (contact in contacts) {
                 val localized = localizedContext(contact.languageCode)
-                val template = customTemplate ?: localized.getString(
-                    if (isTest) R.string.test_sms_message else R.string.emergency_sms_default
-                )
+                val template = customTemplate ?: localized.getString(defaultRes)
                 if (sendSms(contact.phone, buildMessage(localized, template, location))) sent++
                 else failed++
             }
@@ -79,6 +88,18 @@ class EmergencyDispatcher(private val context: Context) {
         // the user's app-wide override). A non-null per-contact override wins.
         val effective = languageCode ?: AppLocale.read(context)
         return AppLocale.wrap(context, effective)
+    }
+
+    /**
+     * Sends a one-off, non-emergency introduction SMS to a contact the user
+     * just added, in that contact's preferred language. No location, no panic
+     * broadcast, no call — just a heads-up so the recipient knows to expect
+     * alerts from this number. Contract matches docs/COMPLIANCE.md §10.
+     */
+    fun sendIntro(contact: EmergencyContact): Boolean {
+        val localized = localizedContext(contact.languageCode)
+        val template = localized.getString(R.string.intro_sms_default)
+        return sendSms(contact.phone, template)
     }
 
     private fun getLocation(callback: (Location?) -> Unit) {

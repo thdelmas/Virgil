@@ -177,3 +177,25 @@ The script lives at [scripts/check-compliance.sh](../scripts/check-compliance.sh
 ## 9. When this document changes
 
 Tightening the rules (adding bans) is fine at any time — expect to fix new violations in the same PR. Loosening the rules (removing bans, adding exceptions) requires explicit approval from the project owner and a note in the commit message explaining why the risk has changed.
+
+---
+
+## 10. Introduction SMS (non-emergency, one-shot)
+
+When the user adds an emergency contact, Virgil offers to send that contact a **one-time, non-emergency SMS** as a courtesy heads-up. This is the only non-alert SMS the app ever sends.
+
+### Contract
+
+- **Opt-in per add.** A checkbox in the add-contact dialog governs it; unchecking skips the SMS. Default is checked, on the reasoning that recipients benefit from knowing they're listed before they ever receive an alert, and the message itself invites opt-out.
+- **No location.** The message contains no coordinates, altitude, map link, or any other position data. It is purely an identity / expectation statement.
+- **No medical framing.** Per §1: "safety app" and "emergency contact" only. Never "monitoring," "health," "medical alert."
+- **No recurrence.** One SMS per add, ever. There is no follow-up, no reminder, no re-introduction.
+- **Initiated only on explicit user action.** The SMS is fired from the user tapping "Add" with the box checked — never from a background service, timer, or boot receiver.
+
+### Why this is still on-device-only (§2 compliant)
+
+The introduction SMS is transmitted by the user's SIM via `SmsManager`, the same allowed path as the emergency SMS. Virgil makes no network call. `SmsManager` is explicitly allowed by §2 "Allowed" list.
+
+### Why this is compatible with the manifesto
+
+The manifesto principle "Location leaves the device only via SMS, only on alert" remains true — the introduction SMS carries **no location**. A broader "network calls for core logic" reading is preserved by "only on explicit user action" and "one per contact, ever."

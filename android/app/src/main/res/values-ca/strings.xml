@@ -21,7 +21,8 @@
     <string name="emergency_siren_silence">Silenciar</string>
     <string name="fall_notification_stop">Aturar</string>
 
-    <string name="emergency_sms_default">URGENT: potser necessito ajuda. No he respost al meu control de seguretat. Aquesta és una alerta automàtica de Virgil.</string>
+    <string name="emergency_sms_fall">URGENT: potser he caigut i necessito ajuda. Aquesta és una alerta automàtica de Virgil.</string>
+    <string name="emergency_sms_no_response">URGENT: potser necessito ajuda. No he respost al meu control de seguretat. Aquesta és una alerta automàtica de Virgil.</string>
     <string name="test_sms_message">[Virgil PROVA] Això és una prova de la teva app de seguretat. Sense emergència — només comprovo que les alertes i la ubicació funcionen.</string>
     <string name="sms_location_unavailable">La meva ubicació no està disponible ara.</string>
     <string name="sms_location_label">La meva ubicació</string>
@@ -33,7 +34,12 @@
     <string name="sms_map_google">Google Maps</string>
     <string name="sms_map_osm">OpenStreetMap</string>
 
-    <string name="home_top_permissions">Permisos</string>
+    <string name="intro_sms_default">T\'he afegit com a contacte d\'emergència a Virgil, una app de seguretat. Si tinc un problema, podries rebre una alerta amb la meva ubicació. Digues-m\'ho si prefereixes que no.</string>
+    <string name="dialog_send_headsup">Enviar-los un SMS d\'avís</string>
+    <string name="dialog_send_headsup_desc">Perquè sàpiguen que són el teu contacte d\'emergència</string>
+    <string name="intro_sent_toast">SMS enviat a %1$s ✓</string>
+    <string name="intro_failed_toast">No s\'ha pogut enviar l\'SMS a %1$s</string>
+
     <string name="home_top_settings">Ajustos</string>
     <string name="home_watching">Virgil té cura de tu</string>
     <string name="home_ready">Preparat quan tu ho estiguis</string>
@@ -79,6 +85,7 @@
     <string name="settings_contact_set_primary">Marcar com a principal</string>
     <string name="settings_contact_remove">Elimina</string>
     <string name="settings_contact_add">Afegir contacte</string>
+    <string name="settings_contacts_empty">Encara no hi ha contactes d\'emergència. Toca el botó de sota per afegir algú a qui avisar si caus.</string>
     <string name="settings_contact_language_label">Idioma de l\'SMS</string>
     <string name="settings_contact_language_system">Igual que l\'app</string>
     <string name="settings_message_title">Missatge d\'emergència</string>
@@ -89,6 +96,11 @@
     <string name="settings_quiet_start">Inici</string>
     <string name="settings_quiet_end">Fi</string>
     <string name="settings_quiet_save">Desar hores</string>
+
+    <string name="testing_title">Proves</string>
+    <string name="testing_desc">Envia un SMS de prova a tots els teus contactes d\'emergència (clarament marcat com a prova) per comprovar que el missatge i la teva ubicació arriben bé.</string>
+    <string name="testing_sounds_title">Provar els sons</string>
+    <string name="testing_fall_title">Provar la detecció de caigudes</string>
 
     <string name="dialog_add_title">Afegir contacte d\'emergència</string>
     <string name="dialog_pick_from_contacts">Triar dels contactes</string>
@@ -110,6 +122,30 @@
     <string name="onboarding_pick_contacts">Triar dels meus contactes</string>
     <string name="onboarding_save">Desar</string>
 
+    <string name="onboarding_fall_title">Si caus</string>
+    <string name="onboarding_fall_how">Virgil vigila el sensor de moviment del mòbil per reconèixer el patró d\'una caiguda: una caiguda lliure breu, un impacte fort i després quietud. Quan els tres coincideixen, apareix un compte enrere de 30 segons a pantalla completa. Toca «Estic bé» per cancel·lar. Si no, Virgil envia la teva ubicació per SMS als teus contactes d\'emergència i truca al principal.</string>
+    <string name="onboarding_fall_test_heading">Prova-ho tu mateix</string>
+    <string name="onboarding_fall_test_body">Després de la configuració, activa «Si caic» a la pantalla d\'inici i deixa caure el mòbil sobre un sofà, un llit o un coixí gruixut des d\'almenys un metre (a l\'alçada de la cintura). El compte enrere hauria d\'aparèixer en pocs segons. No ho provis mai sobre una superfície dura: podries trencar el mòbil i fer-te mal.</string>
+
+    <string name="onboarding_checkin_title">El control diari</string>
+    <string name="onboarding_checkin_how">A l\'interval que triïs (cada poques hores durant el dia), Virgil comprova si has desbloquejat o mogut el mòbil recentment. Si no, sona com una trucada i pregunta «Hi ets?». Toca la notificació per tancar-la. Si no respons, comença un compte enrere de 30 segons. Si tampoc respons, Virgil envia la mateixa alerta que en una caiguda: SMS amb ubicació i trucada al contacte principal.</string>
+
+    <string name="onboarding_sounds_title">Els sons que sentiràs</string>
+    <string name="onboarding_sounds_body">Toca un so per escoltar-lo. Torna a tocar per aturar-lo. Així reconeixeràs cadascun quan passi de veritat.</string>
+
+    <string name="sound_preview_play">Escoltar</string>
+    <string name="sound_preview_stop">Aturar</string>
+    <string name="sound_ring_title">To de control</string>
+    <string name="sound_ring_desc">Virgil sona com una trucada quan vol saber de tu.</string>
+    <string name="sound_siren_title">Sirena d\'emergència</string>
+    <string name="sound_siren_desc">Sirena forta que s\'activa quan s\'envia una alerta.</string>
+    <string name="sound_dismiss_title">Cancel·lat</string>
+    <string name="sound_dismiss_desc">To curt quan cancel·les un compte enrere.</string>
+    <string name="sound_sent_title">Alerta enviada</string>
+    <string name="sound_sent_desc">Tres notes ascendents quan l\'alerta ha sortit.</string>
+    <string name="sound_failure_title">Alerta fallida</string>
+    <string name="sound_failure_desc">Tres senyals greus quan l\'alerta no s\'ha pogut enviar.</string>
+
     <string name="permissions_title">Permisos</string>
     <string name="permissions_back">Enrere</string>
     <string name="permissions_all_set_title">Tot a punt</string>
@@ -121,6 +157,8 @@
     <string name="permissions_working">Funcionant</string>
     <string name="permissions_change">Canviar</string>
     <string name="permissions_optional">Opcional</string>
+    <string name="permissions_show_details">Mostrar detalls</string>
+    <string name="permissions_hide_details">Amagar detalls</string>
 
     <string name="perm_sms_title">Enviar SMS</string>
     <string name="perm_sms_rationale">Si caus, Virgil avisarà la teva família per missatge.</string>

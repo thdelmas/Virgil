@@ -13,19 +13,10 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Alarm
@@ -43,7 +34,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.mutableStateOf
@@ -55,9 +45,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
@@ -74,6 +62,9 @@ import com.virgil.app.permissions.VirgilPermission
 private sealed interface OnboardingStep {
     data class Permission(val permission: VirgilPermission) : OnboardingStep
     object Contact : OnboardingStep
+    object FallInfo : OnboardingStep
+    object CheckInInfo : OnboardingStep
+    object Sounds : OnboardingStep
 }
 
 @Composable
@@ -90,7 +81,12 @@ fun OnboardingFlow(
         buildList {
             VirgilPermission.applicable().filter { it.mandatory }
                 .forEach { add(OnboardingStep.Permission(it)) }
-            if (!hasContacts) add(OnboardingStep.Contact)
+            if (!hasContacts) {
+                add(OnboardingStep.Contact)
+                add(OnboardingStep.FallInfo)
+                add(OnboardingStep.CheckInInfo)
+                add(OnboardingStep.Sounds)
+            }
         }
     }
 
@@ -165,6 +161,21 @@ fun OnboardingFlow(
                         }
                     },
                     onSkip = { advance() },
+                )
+                is OnboardingStep.FallInfo -> FallInfoStep(
+                    stepNumber = currentIndex + 1,
+                    totalSteps = steps.size,
+                    onContinue = { advance() },
+                )
+                is OnboardingStep.CheckInInfo -> CheckInInfoStep(
+                    stepNumber = currentIndex + 1,
+                    totalSteps = steps.size,
+                    onContinue = { advance() },
+                )
+                is OnboardingStep.Sounds -> SoundsStep(
+                    stepNumber = currentIndex + 1,
+                    totalSteps = steps.size,
+                    onContinue = { advance() },
                 )
             }
         }
@@ -259,96 +270,6 @@ private fun DoneStep(onFinish: () -> Unit) {
         },
         primaryAction = { PrimaryButton(stringResource(R.string.onboarding_continue), onFinish) },
     )
-}
-
-@Composable
-private fun OnboardingScaffold(
-    progress: Pair<Int, Int>?,
-    content: @Composable ColumnScope.() -> Unit,
-    primaryAction: @Composable ColumnScope.() -> Unit,
-) {
-    Surface(
-        color = MaterialTheme.colorScheme.background,
-        modifier = Modifier.fillMaxSize(),
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 28.dp, vertical = 24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            if (progress != null) {
-                ProgressDots(current = progress.first, total = progress.second)
-            } else {
-                Spacer(Modifier.height(24.dp))
-            }
-            Spacer(modifier = Modifier.weight(1f))
-            content()
-            Spacer(modifier = Modifier.weight(1f))
-            primaryAction()
-            Spacer(Modifier.height(8.dp))
-        }
-    }
-}
-
-@Composable
-private fun ProgressDots(current: Int, total: Int) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 12.dp),
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        for (i in 1..total) {
-            val size = if (i == current) 12.dp else 8.dp
-            val color = if (i <= current) {
-                MaterialTheme.colorScheme.primary
-            } else {
-                MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
-            }
-            Box(
-                modifier = Modifier
-                    .padding(horizontal = 4.dp)
-                    .size(size)
-                    .clip(CircleShape)
-                    .background(color),
-            )
-        }
-    }
-}
-
-@Composable
-private fun BigIcon(icon: ImageVector) {
-    Surface(
-        color = MaterialTheme.colorScheme.primaryContainer,
-        shape = CircleShape,
-        modifier = Modifier.size(140.dp),
-    ) {
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier.fillMaxSize(),
-        ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                modifier = Modifier.size(72.dp),
-            )
-        }
-    }
-}
-
-@Composable
-private fun PrimaryButton(text: String, onClick: () -> Unit) {
-    Button(
-        onClick = onClick,
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(64.dp),
-    ) {
-        Text(text, style = MaterialTheme.typography.titleMedium)
-    }
 }
 
 @Composable

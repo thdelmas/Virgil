@@ -24,7 +24,8 @@
     <string name="fall_notification_stop">Stop</string>
 
     <!-- Emergency SMS -->
-    <string name="emergency_sms_default">URGENT: I may need help. I have not responded to my safety check. This is an automatic alert from Virgil.</string>
+    <string name="emergency_sms_fall">URGENT: I may have fallen and need help. This is an automatic alert from Virgil.</string>
+    <string name="emergency_sms_no_response">URGENT: I may need help. I have not responded to my safety check. This is an automatic alert from Virgil.</string>
     <string name="test_sms_message">[Virgil TEST] This is a test from your safety app. No emergency — just checking that alerts and location work.</string>
     <string name="sms_location_unavailable">My location isn\'t available right now.</string>
     <string name="sms_location_label">My location</string>
@@ -36,8 +37,14 @@
     <string name="sms_map_google">Google Maps</string>
     <string name="sms_map_osm">OpenStreetMap</string>
 
+    <!-- Introduction SMS (non-emergency, sent once on add) -->
+    <string name="intro_sms_default">I\'ve added you as an emergency contact in Virgil, a safety app. If I\'m ever in trouble, you may get an alert from me with my location. Let me know if you\'d rather not.</string>
+    <string name="dialog_send_headsup">Send them a heads-up SMS</string>
+    <string name="dialog_send_headsup_desc">So they know they\'re your emergency contact</string>
+    <string name="intro_sent_toast">Heads-up sent to %1$s ✓</string>
+    <string name="intro_failed_toast">Couldn\'t send heads-up to %1$s</string>
+
     <!-- Home screen -->
-    <string name="home_top_permissions">Permissions</string>
     <string name="home_top_settings">Settings</string>
     <string name="home_watching">Virgil is watching over you</string>
     <string name="home_ready">Ready when you are</string>
@@ -76,6 +83,12 @@
     <string name="countdown_seconds_label">seconds</string>
     <string name="countdown_im_ok">I\'m OK</string>
     <string name="countdown_tap_cancel">Tap to cancel</string>
+    <string name="siren_dispatching">Sending alert…</string>
+    <string name="siren_sent_title">Alert sent</string>
+    <string name="siren_sent_body">Your contacts were notified. The siren helps bystanders find you.</string>
+    <string name="siren_failed_title">Alert not sent</string>
+    <string name="siren_failed_body">Could not reach your contacts. Call them directly if you can.</string>
+    <string name="siren_stop_button">STOP SIREN</string>
 
     <!-- Settings -->
     <string name="settings_language_title">Language</string>
@@ -87,6 +100,7 @@
     <string name="settings_contact_set_primary">Set as primary</string>
     <string name="settings_contact_remove">Remove</string>
     <string name="settings_contact_add">Add contact</string>
+    <string name="settings_contacts_empty">No emergency contacts yet. Tap the button below to add someone we should alert if you fall.</string>
     <string name="settings_contact_language_label">SMS language</string>
     <string name="settings_contact_language_system">Same as app</string>
     <string name="settings_message_title">Emergency Message</string>
@@ -97,6 +111,12 @@
     <string name="settings_quiet_start">Start</string>
     <string name="settings_quiet_end">End</string>
     <string name="settings_quiet_save">Save quiet hours</string>
+
+    <!-- Testing section (Settings screen) -->
+    <string name="testing_title">Testing</string>
+    <string name="testing_desc">Send a test SMS to all your emergency contacts (clearly marked as a test) to confirm the message and your location arrive.</string>
+    <string name="testing_sounds_title">Test sounds</string>
+    <string name="testing_fall_title">Test fall detection</string>
 
     <!-- Add-contact dialog -->
     <string name="dialog_add_title">Add Emergency Contact</string>
@@ -120,6 +140,32 @@
     <string name="onboarding_pick_contacts">Choose from my contacts</string>
     <string name="onboarding_save">Save</string>
 
+    <!-- Onboarding — information steps -->
+    <string name="onboarding_fall_title">If you fall</string>
+    <string name="onboarding_fall_how">Virgil watches your phone\'s motion sensor for the shape of a fall: a brief free-fall, a hard impact, then stillness. When all three match, a full-screen 30-second countdown starts. Tap \"I\'m OK\" to cancel. If you don\'t, Virgil texts your emergency contacts your location and calls the primary one.</string>
+    <string name="onboarding_fall_test_heading">Try it yourself</string>
+    <string name="onboarding_fall_test_body">After setup, turn on \"If I fall\" on the home screen, then drop your phone onto a sofa, a bed, or a thick cushion from at least one metre high (about waist height). The countdown should appear within a few seconds. Never test on a hard surface — you can break the phone and hurt yourself.</string>
+
+    <string name="onboarding_checkin_title">The daily check-in</string>
+    <string name="onboarding_checkin_how">At the interval you choose (every few hours during the day), Virgil checks whether you\'ve unlocked or moved the phone recently. If you haven\'t, it rings like a normal call and asks \"Are you there?\". Tap the notification to dismiss it. If you don\'t, a 30-second countdown starts. If you don\'t answer that either, Virgil sends the same alert as a fall — SMS with your location and a call to your primary contact.</string>
+
+    <string name="onboarding_sounds_title">Sounds you\'ll hear</string>
+    <string name="onboarding_sounds_body">Tap a sound to hear it. Tap again to stop. So you recognise each one when it happens for real.</string>
+
+    <!-- Sound previews -->
+    <string name="sound_preview_play">Play</string>
+    <string name="sound_preview_stop">Stop</string>
+    <string name="sound_ring_title">Check-in ring</string>
+    <string name="sound_ring_desc">Virgil rings like a call when it checks on you.</string>
+    <string name="sound_siren_title">Emergency siren</string>
+    <string name="sound_siren_desc">Loud siren that fires when an alert goes out.</string>
+    <string name="sound_dismiss_title">Cancelled</string>
+    <string name="sound_dismiss_desc">Short tone when you cancel a countdown.</string>
+    <string name="sound_sent_title">Alert sent</string>
+    <string name="sound_sent_desc">Three rising notes when the alert went through.</string>
+    <string name="sound_failure_title">Alert failed</string>
+    <string name="sound_failure_desc">Three low bursts when an alert couldn\'t be sent.</string>
+
     <!-- Permissions screen -->
     <string name="permissions_title">Permissions</string>
     <string name="permissions_back">Back</string>
@@ -132,6 +178,8 @@
     <string name="permissions_working">Working</string>
     <string name="permissions_change">Change</string>
     <string name="permissions_optional">Optional</string>
+    <string name="permissions_show_details">Show details</string>
+    <string name="permissions_hide_details">Hide details</string>
 
     <!-- Permission entries -->
     <string name="perm_sms_title">Send text messages</string>

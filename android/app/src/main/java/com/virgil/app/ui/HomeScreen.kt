@@ -1,5 +1,6 @@
 package com.virgil.app.ui
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -19,7 +20,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -43,7 +43,6 @@ fun HomeScreen(
     intervalHours: Long,
     onToggleFall: (Boolean) -> Unit,
     onToggleCheckIn: (Boolean) -> Unit,
-    onTest: () -> Unit,
 ) {
     val anyOn = fallEnabled || checkInEnabled
     val primaryName = contacts.firstOrNull { it.isPrimary }?.name
@@ -57,15 +56,11 @@ fun HomeScreen(
     ) {
         Spacer(Modifier.height(32.dp))
 
-        Icon(
+        Image(
             painter = painterResource(R.drawable.ic_lantern),
             contentDescription = null,
             modifier = Modifier.size(96.dp),
-            tint = if (anyOn) {
-                MaterialTheme.colorScheme.primary
-            } else {
-                MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
-            },
+            alpha = if (anyOn) 1f else 0.45f,
         )
 
         Spacer(Modifier.height(16.dp))
@@ -134,20 +129,6 @@ fun HomeScreen(
         )
 
         Spacer(Modifier.height(28.dp))
-
-        OutlinedButton(
-            onClick = onTest,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(52.dp),
-        ) {
-            Text(
-                stringResource(R.string.home_send_test_button),
-                style = MaterialTheme.typography.titleMedium,
-            )
-        }
-
-        Spacer(Modifier.height(20.dp))
 
         Text(
             text = contactSummary(contacts, primaryName),

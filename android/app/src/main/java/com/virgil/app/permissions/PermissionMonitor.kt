@@ -28,12 +28,12 @@ object PermissionMonitor {
             return
         }
 
-        val openPermissions = Intent(context, MainActivity::class.java).apply {
+        val openSettings = Intent(context, MainActivity::class.java).apply {
             addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
-            putExtra(MainActivity.EXTRA_OPEN_PERMISSIONS, true)
+            putExtra(MainActivity.EXTRA_OPEN_SETTINGS, true)
         }
         val pi = PendingIntent.getActivity(
-            context, 0, openPermissions,
+            context, 0, openSettings,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
 

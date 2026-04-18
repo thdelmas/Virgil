@@ -21,7 +21,8 @@
     <string name="emergency_siren_silence">Isildu</string>
     <string name="fall_notification_stop">Gelditu</string>
 
-    <string name="emergency_sms_default">LARRIALDIA: baliteke laguntza behar izatea. Ez dut nire segurtasun egiaztapenari erantzun. Virgilen abisu automatikoa da hau.</string>
+    <string name="emergency_sms_fall">LARRIALDIA: baliteke erori izana eta laguntza behar izatea. Virgilen abisu automatikoa da hau.</string>
+    <string name="emergency_sms_no_response">LARRIALDIA: baliteke laguntza behar izatea. Ez dut nire segurtasun egiaztapenari erantzun. Virgilen abisu automatikoa da hau.</string>
     <string name="test_sms_message">[Virgil PROBA] Zure segurtasun aplikazioaren proba bat da. Larrialdirik ez — abisuak eta kokapena ondo dabiltzan egiaztatzen.</string>
     <string name="sms_location_unavailable">Nire kokapena ez dago orain eskuragarri.</string>
     <string name="sms_location_label">Nire kokapena</string>
@@ -33,7 +34,12 @@
     <string name="sms_map_google">Google Maps</string>
     <string name="sms_map_osm">OpenStreetMap</string>
 
-    <string name="home_top_permissions">Baimenak</string>
+    <string name="intro_sms_default">Larrialdi-kontaktu gisa gehitu zaitut Virgil segurtasun-aplikazioan. Arazoren bat badut, nire kokapenarekin alerta bat jaso dezakezu. Esan iezadazu nahiago baduzu ez.</string>
+    <string name="dialog_send_headsup">Bidali SMS bat abisatzeko</string>
+    <string name="dialog_send_headsup_desc">Zure larrialdi-kontaktua direla jakin dezaten</string>
+    <string name="intro_sent_toast">SMS bidali zaio %1$s(r)i ✓</string>
+    <string name="intro_failed_toast">Ezin izan zaio SMSrik bidali %1$s(r)i</string>
+
     <string name="home_top_settings">Ezarpenak</string>
     <string name="home_watching">Virgil zure zaintzan dago</string>
     <string name="home_ready">Prest zu prest zaudenean</string>
@@ -79,6 +85,7 @@
     <string name="settings_contact_set_primary">Nagusi gisa ezarri</string>
     <string name="settings_contact_remove">Kendu</string>
     <string name="settings_contact_add">Gehitu kontaktua</string>
+    <string name="settings_contacts_empty">Oraindik ez dago larrialdi-kontakturik. Sakatu beheko botoia erortzen bazara abisatzeko norbait gehitzeko.</string>
     <string name="settings_contact_language_label">SMSaren hizkuntza</string>
     <string name="settings_contact_language_system">Aplikazioaren berbera</string>
     <string name="settings_message_title">Larrialdi mezua</string>
@@ -89,6 +96,11 @@
     <string name="settings_quiet_start">Hasiera</string>
     <string name="settings_quiet_end">Amaiera</string>
     <string name="settings_quiet_save">Gorde orduak</string>
+
+    <string name="testing_title">Probak</string>
+    <string name="testing_desc">Bidali proba-SMS bat zure larrialdi-kontaktu guztiei (proba gisa argi markatuta), mezua eta zure kokapena ondo iristen direla egiaztatzeko.</string>
+    <string name="testing_sounds_title">Probatu hotsak</string>
+    <string name="testing_fall_title">Probatu erorketa-detekzioa</string>
 
     <string name="dialog_add_title">Gehitu larrialdi kontaktua</string>
     <string name="dialog_pick_from_contacts">Hautatu kontaktuetatik</string>
@@ -110,6 +122,30 @@
     <string name="onboarding_pick_contacts">Hautatu nire kontaktuetatik</string>
     <string name="onboarding_save">Gorde</string>
 
+    <string name="onboarding_fall_title">Erortzen bazara</string>
+    <string name="onboarding_fall_how">Virgilek telefonoaren mugimendu-sentsorea zaintzen du erorketa baten ezaugarriak aurkitzeko: erorketa libre laburra, talka gogorra eta gero geldialdia. Hirurak bat datozenean, 30 segundoko atzera-kontaketa osoa agertzen da pantailan. Bertan behera uzteko, sakatu «Ondo nago». Bestela, Virgilek zure kokapena SMS bidez bidaltzen die larrialdi-kontaktuei eta lehenari deitzen dio.</string>
+    <string name="onboarding_fall_test_heading">Probatu zeuk</string>
+    <string name="onboarding_fall_test_body">Konfigurazioaren ondoren, aktibatu «Erortzen banaiz» hasiera-pantailan eta utzi telefonoa sofara, ohera edo kuxin lodi batera gutxienez metro bateko altueratik (gerri pareraino). Atzera-kontaketak segundo gutxian agertu behar luke. Ez egin probarik inoiz gainazal gogor batean — telefonoa hautsi eta min hartu dezakezu.</string>
+
+    <string name="onboarding_checkin_title">Eguneroko berrespena</string>
+    <string name="onboarding_checkin_how">Aukeratzen duzun tartean (egunean zehar ordu batzuetan behin), Virgilek egiaztatzen du telefonoa desblokeatu edo mugitu al duzun azken aldian. Ezezkoan, deia bezala jotzen du eta «Hor zaude?» galdetzen dizu. Sakatu jakinarazpena baztertzeko. Erantzuten ez baduzu, 30 segundoko atzera-kontaketa hasten da. Horri ere erantzuten ez badiozu, Virgilek erorketa baten alerta bera bidaltzen du: SMS kokapenarekin eta deia kontaktu nagusiari.</string>
+
+    <string name="onboarding_sounds_title">Entzungo dituzun hotsak</string>
+    <string name="onboarding_sounds_body">Sakatu hots bat entzuteko. Berriro sakatu gelditzeko. Horrela bakoitza ezagutuko duzu benetan gertatzen denean.</string>
+
+    <string name="sound_preview_play">Entzun</string>
+    <string name="sound_preview_stop">Gelditu</string>
+    <string name="sound_ring_title">Berrespen-deia</string>
+    <string name="sound_ring_desc">Virgilek deia bezala jotzen du zure egoera galdetzeko.</string>
+    <string name="sound_siren_title">Larrialdi-sirena</string>
+    <string name="sound_siren_desc">Alerta bat abiaraztean jotzen duen sirena ozena.</string>
+    <string name="sound_dismiss_title">Bertan behera</string>
+    <string name="sound_dismiss_desc">Atzera-kontaketa bertan behera uztean jotzen duen hots laburra.</string>
+    <string name="sound_sent_title">Alerta bidalita</string>
+    <string name="sound_sent_desc">Hiru nota igotzen dira alerta bidaltzean.</string>
+    <string name="sound_failure_title">Alerta huts egin du</string>
+    <string name="sound_failure_desc">Hiru seinale baxu alerta bidali ezin denean.</string>
+
     <string name="permissions_title">Baimenak</string>
     <string name="permissions_back">Atzera</string>
     <string name="permissions_all_set_title">Dena prest</string>
@@ -121,6 +157,8 @@
     <string name="permissions_working">Aktibo</string>
     <string name="permissions_change">Aldatu</string>
     <string name="permissions_optional">Aukerakoa</string>
+    <string name="permissions_show_details">Erakutsi xehetasunak</string>
+    <string name="permissions_hide_details">Ezkutatu xehetasunak</string>
 
     <string name="perm_sms_title">Bidali SMSak</string>
     <string name="perm_sms_rationale">Erortzen bazara, Virgilek SMS bidaliko die zure senideei jakinarazteko.</string>

@@ -12,6 +12,7 @@ import android.hardware.SensorManager
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
+import android.os.PowerManager
 import androidx.core.app.NotificationCompat
 import com.virgil.app.BuildConfig
 import com.virgil.app.R
@@ -32,11 +33,16 @@ class FallDetectionService : Service(), SensorEventListener {
     private var accelerometer: Sensor? = null
     private val algorithm = FallDetectionAlgorithm()
     private var isListening = false
+    private var wakeLock: PowerManager.WakeLock? = null
 
     override fun onCreate() {
         super.onCreate()
         sensorManager = getSystemService(SensorManager::class.java)
-        accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
+        // Prefer the wake-up accelerometer when the hardware sensor hub offers
+        // one: events keep flowing with the CPU asleep, no wake lock needed.
+        // Fall back to the default (non-wake-up) sensor + partial wake lock.
+        accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER, true)
+            ?: sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -98,16 +104,34 @@ class FallDetectionService : Service(), SensorEventListener {
 
     private fun startSensor() {
         if (isListening) return
-        accelerometer?.let { sensor ->
-            sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_GAME)
-            isListening = true
-        }
+        val sensor = accelerometer ?: return
+        sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_GAME)
+        isListening = true
+        // Only hold a wake lock when the hardware doesn't have a wake-up
+        // accelerometer — otherwise the sensor hub delivers events through
+        // suspend and we pay no CPU cost between samples.
+        if (!sensor.isWakeUpSensor) acquireWakeLock()
     }
 
     private fun stopSensor() {
         if (!isListening) return
         sensorManager.unregisterListener(this)
         isListening = false
+        releaseWakeLock()
+    }
+
+    private fun acquireWakeLock() {
+        if (wakeLock?.isHeld == true) return
+        val pm = getSystemService(PowerManager::class.java) ?: return
+        wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "virgil:fall-detection").apply {
+            setReferenceCounted(false)
+            acquire()
+        }
+    }
+
+    private fun releaseWakeLock() {
+        wakeLock?.let { if (it.isHeld) it.release() }
+        wakeLock = null
     }
 
     private fun replayTrace(label: String, magnitudes: FloatArray, delays: LongArray) {

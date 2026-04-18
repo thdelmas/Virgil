@@ -21,7 +21,8 @@
     <string name="emergency_siren_silence">Silenciar</string>
     <string name="fall_notification_stop">Detener</string>
 
-    <string name="emergency_sms_default">URGENTE: puede que necesite ayuda. No he respondido a mi control de seguridad. Esta es una alerta automática de Virgil.</string>
+    <string name="emergency_sms_fall">URGENTE: puede que me haya caído y necesite ayuda. Esta es una alerta automática de Virgil.</string>
+    <string name="emergency_sms_no_response">URGENTE: puede que necesite ayuda. No he respondido a mi control de seguridad. Esta es una alerta automática de Virgil.</string>
     <string name="test_sms_message">[Virgil PRUEBA] Esto es una prueba de tu app de seguridad. Sin emergencia — solo estoy comprobando que las alertas y la ubicación funcionan.</string>
     <string name="sms_location_unavailable">Mi ubicación no está disponible ahora.</string>
     <string name="sms_location_label">Mi ubicación</string>
@@ -33,7 +34,12 @@
     <string name="sms_map_google">Google Maps</string>
     <string name="sms_map_osm">OpenStreetMap</string>
 
-    <string name="home_top_permissions">Permisos</string>
+    <string name="intro_sms_default">Te he añadido como contacto de emergencia en Virgil, una app de seguridad. Si tengo un problema, podrías recibir una alerta con mi ubicación. Dime si prefieres que no.</string>
+    <string name="dialog_send_headsup">Enviarles un SMS para avisarles</string>
+    <string name="dialog_send_headsup_desc">Para que sepan que son tu contacto de emergencia</string>
+    <string name="intro_sent_toast">SMS enviado a %1$s ✓</string>
+    <string name="intro_failed_toast">No se ha podido enviar el SMS a %1$s</string>
+
     <string name="home_top_settings">Ajustes</string>
     <string name="home_watching">Virgil te está cuidando</string>
     <string name="home_ready">Listo cuando tú lo estés</string>
@@ -79,6 +85,7 @@
     <string name="settings_contact_set_primary">Marcar como principal</string>
     <string name="settings_contact_remove">Eliminar</string>
     <string name="settings_contact_add">Añadir contacto</string>
+    <string name="settings_contacts_empty">Aún no hay contactos de emergencia. Toca el botón de abajo para añadir a alguien a quien avisar si te caes.</string>
     <string name="settings_contact_language_label">Idioma del SMS</string>
     <string name="settings_contact_language_system">Igual que la app</string>
     <string name="settings_message_title">Mensaje de emergencia</string>
@@ -89,6 +96,11 @@
     <string name="settings_quiet_start">Inicio</string>
     <string name="settings_quiet_end">Fin</string>
     <string name="settings_quiet_save">Guardar horas</string>
+
+    <string name="testing_title">Pruebas</string>
+    <string name="testing_desc">Envía un SMS de prueba a todos tus contactos de emergencia (claramente marcado como prueba) para comprobar que el mensaje y tu ubicación llegan bien.</string>
+    <string name="testing_sounds_title">Probar sonidos</string>
+    <string name="testing_fall_title">Probar la detección de caídas</string>
 
     <string name="dialog_add_title">Añadir contacto de emergencia</string>
     <string name="dialog_pick_from_contacts">Elegir de los contactos</string>
@@ -110,6 +122,30 @@
     <string name="onboarding_pick_contacts">Elegir de mis contactos</string>
     <string name="onboarding_save">Guardar</string>
 
+    <string name="onboarding_fall_title">Si te caes</string>
+    <string name="onboarding_fall_how">Virgil observa el sensor de movimiento del móvil para reconocer el patrón de una caída: una caída libre breve, un impacto fuerte y luego quietud. Cuando los tres coinciden, aparece una cuenta atrás de 30 segundos en pantalla completa. Pulsa «Estoy bien» para cancelar. Si no, Virgil envía tu ubicación por SMS a tus contactos de emergencia y llama al principal.</string>
+    <string name="onboarding_fall_test_heading">Pruébalo tú mismo</string>
+    <string name="onboarding_fall_test_body">Después de la configuración, activa «Si me caigo» en la pantalla principal y deja caer el móvil sobre un sofá, una cama o un cojín grueso desde al menos un metro (a la altura de la cintura). La cuenta atrás debería aparecer en unos segundos. Nunca lo pruebes sobre una superficie dura: podrías romper el móvil y hacerte daño.</string>
+
+    <string name="onboarding_checkin_title">El control diario</string>
+    <string name="onboarding_checkin_how">En el intervalo que elijas (cada pocas horas durante el día), Virgil comprueba si has desbloqueado o movido el móvil recientemente. Si no, suena como una llamada y pregunta «¿Estás ahí?». Pulsa la notificación para cerrarla. Si no respondes, comienza una cuenta atrás de 30 segundos. Si tampoco respondes, Virgil envía la misma alerta que en una caída: SMS con ubicación y llamada al contacto principal.</string>
+
+    <string name="onboarding_sounds_title">Los sonidos que oirás</string>
+    <string name="onboarding_sounds_body">Pulsa un sonido para escucharlo. Pulsa de nuevo para detenerlo. Así reconocerás cada uno cuando ocurra de verdad.</string>
+
+    <string name="sound_preview_play">Escuchar</string>
+    <string name="sound_preview_stop">Detener</string>
+    <string name="sound_ring_title">Tono de control</string>
+    <string name="sound_ring_desc">Virgil suena como una llamada cuando quiere saber de ti.</string>
+    <string name="sound_siren_title">Sirena de emergencia</string>
+    <string name="sound_siren_desc">Sirena fuerte que se activa cuando se envía una alerta.</string>
+    <string name="sound_dismiss_title">Cancelado</string>
+    <string name="sound_dismiss_desc">Tono corto cuando cancelas una cuenta atrás.</string>
+    <string name="sound_sent_title">Alerta enviada</string>
+    <string name="sound_sent_desc">Tres notas ascendentes cuando la alerta se envió.</string>
+    <string name="sound_failure_title">Alerta fallida</string>
+    <string name="sound_failure_desc">Tres señales graves cuando no se pudo enviar la alerta.</string>
+
     <string name="permissions_title">Permisos</string>
     <string name="permissions_back">Atrás</string>
     <string name="permissions_all_set_title">Todo listo</string>
@@ -121,6 +157,8 @@
     <string name="permissions_working">Funcionando</string>
     <string name="permissions_change">Cambiar</string>
     <string name="permissions_optional">Opcional</string>
+    <string name="permissions_show_details">Mostrar detalles</string>
+    <string name="permissions_hide_details">Ocultar detalles</string>
 
     <string name="perm_sms_title">Enviar SMS</string>
     <string name="perm_sms_rationale">Si te caes, Virgil avisará a tu familia por mensaje.</string>

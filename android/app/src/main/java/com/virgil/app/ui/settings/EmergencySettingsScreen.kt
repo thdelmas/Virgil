@@ -1,6 +1,9 @@
 package com.virgil.app.ui.settings
 
+import android.app.Activity
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -8,20 +11,26 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.PersonAdd
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.StarBorder
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -34,11 +43,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.virgil.app.R
 import com.virgil.app.data.EmergencyContact
+import com.virgil.app.service.EmergencyDispatcher
+import com.virgil.app.ui.permissions.SoundPreviewRow
+import com.virgil.app.ui.permissions.permissionsSection
+import com.virgil.app.ui.permissions.rememberPermissionSectionState
+import com.virgil.app.ui.permissions.rememberSoundPreviewController
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -60,17 +75,13 @@ fun EmergencySettingsScreen(
     var editingSleepStart by remember(sleepStartHour) { mutableStateOf(sleepStartHour.toString()) }
     var editingSleepEnd by remember(sleepEndHour) { mutableStateOf(sleepEndHour.toString()) }
     var showAddDialog by remember { mutableStateOf(false) }
+    var showTestDialog by remember { mutableStateOf(false) }
 
-    Scaffold(
-        floatingActionButton = {
-            FloatingActionButton(onClick = { showAddDialog = true }) {
-                Icon(
-                    Icons.Default.Add,
-                    contentDescription = stringResource(R.string.settings_contact_add),
-                )
-            }
-        },
-    ) { padding ->
+    val context = LocalContext.current
+    val activity = context as? Activity
+    val permissionState = rememberPermissionSectionState()
+
+    Scaffold { padding ->
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
@@ -79,27 +90,6 @@ fun EmergencySettingsScreen(
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             item {
-                Text(
-                    text = stringResource(R.string.settings_language_title),
-                    style = MaterialTheme.typography.headlineSmall,
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = stringResource(R.string.settings_language_desc),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                LanguageDropdown(
-                    selectedCode = appLanguageCode,
-                    systemLabel = stringResource(R.string.settings_language_system),
-                    onSelect = onSaveAppLanguage,
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-            }
-
-            item {
-                Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     text = stringResource(R.string.settings_contacts_title),
                     style = MaterialTheme.typography.headlineSmall,
@@ -136,28 +126,116 @@ fun EmergencySettingsScreen(
             }
 
             item {
+                if (editableContacts.isEmpty()) {
+                    EmptyContactsHint()
+                    Spacer(modifier = Modifier.height(12.dp))
+                } else {
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
+                Button(
+                    onClick = { showAddDialog = true },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(60.dp),
+                ) {
+                    Icon(Icons.Default.PersonAdd, contentDescription = null)
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Text(
+                        text = stringResource(R.string.settings_contact_add),
+                        style = MaterialTheme.typography.titleMedium,
+                    )
+                }
+            }
+
+            item {
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
-                    text = stringResource(R.string.settings_message_title),
+                    text = stringResource(R.string.testing_title),
                     style = MaterialTheme.typography.headlineSmall,
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = stringResource(R.string.settings_message_desc),
+                    text = stringResource(R.string.testing_desc),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                 )
                 Spacer(modifier = Modifier.height(8.dp))
-                OutlinedTextField(
-                    value = editingMessage,
-                    onValueChange = { editingMessage = it },
-                    modifier = Modifier.fillMaxWidth(),
-                    minLines = 3,
+                OutlinedButton(
+                    onClick = { showTestDialog = true },
+                    enabled = editableContacts.isNotEmpty(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(52.dp),
+                ) {
+                    Text(
+                        stringResource(R.string.home_send_test_button),
+                        style = MaterialTheme.typography.titleMedium,
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(20.dp))
+                Text(
+                    text = stringResource(R.string.testing_sounds_title),
+                    style = MaterialTheme.typography.titleMedium,
                 )
                 Spacer(modifier = Modifier.height(8.dp))
-                TextButton(onClick = { onSaveMessage(editingMessage.takeIf { it.isNotBlank() }) }) {
-                    Text(stringResource(R.string.settings_message_save))
-                }
+                val soundController = rememberSoundPreviewController()
+                SoundPreviewRow(
+                    title = stringResource(R.string.sound_ring_title),
+                    description = stringResource(R.string.sound_ring_desc),
+                    soundKey = "ring",
+                    playing = soundController.playing,
+                    onStart = soundController.start,
+                    onStop = soundController.stop,
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                SoundPreviewRow(
+                    title = stringResource(R.string.sound_siren_title),
+                    description = stringResource(R.string.sound_siren_desc),
+                    soundKey = "siren",
+                    playing = soundController.playing,
+                    onStart = soundController.start,
+                    onStop = soundController.stop,
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                SoundPreviewRow(
+                    title = stringResource(R.string.sound_dismiss_title),
+                    description = stringResource(R.string.sound_dismiss_desc),
+                    soundKey = "dismiss",
+                    playing = soundController.playing,
+                    onStart = soundController.start,
+                    onStop = soundController.stop,
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                SoundPreviewRow(
+                    title = stringResource(R.string.sound_sent_title),
+                    description = stringResource(R.string.sound_sent_desc),
+                    soundKey = "sent",
+                    playing = soundController.playing,
+                    onStart = soundController.start,
+                    onStop = soundController.stop,
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                SoundPreviewRow(
+                    title = stringResource(R.string.sound_failure_title),
+                    description = stringResource(R.string.sound_failure_desc),
+                    soundKey = "failure",
+                    playing = soundController.playing,
+                    onStart = soundController.start,
+                    onStop = soundController.stop,
+                )
+
+                Spacer(modifier = Modifier.height(20.dp))
+                Text(
+                    text = stringResource(R.string.testing_fall_title),
+                    style = MaterialTheme.typography.titleMedium,
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = stringResource(R.string.onboarding_fall_test_body),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.85f),
+                )
             }
 
             item {
@@ -214,6 +292,55 @@ fun EmergencySettingsScreen(
                 }
             }
 
+            item {
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = stringResource(R.string.settings_message_title),
+                    style = MaterialTheme.typography.headlineSmall,
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = stringResource(R.string.settings_message_desc),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                OutlinedTextField(
+                    value = editingMessage,
+                    onValueChange = { editingMessage = it },
+                    modifier = Modifier.fillMaxWidth(),
+                    minLines = 3,
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                TextButton(onClick = { onSaveMessage(editingMessage.takeIf { it.isNotBlank() }) }) {
+                    Text(stringResource(R.string.settings_message_save))
+                }
+            }
+
+            item { Spacer(modifier = Modifier.height(16.dp)) }
+            permissionsSection(state = permissionState, activity = activity)
+
+            item {
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = stringResource(R.string.settings_language_title),
+                    style = MaterialTheme.typography.headlineSmall,
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = stringResource(R.string.settings_language_desc),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                LanguageDropdown(
+                    selectedCode = appLanguageCode,
+                    systemLabel = stringResource(R.string.settings_language_system),
+                    onSelect = onSaveAppLanguage,
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+
             item { Spacer(modifier = Modifier.height(80.dp)) }
         }
     }
@@ -221,20 +348,86 @@ fun EmergencySettingsScreen(
     if (showAddDialog) {
         AddContactDialog(
             onDismiss = { showAddDialog = false },
-            onAdd = { name, phone, languageCode ->
+            onAdd = { name, phone, languageCode, sendHeadsUp ->
                 val isPrimary = editableContacts.isEmpty()
-                editableContacts.add(
-                    EmergencyContact(
-                        name = name,
-                        phone = phone,
-                        isPrimary = isPrimary,
-                        languageCode = languageCode,
-                    )
+                val newContact = EmergencyContact(
+                    name = name,
+                    phone = phone,
+                    isPrimary = isPrimary,
+                    languageCode = languageCode,
                 )
+                editableContacts.add(newContact)
                 onSaveContacts(editableContacts.toList())
                 showAddDialog = false
+                if (sendHeadsUp) launchIntroSms(context, newContact)
             },
         )
+    }
+
+    if (showTestDialog) {
+        AlertDialog(
+            onDismissRequest = { showTestDialog = false },
+            title = { Text(stringResource(R.string.test_confirm_title)) },
+            text = {
+                Text(stringResource(R.string.test_confirm_body, editableContacts.size))
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    showTestDialog = false
+                    Toast.makeText(
+                        context,
+                        context.getString(R.string.test_sent_toast),
+                        Toast.LENGTH_SHORT,
+                    ).show()
+                    EmergencyDispatcher(context).dispatch(
+                        contacts = editableContacts.toList(),
+                        customTemplate = null,
+                        isTest = true,
+                    ) { result ->
+                        val resId = if (result.locationAvailable) {
+                            R.string.test_sent_with_location
+                        } else {
+                            R.string.test_sent_no_location
+                        }
+                        Toast.makeText(
+                            context,
+                            context.getString(resId),
+                            Toast.LENGTH_LONG,
+                        ).show()
+                    }
+                }) {
+                    Text(stringResource(R.string.test_confirm_send))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showTestDialog = false }) {
+                    Text(stringResource(R.string.test_confirm_cancel))
+                }
+            },
+        )
+    }
+}
+
+@Composable
+private fun EmptyContactsHint() {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+        ),
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+        ) {
+            Text(
+                text = stringResource(R.string.settings_contacts_empty),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
     }
 }
 

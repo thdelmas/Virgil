@@ -5,6 +5,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
+import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
@@ -16,11 +17,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Alarm
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.LocationOn
@@ -32,20 +32,18 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -62,14 +60,25 @@ import com.virgil.app.permissions.PermissionMonitor
 import com.virgil.app.permissions.PermissionState
 import com.virgil.app.permissions.VirgilPermission
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun PermissionsScreen(onBack: (() -> Unit)? = null) {
-    val context = LocalContext.current
-    val activity = context as? Activity
-    val lifecycleOwner = LocalLifecycleOwner.current
+/**
+ * Lifecycle-aware permission-state holder. Refreshes the list whenever the
+ * hosting lifecycle resumes (so a user returning from the system Settings app
+ * sees their change reflected immediately) and exposes a runtime-permission
+ * launcher for the flows that can request in-app.
+ */
+internal class PermissionSectionState(
+    val states: List<PermissionState>,
+    val runtimeLauncher: ManagedActivityResultLauncher<String, Boolean>,
+    val expanded: Boolean,
+    val onToggleExpanded: () -> Unit,
+)
 
+@Composable
+internal fun rememberPermissionSectionState(): PermissionSectionState {
+    val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
     var states by remember { mutableStateOf(PermissionChecker.statuses(context)) }
+    var expanded by rememberSaveable { mutableStateOf(false) }
 
     fun refresh() {
         states = PermissionChecker.statuses(context)
@@ -88,63 +97,59 @@ fun PermissionsScreen(onBack: (() -> Unit)? = null) {
         ActivityResultContracts.RequestPermission(),
     ) { refresh() }
 
-    val missingMandatory = states.count {
+    LaunchedEffect(Unit) { refresh() }
+
+    return PermissionSectionState(
+        states = states,
+        runtimeLauncher = runtimeLauncher,
+        expanded = expanded,
+        onToggleExpanded = { expanded = !expanded },
+    )
+}
+
+internal fun LazyListScope.permissionsSection(
+    state: PermissionSectionState,
+    activity: Activity?,
+) {
+    val missingMandatory = state.states.count {
         it.permission.mandatory && it.status == PermissionChecker.Status.Denied
     }
-
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(stringResource(R.string.permissions_title)) },
-                navigationIcon = {
-                    if (onBack != null) {
-                        IconButton(onClick = onBack) {
-                            Icon(
-                                Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = stringResource(R.string.permissions_back),
-                            )
-                        }
+    val showCards = missingMandatory > 0 || state.expanded
+    item {
+        PermissionsHeader(
+            missingMandatory = missingMandatory,
+            showToggle = missingMandatory == 0,
+            expanded = state.expanded,
+            onToggle = state.onToggleExpanded,
+        )
+    }
+    if (showCards) {
+        items(state.states) { pState ->
+            PermissionCard(
+                state = pState,
+                onTurnOn = {
+                    when (pState.permission.kind) {
+                        VirgilPermission.Kind.Runtime ->
+                            pState.permission.androidName?.let { state.runtimeLauncher.launch(it) }
+                        VirgilPermission.Kind.ExactAlarm ->
+                            activity?.let(::openExactAlarmSettings)
+                        VirgilPermission.Kind.FullScreenIntent ->
+                            activity?.let(::openFullScreenIntentSettings)
                     }
                 },
+                onManage = { activity?.let(::openAppSettings) },
             )
-        },
-    ) { padding ->
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .padding(horizontal = 20.dp),
-            verticalArrangement = Arrangement.spacedBy(14.dp),
-        ) {
-            item { Header(missingMandatory = missingMandatory) }
-
-            items(states) { state ->
-                PermissionCard(
-                    state = state,
-                    onTurnOn = {
-                        when (state.permission.kind) {
-                            VirgilPermission.Kind.Runtime ->
-                                state.permission.androidName?.let { runtimeLauncher.launch(it) }
-                            VirgilPermission.Kind.ExactAlarm ->
-                                activity?.let(::openExactAlarmSettings)
-                            VirgilPermission.Kind.FullScreenIntent ->
-                                activity?.let(::openFullScreenIntentSettings)
-                        }
-                    },
-                    onManage = { activity?.let(::openAppSettings) },
-                )
-            }
-
-            item { Spacer(modifier = Modifier.height(32.dp)) }
         }
     }
-
-    LaunchedEffect(Unit) { refresh() }
 }
 
 @Composable
-private fun Header(missingMandatory: Int) {
-    Spacer(modifier = Modifier.height(8.dp))
+private fun PermissionsHeader(
+    missingMandatory: Int,
+    showToggle: Boolean,
+    expanded: Boolean,
+    onToggle: () -> Unit,
+) {
     val (title, subtitle, color) = when (missingMandatory) {
         0 -> Triple(
             stringResource(R.string.permissions_all_set_title),
@@ -162,14 +167,26 @@ private fun Header(missingMandatory: Int) {
             MaterialTheme.colorScheme.error,
         )
     }
-    Text(title, style = MaterialTheme.typography.headlineMedium, color = color)
-    Spacer(modifier = Modifier.height(6.dp))
+    Text(title, style = MaterialTheme.typography.headlineSmall, color = color)
+    Spacer(modifier = Modifier.height(4.dp))
     Text(
         text = subtitle,
-        style = MaterialTheme.typography.bodyLarge,
-        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.75f),
+        style = MaterialTheme.typography.bodyMedium,
+        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
     )
-    Spacer(modifier = Modifier.height(8.dp))
+    if (showToggle) {
+        TextButton(
+            onClick = onToggle,
+            contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 0.dp),
+        ) {
+            Text(
+                stringResource(
+                    if (expanded) R.string.permissions_hide_details
+                    else R.string.permissions_show_details
+                ),
+            )
+        }
+    }
 }
 
 @Composable
@@ -185,34 +202,34 @@ private fun PermissionCard(
             containerColor = MaterialTheme.colorScheme.surfaceVariant,
         ),
     ) {
-        Column(modifier = Modifier.padding(20.dp)) {
+        Column(modifier = Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 IconBadge(icon = iconFor(state.permission), granted = granted)
-                Spacer(modifier = Modifier.size(16.dp))
+                Spacer(modifier = Modifier.size(14.dp))
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = stringResource(state.permission.titleRes),
-                        style = MaterialTheme.typography.titleLarge,
+                        style = MaterialTheme.typography.titleMedium,
                     )
                     if (!state.permission.mandatory) {
                         Text(
                             text = stringResource(R.string.permissions_optional),
-                            style = MaterialTheme.typography.labelMedium,
+                            style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f),
                         )
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
             Text(
                 text = stringResource(state.permission.rationaleRes),
-                style = MaterialTheme.typography.bodyLarge,
+                style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.85f),
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
             if (granted) {
                 GrantedRow(onManage = onManage)
@@ -221,7 +238,7 @@ private fun PermissionCard(
                     onClick = onTurnOn,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(56.dp),
+                        .height(52.dp),
                     colors = if (state.permission.mandatory) {
                         ButtonDefaults.buttonColors()
                     } else {
@@ -251,16 +268,16 @@ private fun GrantedRow(onManage: () -> Unit) {
             Icons.Filled.CheckCircle,
             contentDescription = null,
             tint = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.size(28.dp),
+            modifier = Modifier.size(24.dp),
         )
-        Spacer(modifier = Modifier.size(10.dp))
+        Spacer(modifier = Modifier.size(8.dp))
         Text(
             text = stringResource(R.string.permissions_working),
-            style = MaterialTheme.typography.titleMedium,
+            style = MaterialTheme.typography.titleSmall,
             color = MaterialTheme.colorScheme.primary,
         )
         Spacer(modifier = Modifier.weight(1f))
-        androidx.compose.material3.TextButton(onClick = onManage) {
+        TextButton(onClick = onManage) {
             Text(stringResource(R.string.permissions_change))
         }
     }
@@ -273,7 +290,7 @@ private fun IconBadge(icon: ImageVector, granted: Boolean) {
     } else {
         MaterialTheme.colorScheme.primary.copy(alpha = 0.25f)
     }
-    Surface(color = bg, shape = CircleShape, modifier = Modifier.size(48.dp)) {
+    Surface(color = bg, shape = CircleShape, modifier = Modifier.size(40.dp)) {
         Row(
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically,
@@ -283,7 +300,7 @@ private fun IconBadge(icon: ImageVector, granted: Boolean) {
                 imageVector = icon,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(28.dp),
+                modifier = Modifier.size(22.dp),
             )
         }
     }

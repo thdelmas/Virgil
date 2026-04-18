@@ -118,6 +118,106 @@ object AttentionSound {
         }
     }
 
+    /**
+     * Short status cues that identify the countdown's outcome. Non-looping;
+     * release the track when the tone sequence finishes. Safe to call even
+     * while the siren is playing — each cue calls [stop] first.
+     */
+    fun playDismissCue(context: Context, onFinished: () -> Unit = {}) {
+        playCue(context, listOf(Tone(700.0, 160), Tone(500.0, 200)), onFinished)
+    }
+
+    fun playSentCue(context: Context, onFinished: () -> Unit = {}) {
+        // Ascending C5-E5-G5 major triad → reassuring "handled" feel.
+        playCue(
+            context,
+            listOf(Tone(523.25, 140), Tone(659.25, 140), Tone(783.99, 260)),
+            onFinished,
+        )
+    }
+
+    fun playFailureCue(context: Context, onFinished: () -> Unit = {}) {
+        // Three low harsh bursts with short gaps → urgent "something went wrong".
+        playCue(
+            context,
+            listOf(
+                Tone(400.0, 220), Tone(0.0, 120),
+                Tone(400.0, 220), Tone(0.0, 120),
+                Tone(400.0, 340),
+            ),
+            onFinished,
+        )
+    }
+
+    private data class Tone(val freq: Double, val ms: Int)
+
+    @Synchronized
+    private fun playCue(context: Context, tones: List<Tone>, onFinished: () -> Unit) {
+        stop()
+        val sampleRate = 44100
+        val totalFrames = tones.sumOf { sampleRate * it.ms / 1000 }
+        if (totalFrames <= 0) return
+
+        val buffer = ShortArray(totalFrames)
+        var idx = 0
+        var phase = 0.0
+        for (tone in tones) {
+            val frames = sampleRate * tone.ms / 1000
+            if (tone.freq <= 0.0) {
+                idx += frames
+                phase = 0.0
+                continue
+            }
+            for (i in 0 until frames) {
+                phase += 2 * PI * tone.freq / sampleRate
+                // Light envelope: 15 ms attack / release to avoid clicks.
+                val envFrames = (sampleRate * 15 / 1000).coerceAtMost(frames / 2)
+                val env = when {
+                    i < envFrames -> i.toDouble() / envFrames
+                    i >= frames - envFrames -> (frames - i).toDouble() / envFrames
+                    else -> 1.0
+                }
+                buffer[idx++] = (sin(phase) * Short.MAX_VALUE * 0.85 * env).toInt().toShort()
+            }
+        }
+
+        raiseAlarmVolume(context)
+
+        val track = AudioTrack.Builder()
+            .setAudioAttributes(alarmAttributes)
+            .setAudioFormat(
+                AudioFormat.Builder()
+                    .setSampleRate(sampleRate)
+                    .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
+                    .setChannelMask(AudioFormat.CHANNEL_OUT_MONO)
+                    .build(),
+            )
+            .setBufferSizeInBytes(totalFrames * 2)
+            .setTransferMode(AudioTrack.MODE_STATIC)
+            .build()
+
+        track.write(buffer, 0, buffer.size)
+        sirenTrack = track
+        sirenRunning = false
+        track.setNotificationMarkerPosition(totalFrames)
+        track.setPlaybackPositionUpdateListener(
+            object : AudioTrack.OnPlaybackPositionUpdateListener {
+                override fun onMarkerReached(t: AudioTrack) {
+                    val finished = synchronized(this@AttentionSound) {
+                        if (sirenTrack === t) {
+                            runCatching { t.release() }
+                            sirenTrack = null
+                            true
+                        } else false
+                    }
+                    if (finished) onFinished()
+                }
+                override fun onPeriodicNotification(t: AudioTrack) = Unit
+            }
+        )
+        track.play()
+    }
+
     @Synchronized
     fun stop() {
         ringtonePlayer?.runCatching {

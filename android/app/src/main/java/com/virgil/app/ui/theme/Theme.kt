@@ -23,6 +23,7 @@ private val VirgilColorScheme = darkColorScheme(
 fun VirgilTheme(content: @Composable () -> Unit) {
     MaterialTheme(
         colorScheme = VirgilColorScheme,
+        typography = VirgilTypography,
         content = content,
     )
 }
