@@ -26,11 +26,15 @@
     <!-- Emergency SMS -->
     <string name="emergency_sms_default">URGENT: I may need help. I have not responded to my safety check. This is an automatic alert from Virgil.</string>
     <string name="test_sms_message">[Virgil TEST] This is a test from your safety app. No emergency — just checking that alerts and location work.</string>
-    <string name="sms_location_unavailable">(Location unavailable)</string>
-    <string name="sms_location_label">Location</string>
-    <string name="sms_accuracy">Accuracy: %1$dm</string>
-    <string name="sms_age_minutes">(%1$d min old)</string>
-    <string name="sms_age_hours">(%1$dh %2$dmin old)</string>
+    <string name="sms_location_unavailable">My location isn\'t available right now.</string>
+    <string name="sms_location_label">My location</string>
+    <string name="sms_accuracy">Accuracy: ~%1$dm</string>
+    <string name="sms_altitude">Altitude: ~%1$dm</string>
+    <string name="sms_altitude_with_accuracy">Altitude: ~%1$dm (±%2$dm)</string>
+    <string name="sms_fix_time">Time: %1$s</string>
+    <string name="sms_alert_time">Alert sent: %1$s</string>
+    <string name="sms_map_google">Google Maps</string>
+    <string name="sms_map_osm">OpenStreetMap</string>
 
     <!-- Home screen -->
     <string name="home_top_permissions">Permissions</string>

@@ -23,11 +23,15 @@
 
     <string name="emergency_sms_default">URGENT : j\'ai peut-être besoin d\'aide. Je n\'ai pas répondu à mon contrôle de sécurité. Ceci est une alerte automatique de Virgil.</string>
     <string name="test_sms_message">[Virgil TEST] Ceci est un test de votre application de sécurité. Aucune urgence — simple vérification que les alertes et la localisation fonctionnent.</string>
-    <string name="sms_location_unavailable">(Localisation indisponible)</string>
-    <string name="sms_location_label">Localisation</string>
-    <string name="sms_accuracy">Précision : %1$d m</string>
-    <string name="sms_age_minutes">(il y a %1$d min)</string>
-    <string name="sms_age_hours">(il y a %1$d h %2$d min)</string>
+    <string name="sms_location_unavailable">Ma position n\'est pas disponible pour le moment.</string>
+    <string name="sms_location_label">Ma position</string>
+    <string name="sms_accuracy">Précision : ~%1$d m</string>
+    <string name="sms_altitude">Altitude : ~%1$d m</string>
+    <string name="sms_altitude_with_accuracy">Altitude : ~%1$d m (±%2$d m)</string>
+    <string name="sms_fix_time">Heure : %1$s</string>
+    <string name="sms_alert_time">Alerte envoyée : %1$s</string>
+    <string name="sms_map_google">Google Maps</string>
+    <string name="sms_map_osm">OpenStreetMap</string>
 
     <string name="home_top_permissions">Autorisations</string>
     <string name="home_top_settings">Paramètres</string>

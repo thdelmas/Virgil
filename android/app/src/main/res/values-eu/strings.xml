@@ -23,11 +23,15 @@
 
     <string name="emergency_sms_default">LARRIALDIA: baliteke laguntza behar izatea. Ez dut nire segurtasun egiaztapenari erantzun. Virgilen abisu automatikoa da hau.</string>
     <string name="test_sms_message">[Virgil PROBA] Zure segurtasun aplikazioaren proba bat da. Larrialdirik ez — abisuak eta kokapena ondo dabiltzan egiaztatzen.</string>
-    <string name="sms_location_unavailable">(Kokapena eskuragarri ez)</string>
-    <string name="sms_location_label">Kokapena</string>
-    <string name="sms_accuracy">Zehaztasuna: %1$d m</string>
-    <string name="sms_age_minutes">(duela %1$d min)</string>
-    <string name="sms_age_hours">(duela %1$d h %2$d min)</string>
+    <string name="sms_location_unavailable">Nire kokapena ez dago orain eskuragarri.</string>
+    <string name="sms_location_label">Nire kokapena</string>
+    <string name="sms_accuracy">Zehaztasuna: ~%1$d m</string>
+    <string name="sms_altitude">Altitudea: ~%1$d m</string>
+    <string name="sms_altitude_with_accuracy">Altitudea: ~%1$d m (±%2$d m)</string>
+    <string name="sms_fix_time">Ordua: %1$s</string>
+    <string name="sms_alert_time">Alerta bidalia: %1$s</string>
+    <string name="sms_map_google">Google Maps</string>
+    <string name="sms_map_osm">OpenStreetMap</string>
 
     <string name="home_top_permissions">Baimenak</string>
     <string name="home_top_settings">Ezarpenak</string>

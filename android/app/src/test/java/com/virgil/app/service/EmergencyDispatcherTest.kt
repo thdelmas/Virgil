@@ -1,39 +1,99 @@
 package com.virgil.app.service
 
-import com.virgil.app.service.EmergencyDispatcher.AgeInfo
+import java.time.ZoneId
+import java.time.ZonedDateTime
 import org.junit.Test
 import kotlin.test.assertEquals
 
 class EmergencyDispatcherTest {
 
     @Test
-    fun `fresh fix is classified as Fresh`() {
-        assertEquals(AgeInfo.Fresh, EmergencyDispatcher.classifyAge(5_000))
+    fun `formatOffset renders whole-hour positive offsets without minutes`() {
+        assertEquals("GMT+2", EmergencyDispatcher.formatOffset(2 * 3600))
     }
 
     @Test
-    fun `boundary at one minute exclusive is still Fresh`() {
-        assertEquals(AgeInfo.Fresh, EmergencyDispatcher.classifyAge(59_999))
+    fun `formatOffset renders whole-hour negative offsets with minus sign`() {
+        assertEquals("GMT-5", EmergencyDispatcher.formatOffset(-5 * 3600))
     }
 
     @Test
-    fun `boundary at one minute inclusive becomes Minutes(1)`() {
-        assertEquals(AgeInfo.Minutes(1), EmergencyDispatcher.classifyAge(60_000))
+    fun `formatOffset renders UTC as GMT+0`() {
+        assertEquals("GMT+0", EmergencyDispatcher.formatOffset(0))
     }
 
     @Test
-    fun `minute-old fix returns Minutes with correct count`() {
-        assertEquals(AgeInfo.Minutes(12), EmergencyDispatcher.classifyAge(12 * 60_000L))
+    fun `formatOffset renders half-hour offsets with two-digit minutes`() {
+        // India standard time: +5:30
+        assertEquals("GMT+5:30", EmergencyDispatcher.formatOffset(5 * 3600 + 30 * 60))
     }
 
     @Test
-    fun `hour-old fix returns Hours with hours and minutes`() {
-        val ageMs = (2 * 3600 + 7 * 60) * 1000L
-        assertEquals(AgeInfo.Hours(2, 7), EmergencyDispatcher.classifyAge(ageMs))
+    fun `formatOffset renders 45-minute offsets`() {
+        // Chatham Islands: +12:45
+        assertEquals("GMT+12:45", EmergencyDispatcher.formatOffset(12 * 3600 + 45 * 60))
     }
 
     @Test
-    fun `negative age is treated as zero (Fresh)`() {
-        assertEquals(AgeInfo.Fresh, EmergencyDispatcher.classifyAge(-5_000))
+    fun `formatOffset renders negative half-hour offsets`() {
+        // Newfoundland: -3:30
+        assertEquals("GMT-3:30", EmergencyDispatcher.formatOffset(-(3 * 3600 + 30 * 60)))
+    }
+
+    @Test
+    fun `formatDateTime renders fixed instant in Paris standard time`() {
+        // 2026-01-15 14:32 in Europe/Paris (winter → CET, GMT+1)
+        val instant = ZonedDateTime.of(2026, 1, 15, 14, 32, 0, 0, ZoneId.of("Europe/Paris"))
+            .toInstant()
+            .toEpochMilli()
+        assertEquals(
+            "2026-01-15 14:32 GMT+1",
+            EmergencyDispatcher.formatDateTime(instant, ZoneId.of("Europe/Paris")),
+        )
+    }
+
+    @Test
+    fun `formatDateTime renders fixed instant in Paris summer time`() {
+        // 2026-07-15 14:32 in Europe/Paris (summer → CEST, GMT+2)
+        val instant = ZonedDateTime.of(2026, 7, 15, 14, 32, 0, 0, ZoneId.of("Europe/Paris"))
+            .toInstant()
+            .toEpochMilli()
+        assertEquals(
+            "2026-07-15 14:32 GMT+2",
+            EmergencyDispatcher.formatDateTime(instant, ZoneId.of("Europe/Paris")),
+        )
+    }
+
+    @Test
+    fun `formatDateTime renders India half-hour offset`() {
+        val instant = ZonedDateTime.of(2026, 4, 18, 9, 5, 0, 0, ZoneId.of("Asia/Kolkata"))
+            .toInstant()
+            .toEpochMilli()
+        assertEquals(
+            "2026-04-18 09:05 GMT+5:30",
+            EmergencyDispatcher.formatDateTime(instant, ZoneId.of("Asia/Kolkata")),
+        )
+    }
+
+    @Test
+    fun `formatDateTime renders UTC`() {
+        val instant = ZonedDateTime.of(2026, 4, 18, 12, 0, 0, 0, ZoneId.of("UTC"))
+            .toInstant()
+            .toEpochMilli()
+        assertEquals(
+            "2026-04-18 12:00 GMT+0",
+            EmergencyDispatcher.formatDateTime(instant, ZoneId.of("UTC")),
+        )
+    }
+
+    @Test
+    fun `formatDateTime pads single-digit date components with zero`() {
+        val instant = ZonedDateTime.of(2026, 1, 5, 3, 7, 0, 0, ZoneId.of("UTC"))
+            .toInstant()
+            .toEpochMilli()
+        assertEquals(
+            "2026-01-05 03:07 GMT+0",
+            EmergencyDispatcher.formatDateTime(instant, ZoneId.of("UTC")),
+        )
     }
 }
