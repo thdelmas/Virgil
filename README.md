@@ -21,9 +21,9 @@ A free, open-source Android app that watches over you when you're alone. Two fea
 ## Who it's for
 
 - An elderly parent living alone
-- Someone recovering from surgery or illness at home
-- A person with a condition that causes fainting or seizures
-- Someone hiking or working in remote areas
+- Anyone spending long stretches at home by themselves
+- Someone prone to moments of reduced awareness or balance trouble
+- Someone hiking or working alone in a remote area
 - Anyone who wants a safety net without extra hardware, a subscription, or a cloud service
 
 ---

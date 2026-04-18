@@ -52,6 +52,14 @@ Virgil works in any country, in any language, on any Android phone with an accel
 
 A guardian that kills your phone battery is no guardian at all. Virgil uses efficient sensor batching and minimal wake-ups. The check-in feature uses activity signals the OS already tracks — it doesn't poll sensors continuously.
 
+### 6. Honest framing — no false confidence
+
+A safety net people over-trust becomes a hazard. If someone believes Virgil will always catch them, they take risks they would not otherwise take — and the moments Virgil *cannot* catch (phone on the kitchen table, silent cardiac event, missed fall signature) become more dangerous, not less.
+
+Virgil is framed as "help arrives faster," never as "you are safe." The app shows a plain-language reminder every time it is opened: it is not a medical device, it may miss events or trigger false alerts, and the user should stay as careful as they would without it. <!-- compliance-allow: disclaimer principle text -->
+
+No streaks, no "incidents caught" counters, no gamification that implies coverage. The consent screen at first run (see [docs/COMPLIANCE.md §6](docs/COMPLIANCE.md)) is the legal floor; the always-visible in-app reminder is the ethical one.
+
 ---
 
 ## How It Works
