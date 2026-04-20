@@ -12,7 +12,6 @@ import com.virgil.app.R
 import com.virgil.app.VirgilApp
 import com.virgil.app.data.EmergencyPreferences
 import com.virgil.app.data.InteractionTracker
-import com.virgil.app.ui.emergency.EmergencyCountdownActivity
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import java.util.Calendar
@@ -109,11 +108,7 @@ class CheckInReceiver : BroadcastReceiver() {
     }
 
     private fun triggerEmergency(context: Context) {
-        val intent = Intent(context, EmergencyCountdownActivity::class.java).apply {
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
-            putExtra(FallDetectionService.EXTRA_TRIGGER_TYPE, "checkin")
-        }
-        context.startActivity(intent)
+        EmergencyLauncher.launch(context, triggerType = "checkin")
     }
 
     private fun restartService(context: Context) {

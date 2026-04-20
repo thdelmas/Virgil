@@ -49,6 +49,7 @@ import com.virgil.app.data.AppLocale
 import com.virgil.app.data.EmergencyPreferences
 import com.virgil.app.service.AttentionSound
 import com.virgil.app.service.EmergencyDispatcher
+import com.virgil.app.service.EmergencyLauncher
 import com.virgil.app.service.EmergencySirenService
 import com.virgil.app.service.FallDetectionService
 import com.virgil.app.ui.theme.VirgilTheme
@@ -81,6 +82,7 @@ class EmergencyCountdownActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        EmergencyLauncher.cancel(this)
         showOverLockScreen()
 
         prefs = EmergencyPreferences(this)

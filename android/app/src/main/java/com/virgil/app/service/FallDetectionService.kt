@@ -20,7 +20,6 @@ import com.virgil.app.VirgilApp
 import com.virgil.app.analysis.FallDetectionAlgorithm
 import com.virgil.app.permissions.PermissionMonitor
 import com.virgil.app.ui.MainActivity
-import com.virgil.app.ui.emergency.EmergencyCountdownActivity
 import kotlin.math.sqrt
 
 /**
@@ -166,12 +165,7 @@ class FallDetectionService : Service(), SensorEventListener {
     }
 
     private fun onFallDetected() {
-        val intent = Intent(this, EmergencyCountdownActivity::class.java).apply {
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
-            putExtra(EXTRA_PEAK_ACCEL, algorithm.lastPeakAccel)
-            putExtra(EXTRA_TRIGGER_TYPE, "fall")
-        }
-        startActivity(intent)
+        EmergencyLauncher.launch(this, triggerType = "fall", peakAccel = algorithm.lastPeakAccel)
     }
 
     private fun buildNotification(): Notification {
