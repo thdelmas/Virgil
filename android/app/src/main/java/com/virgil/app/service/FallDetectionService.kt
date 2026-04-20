@@ -3,7 +3,10 @@ package com.virgil.app.service
 import android.app.Notification
 import android.app.PendingIntent
 import android.app.Service
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.ServiceInfo
 import android.hardware.Sensor
 import android.hardware.SensorEvent
@@ -13,6 +16,7 @@ import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
 import android.os.PowerManager
+import android.os.SystemClock
 import androidx.core.app.NotificationCompat
 import com.virgil.app.BuildConfig
 import com.virgil.app.R
@@ -30,11 +34,24 @@ class FallDetectionService : Service(), SensorEventListener {
 
     private lateinit var sensorManager: SensorManager
     private var accelerometer: Sensor? = null
+    private var gyroscope: Sensor? = null
     private val algorithm = FallDetectionAlgorithm { msg ->
         android.util.Log.i(TAG, msg)
     }
     private var isListening = false
     private var wakeLock: PowerManager.WakeLock? = null
+
+    @Volatile private var verifyingStartedAt: Long = 0
+    private var verifyMotionSamples = 0
+    private var verifyPeakAccel: Float = 0f
+
+    private val screenReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            if (intent.action == Intent.ACTION_SCREEN_ON) {
+                cancelVerify("screen turned on")
+            }
+        }
+    }
 
     override fun onCreate() {
         super.onCreate()
@@ -44,6 +61,19 @@ class FallDetectionService : Service(), SensorEventListener {
         // Fall back to the default (non-wake-up) sensor + partial wake lock.
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER, true)
             ?: sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
+        gyroscope = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE, true)
+            ?: sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE)
+        registerReceiver(
+            screenReceiver,
+            IntentFilter(Intent.ACTION_SCREEN_ON),
+            Context.RECEIVER_NOT_EXPORTED,
+        )
+    }
+
+    override fun onDestroy() {
+        runCatching { unregisterReceiver(screenReceiver) }
+        stopSensor()
+        super.onDestroy()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -80,20 +110,15 @@ class FallDetectionService : Service(), SensorEventListener {
         return START_STICKY
     }
 
-    override fun onDestroy() {
-        stopSensor()
-        super.onDestroy()
-    }
-
     override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onSensorChanged(event: SensorEvent) {
-        if (event.sensor.type != Sensor.TYPE_ACCELEROMETER) return
         // Suppress detection while an emergency screen is up — otherwise the
         // user's own handling (or the activity's own vibration) trips a second
         // alarm on top of the first.
         if (alarmInFlight) {
             if (!algorithm.isIdle) algorithm.reset()
+            if (verifyingStartedAt != 0L) cancelVerify("alarm in flight")
             return
         }
 
@@ -103,9 +128,43 @@ class FallDetectionService : Service(), SensorEventListener {
         val magnitude = sqrt(x * x + y * y + z * z)
         val now = System.currentTimeMillis()
 
-        if (algorithm.processSample(magnitude, now)) {
-            onFallDetected()
+        when (event.sensor.type) {
+            Sensor.TYPE_ACCELEROMETER -> {
+                if (algorithm.processSample(magnitude, now)) onFallDetected()
+                tickVerify(magnitude)
+            }
+            Sensor.TYPE_GYROSCOPE -> algorithm.processGyro(magnitude, now)
         }
+    }
+
+    private fun tickVerify(magnitude: Float) {
+        val startedAt = verifyingStartedAt
+        if (startedAt == 0L) return
+        val elapsed = SystemClock.elapsedRealtime() - startedAt
+        if (elapsed >= VERIFY_WINDOW_MS) {
+            val peak = verifyPeakAccel
+            verifyingStartedAt = 0
+            verifyMotionSamples = 0
+            verifyPeakAccel = 0f
+            android.util.Log.i(TAG, "fall verify expired — escalating peak=$peak")
+            EmergencyLauncher.launch(this, triggerType = "fall", peakAccel = peak)
+            return
+        }
+        val inStillnessBand = magnitude in FallDetectionAlgorithm.STILLNESS_LOW..FallDetectionAlgorithm.STILLNESS_HIGH
+        if (!inStillnessBand) {
+            verifyMotionSamples++
+            if (verifyMotionSamples >= VERIFY_MOTION_CANCEL_SAMPLES) {
+                cancelVerify("motion resumed (${verifyMotionSamples} samples)")
+            }
+        }
+    }
+
+    private fun cancelVerify(reason: String) {
+        if (verifyingStartedAt == 0L) return
+        verifyingStartedAt = 0
+        verifyMotionSamples = 0
+        verifyPeakAccel = 0f
+        android.util.Log.i(TAG, "fall verify canceled: $reason")
     }
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
@@ -114,6 +173,7 @@ class FallDetectionService : Service(), SensorEventListener {
         if (isListening) return
         val sensor = accelerometer ?: return
         sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_GAME)
+        gyroscope?.let { sensorManager.registerListener(this, it, SensorManager.SENSOR_DELAY_GAME) }
         isListening = true
         // Only hold a wake lock when the hardware doesn't have a wake-up
         // accelerometer — otherwise the sensor hub delivers events through
@@ -172,7 +232,16 @@ class FallDetectionService : Service(), SensorEventListener {
     }
 
     private fun onFallDetected() {
-        EmergencyLauncher.launch(this, triggerType = "fall", peakAccel = algorithm.lastPeakAccel)
+        if (verifyingStartedAt != 0L) return
+        val pm = getSystemService(PowerManager::class.java)
+        if (pm?.isInteractive == true) {
+            android.util.Log.i(TAG, "fall ignored: screen interactive (phone in use)")
+            return
+        }
+        verifyingStartedAt = SystemClock.elapsedRealtime()
+        verifyMotionSamples = 0
+        verifyPeakAccel = algorithm.lastPeakAccel
+        android.util.Log.i(TAG, "fall candidate — silent ${VERIFY_WINDOW_MS}ms verify window peak=$verifyPeakAccel")
     }
 
     private fun buildNotification(): Notification {
@@ -220,5 +289,7 @@ class FallDetectionService : Service(), SensorEventListener {
         const val EXTRA_DEBUG_DELAYS = "debug_delays"
         const val EXTRA_DEBUG_LABEL = "debug_label"
         private const val TAG = "FallDetectionService"
+        private const val VERIFY_WINDOW_MS = 12_000L
+        private const val VERIFY_MOTION_CANCEL_SAMPLES = 8
     }
 }

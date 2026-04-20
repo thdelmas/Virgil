@@ -9,6 +9,9 @@ package com.virgil.app.analysis
  *  - Sustained prior motion + impact (>~3g) — trips and braced falls mid-walk
  *  - No prior motion + impact (>~5g) — falls from a chair or bed, where
  *    standing-up jolts alone shouldn't trigger but a body-hits-floor does
+ * When a gyroscope is available, impacts are only accepted if accompanied by
+ * recent rotation — a pocket drop tumbles briefly but doesn't rotate the way
+ * a falling body does (pivoting around ankles/hips or swinging on a lanyard).
  * An impact must then be followed by near-1g stillness to confirm a fall.
  */
 class FallDetectionAlgorithm(
@@ -29,6 +32,9 @@ class FallDetectionAlgorithm(
     private var hadFreefall: Boolean = false
     private var motionStartedAt: Long = 0
     private var lastMotionAt: Long = 0
+    private var gyroEnabled: Boolean = false
+    private var lastHighRotationAt: Long = 0
+    private var peakRotation: Float = 0f
 
     /**
      * Process a single accelerometer reading.
@@ -54,31 +60,38 @@ class FallDetectionAlgorithm(
         }
 
         if (impactDetectedAt == 0L) {
+            val rotationOk = rotationConfirmed(timestamp)
             val timeSinceFreefall = if (freefallDetectedAt > 0) timestamp - freefallDetectedAt else Long.MAX_VALUE
             val recentFreefall = timeSinceFreefall in 1..IMPACT_WINDOW_MS
             if (recentFreefall && magnitude > IMPACT_THRESHOLD) {
                 val freefallDuration = freefallDetectedAt - freefallStartedAt
                 val genuineFreefall = freefallDuration >= MIN_FREEFALL_DURATION_MS ||
                     minFreefallMag < DEEP_FREEFALL_THRESHOLD
-                if (genuineFreefall) {
+                if (genuineFreefall && rotationOk) {
                     impactDetectedAt = timestamp
                     lastPeakAccel = magnitude
                     hadFreefall = true
-                    logger("impact after freefall peak=$magnitude dt=${timeSinceFreefall}ms min=$minFreefallMag dur=${freefallDuration}ms")
+                    logger("impact after freefall peak=$magnitude dt=${timeSinceFreefall}ms min=$minFreefallMag dur=${freefallDuration}ms rot=$peakRotation")
                     return false
                 }
-                logger("freefall rejected (shallow/brief) min=$minFreefallMag dur=${freefallDuration}ms peak=$magnitude")
+                if (genuineFreefall) {
+                    logger("freefall impact suppressed (no rotation) peak=$magnitude min=$minFreefallMag dur=${freefallDuration}ms")
+                } else {
+                    logger("freefall rejected (shallow/brief) min=$minFreefallMag dur=${freefallDuration}ms peak=$magnitude")
+                }
             }
             val largeImpactThreshold = if (hadSustainedMotion) LARGE_IMPACT_THRESHOLD else REST_IMPACT_THRESHOLD
             if (magnitude > largeImpactThreshold) {
-                impactDetectedAt = timestamp
-                lastPeakAccel = magnitude
-                hadFreefall = false
-                logger("large impact (no freefall) peak=$magnitude sustainedMotion=$hadSustainedMotion")
-                return false
-            }
-            if (magnitude > IMPACT_THRESHOLD) {
-                logger("impact candidate below threshold peak=$magnitude thresh=$largeImpactThreshold sustainedMotion=$hadSustainedMotion")
+                if (rotationOk) {
+                    impactDetectedAt = timestamp
+                    lastPeakAccel = magnitude
+                    hadFreefall = false
+                    logger("large impact (no freefall) peak=$magnitude sustainedMotion=$hadSustainedMotion rot=$peakRotation")
+                    return false
+                }
+                logger("large impact suppressed (no rotation) peak=$magnitude sustainedMotion=$hadSustainedMotion")
+            } else if (magnitude > IMPACT_THRESHOLD) {
+                logger("impact candidate below threshold peak=$magnitude thresh=$largeImpactThreshold sustainedMotion=$hadSustainedMotion rotationOk=$rotationOk")
             }
         }
 
@@ -121,11 +134,31 @@ class FallDetectionAlgorithm(
         }
     }
 
+    /**
+     * Called from the service when a gyroscope sample arrives. Also records
+     * that a gyro is present so [rotationConfirmed] can gate impact detection.
+     * @param rotationMagnitude angular velocity magnitude in rad/s
+     */
+    fun processGyro(rotationMagnitude: Float, timestamp: Long) {
+        gyroEnabled = true
+        if (rotationMagnitude > ROTATION_THRESHOLD) {
+            lastHighRotationAt = timestamp
+        }
+        if (rotationMagnitude > peakRotation) peakRotation = rotationMagnitude
+        if (lastHighRotationAt > 0 && timestamp - lastHighRotationAt > ROTATION_WINDOW_MS) {
+            peakRotation = rotationMagnitude
+        }
+    }
+
+    private fun rotationConfirmed(timestamp: Long): Boolean {
+        if (!gyroEnabled) return true
+        return lastHighRotationAt > 0 && timestamp - lastHighRotationAt <= ROTATION_WINDOW_MS
+    }
+
     fun reset() {
         freefallDetectedAt = 0
         freefallStartedAt = 0
         impactDetectedAt = 0
-        lastPeakAccel = 0f
         minFreefallMag = Float.MAX_VALUE
         hadFreefall = false
     }
@@ -147,5 +180,7 @@ class FallDetectionAlgorithm(
         const val STILLNESS_HIGH = 12.25f          // ~1.25g
         const val SUSTAINED_MOTION_MS = 1000L      // motion must last ≥1s to qualify
         const val MOTION_GAP_MS = 500L             // stillness longer than this ends a motion streak
+        const val ROTATION_THRESHOLD = 4.0f        // rad/s (~229°/s) — above normal necklace swing
+        const val ROTATION_WINDOW_MS = 500L        // rotation must occur within 500ms of impact
     }
 }

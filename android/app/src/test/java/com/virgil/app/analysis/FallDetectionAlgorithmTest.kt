@@ -198,6 +198,49 @@ class FallDetectionAlgorithmTest {
     }
 
     @Test
+    fun `rotation gate allows fall when gyro confirms body rotation`() {
+        var time = 1000L
+        // 1.6s of walking: low baseline rotation (~1 rad/s), below gate.
+        repeat(80) { i ->
+            algo.processGyro(1.0f, time)
+            val mag = if (i % 5 == 0) 14.7f else 9.0f
+            assertFalse(algo.processSample(mag, time))
+            time += 20
+        }
+        // Trip: high angular velocity (body pivots around ankles) + 3g impact.
+        algo.processGyro(8.0f, time)
+        assertFalse(algo.processSample(30.0f, time))
+        val impactTime = time
+        time = impactTime + FallDetectionAlgorithm.STILLNESS_DELAY_MS + 100
+        algo.processGyro(0.5f, time)
+        assertTrue(algo.processSample(9.8f, time))
+    }
+
+    @Test
+    fun `rotation gate suppresses phone drop without body rotation`() {
+        var time = 1000L
+        // Stationary with gyro active: user holding phone, low rotation.
+        repeat(50) {
+            algo.processGyro(1.0f, time)
+            assertFalse(algo.processSample(9.8f, time))
+            time += 20
+        }
+        // Drop: clean deep free-fall, only modest tumble (<4 rad/s).
+        repeat(5) {
+            algo.processGyro(1.5f, time)
+            assertFalse(algo.processSample(1.0f, time))
+            time += 20
+        }
+        // Impact above the REST threshold — would fire without the gyro gate.
+        algo.processGyro(2.0f, time)
+        assertFalse(algo.processSample(50.0f, time))
+        val impactTime = time
+        time = impactTime + FallDetectionAlgorithm.STILLNESS_DELAY_MS + 100
+        algo.processGyro(0.5f, time)
+        assertFalse(algo.processSample(9.8f, time))
+    }
+
+    @Test
     fun `normal walking does not trigger`() {
         var time = 1000L
         repeat(500) { i ->
