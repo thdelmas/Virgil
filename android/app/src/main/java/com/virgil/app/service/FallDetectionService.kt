@@ -31,7 +31,9 @@ class FallDetectionService : Service(), SensorEventListener {
 
     private lateinit var sensorManager: SensorManager
     private var accelerometer: Sensor? = null
-    private val algorithm = FallDetectionAlgorithm()
+    private val algorithm = FallDetectionAlgorithm { msg ->
+        android.util.Log.i(TAG, msg)
+    }
     private var isListening = false
     private var wakeLock: PowerManager.WakeLock? = null
 

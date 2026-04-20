@@ -46,11 +46,22 @@ class FallDetectionAlgorithmTest {
     }
 
     @Test
-    fun `no detection without freefall phase`() {
+    fun `no detection without freefall phase for sub-large impact`() {
         var time = 1000L
-        assertFalse(algo.processSample(39.2f, time))
+        // 25 m/s^2 is above IMPACT_THRESHOLD but below LARGE_IMPACT_THRESHOLD,
+        // so without a preceding free-fall this must not count as an impact.
+        assertFalse(algo.processSample(25.0f, time))
         time += 600
         assertFalse(algo.processSample(9.8f, time))
+    }
+
+    @Test
+    fun `large impact without freefall triggers when followed by stillness`() {
+        var time = 1000L
+        assertFalse(algo.processSample(30.0f, time))
+        val impactTime = time
+        time = impactTime + FallDetectionAlgorithm.STILLNESS_DELAY_MS + 100
+        assertTrue(algo.processSample(9.8f, time))
     }
 
     @Test
@@ -83,7 +94,9 @@ class FallDetectionAlgorithmTest {
         var time = 1000L
         assertFalse(algo.processSample(3.0f, time))
         time += FallDetectionAlgorithm.IMPACT_WINDOW_MS + 100
-        assertFalse(algo.processSample(39.2f, time))
+        // Use a sub-large impact so only the freefall+impact path could apply,
+        // and verify it is rejected because the free-fall expired.
+        assertFalse(algo.processSample(25.0f, time))
         time += 600
         assertFalse(algo.processSample(9.8f, time))
     }
