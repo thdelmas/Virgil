@@ -102,9 +102,10 @@
     <string name="settings_auto_answer_switch">Contestar automàticament els contactes d\'emergència</string>
     <string name="settings_auto_answer_needs_contact">Afegeix primer un contacte d\'emergència.</string>
     <string name="settings_auto_answer_explainer">Durant 15 minuts després d\'una alerta, si un dels teus contactes d\'emergència et truca, Virgil despenja automàticament, silencia la sirena, activa l\'altaveu i puja el volum — perquè puguis sentir i parlar sense tocar el telèfon. Els números desconeguts sonen amb normalitat. Pots desactivar-ho quan vulguis.</string>
-    <string name="settings_auto_answer_role_needed">Per despenjar per tu, Virgil ha de ser el teu filtre de trucades a Android.</string>
-    <string name="settings_auto_answer_role_button">Fer de Virgil el meu filtre de trucades</string>
-    <string name="settings_auto_answer_role_granted">Virgil és el teu filtre de trucades ✓</string>
+    <string name="settings_auto_answer_role_needed">Permís d\'Android pendent — concedeix el filtre de trucades a sota.</string>
+
+    <string name="settings_tag_virgil_setting">AJUST DE VIRGIL</string>
+    <string name="settings_tag_android_permission">PERMÍS D\'ANDROID</string>
 
     <string name="perm_answer_title">Despenjar per tu</string>
     <string name="perm_answer_rationale">Perquè Virgil pugui despenjar una trucada de tornada del teu contacte d\'emergència sense que toquis el telèfon. Només durant una alerta.</string>

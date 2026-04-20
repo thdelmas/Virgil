@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyListScope
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -34,12 +33,12 @@ import androidx.lifecycle.LifecycleEventObserver
 import com.virgil.app.R
 
 /**
- * Lazy-list item that renders the "Auto-answer emergency contacts" toggle,
- * an explanation of how the feature behaves, and the Call Screener role
- * request button when the user has opted in but not yet granted the role.
+ * Lazy-list item that renders the "Auto-answer emergency contacts" toggle.
  *
- * Kept in its own file so [EmergencySettingsScreen] stays under the project's
- * 500-line cap — the explanatory copy alone is ~20 lines.
+ * The switch drives both the Virgil preference and the Android
+ * ROLE_CALL_SCREENING grant — toggling on launches the system role dialog
+ * when needed, and a denial reverts the switch. The row is tagged as a
+ * Virgil setting; the Permissions section below owns the system-level view.
  */
 fun LazyListScope.autoAnswerSection(
     enabled: Boolean,
@@ -48,6 +47,12 @@ fun LazyListScope.autoAnswerSection(
 ) {
     item {
         Spacer(modifier = Modifier.height(16.dp))
+        Text(
+            text = stringResource(R.string.settings_tag_virgil_setting),
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.primary,
+        )
+        Spacer(modifier = Modifier.height(2.dp))
         Text(
             text = stringResource(R.string.settings_auto_answer_title),
             style = MaterialTheme.typography.headlineSmall,
@@ -59,101 +64,92 @@ fun LazyListScope.autoAnswerSection(
             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
         )
         Spacer(modifier = Modifier.height(12.dp))
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween,
-        ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = stringResource(R.string.settings_auto_answer_switch),
-                    style = MaterialTheme.typography.titleMedium,
-                )
-                if (!hasContacts) {
-                    Spacer(modifier = Modifier.height(2.dp))
-                    Text(
-                        text = stringResource(R.string.settings_auto_answer_needs_contact),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-                    )
-                }
-            }
-            Switch(
-                checked = enabled,
-                onCheckedChange = onToggle,
-                enabled = hasContacts,
-            )
-        }
-
+        AutoAnswerSwitchRow(
+            enabled = enabled,
+            hasContacts = hasContacts,
+            onToggle = onToggle,
+        )
         if (enabled) {
             Spacer(modifier = Modifier.height(12.dp))
-            CallScreenerRolePrompt()
-            Spacer(modifier = Modifier.height(12.dp))
-            AutoAnswerExplanation()
+            Text(
+                text = stringResource(R.string.settings_auto_answer_explainer),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.85f),
+            )
         }
     }
 }
 
 @Composable
-private fun CallScreenerRolePrompt() {
+private fun AutoAnswerSwitchRow(
+    enabled: Boolean,
+    hasContacts: Boolean,
+    onToggle: (Boolean) -> Unit,
+) {
     val context = LocalContext.current
     var roleHeld by remember { mutableStateOf(isCallScreeningRoleHeld(context)) }
 
-    // Re-check on resume: the user may grant / revoke the role in system
-    // settings and come back. Without this, the button claims a stale state.
     val lifecycleOwner = LocalLifecycleOwner.current
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_RESUME) {
-                roleHeld = isCallScreeningRoleHeld(context)
-            }
+            if (event == Lifecycle.Event.ON_RESUME) roleHeld = isCallScreeningRoleHeld(context)
         }
         lifecycleOwner.lifecycle.addObserver(observer)
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
-    val launcher = rememberLauncherForActivityResult(
+    val roleLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.StartActivityForResult(),
-    ) { roleHeld = isCallScreeningRoleHeld(context) }
+    ) {
+        val held = isCallScreeningRoleHeld(context)
+        roleHeld = held
+        // System denial — keep Virgil's pref in sync with reality.
+        if (!held) onToggle(false)
+    }
 
     LaunchedEffect(Unit) { roleHeld = isCallScreeningRoleHeld(context) }
 
-    if (roleHeld) {
-        Text(
-            text = stringResource(R.string.settings_auto_answer_role_granted),
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.primary,
-        )
-        return
-    }
-
-    Text(
-        text = stringResource(R.string.settings_auto_answer_role_needed),
-        style = MaterialTheme.typography.bodyMedium,
-    )
-    Spacer(modifier = Modifier.height(8.dp))
-    OutlinedButton(
-        onClick = {
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return@OutlinedButton
-            val rm = context.getSystemService(RoleManager::class.java) ?: return@OutlinedButton
-            if (!rm.isRoleAvailable(RoleManager.ROLE_CALL_SCREENING)) return@OutlinedButton
-            launcher.launch(rm.createRequestRoleIntent(RoleManager.ROLE_CALL_SCREENING))
-        },
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(52.dp),
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween,
     ) {
-        Text(stringResource(R.string.settings_auto_answer_role_button))
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = stringResource(R.string.settings_auto_answer_switch),
+                style = MaterialTheme.typography.titleMedium,
+            )
+            val subtitle = when {
+                !hasContacts -> stringResource(R.string.settings_auto_answer_needs_contact)
+                enabled && !roleHeld -> stringResource(R.string.settings_auto_answer_role_needed)
+                else -> null
+            }
+            if (subtitle != null) {
+                Spacer(modifier = Modifier.height(2.dp))
+                Text(
+                    text = subtitle,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                )
+            }
+        }
+        Switch(
+            checked = enabled,
+            onCheckedChange = { wantOn ->
+                if (!wantOn) {
+                    onToggle(false)
+                    return@Switch
+                }
+                onToggle(true)
+                if (roleHeld) return@Switch
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return@Switch
+                val rm = context.getSystemService(RoleManager::class.java) ?: return@Switch
+                if (!rm.isRoleAvailable(RoleManager.ROLE_CALL_SCREENING)) return@Switch
+                roleLauncher.launch(rm.createRequestRoleIntent(RoleManager.ROLE_CALL_SCREENING))
+            },
+            enabled = hasContacts,
+        )
     }
-}
-
-@Composable
-private fun AutoAnswerExplanation() {
-    Text(
-        text = stringResource(R.string.settings_auto_answer_explainer),
-        style = MaterialTheme.typography.bodyMedium,
-        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.85f),
-    )
 }
 
 private fun isCallScreeningRoleHeld(context: Context): Boolean {

@@ -172,6 +172,12 @@ private fun PermissionsHeader(
             MaterialTheme.colorScheme.error,
         )
     }
+    Text(
+        text = stringResource(R.string.settings_tag_android_permission),
+        style = MaterialTheme.typography.labelSmall,
+        color = MaterialTheme.colorScheme.primary,
+    )
+    Spacer(modifier = Modifier.height(2.dp))
     Text(title, style = MaterialTheme.typography.headlineSmall, color = color)
     Spacer(modifier = Modifier.height(4.dp))
     Text(

@@ -102,9 +102,10 @@
     <string name="settings_auto_answer_switch">Atender automaticamente contactos de emergência</string>
     <string name="settings_auto_answer_needs_contact">Adicione primeiro um contacto de emergência.</string>
     <string name="settings_auto_answer_explainer">Durante 15 minutos após um alerta, se um dos seus contactos de emergência lhe ligar, o Virgil atende automaticamente, silencia a sirene, ativa o altifalante e aumenta o volume — para que possa ouvir e falar sem tocar no telemóvel. Números desconhecidos tocam normalmente. Pode desativar quando quiser.</string>
-    <string name="settings_auto_answer_role_needed">Para atender por si, o Virgil precisa de ser o seu filtro de chamadas nas definições do Android.</string>
-    <string name="settings_auto_answer_role_button">Definir o Virgil como filtro de chamadas</string>
-    <string name="settings_auto_answer_role_granted">O Virgil é o seu filtro de chamadas ✓</string>
+    <string name="settings_auto_answer_role_needed">Permissão do Android pendente — conceda o filtro de chamadas abaixo.</string>
+
+    <string name="settings_tag_virgil_setting">DEFINIÇÃO DO VIRGIL</string>
+    <string name="settings_tag_android_permission">PERMISSÃO DO ANDROID</string>
 
     <string name="perm_answer_title">Atender por si</string>
     <string name="perm_answer_rationale">Para que o Virgil possa atender uma chamada de retorno do seu contacto de emergência sem que toque no telemóvel. Apenas durante um alerta.</string>

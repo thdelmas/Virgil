@@ -102,9 +102,10 @@
     <string name="settings_auto_answer_switch">Erantzun automatikoki larrialdi-kontaktuei</string>
     <string name="settings_auto_answer_needs_contact">Gehitu lehenik larrialdi-kontaktu bat.</string>
     <string name="settings_auto_answer_explainer">Alerta baten ondorengo 15 minutuetan, zure larrialdi-kontaktuetako batek deitzen badizu, Virgilek automatikoki hartuko du deia, sirena isilduko du, bozgorailua piztuko du eta bolumena igoko du — telefonoa ukitu gabe entzun eta hitz egin dezazun. Zenbaki ezezagunek normal jotzen dute. Nahi duzunean itzal dezakezu.</string>
-    <string name="settings_auto_answer_role_needed">Zuregatik erantzuteko, Virgil zure dei-iragazkia izan behar da Android-en ezarpenetan.</string>
-    <string name="settings_auto_answer_role_button">Virgil nire dei-iragazkia egin</string>
-    <string name="settings_auto_answer_role_granted">Virgil zure dei-iragazkia da ✓</string>
+    <string name="settings_auto_answer_role_needed">Android baimena zain — eman dei-iragazkia behean.</string>
+
+    <string name="settings_tag_virgil_setting">VIRGILEN EZARPENA</string>
+    <string name="settings_tag_android_permission">ANDROID BAIMENA</string>
 
     <string name="perm_answer_title">Deiak zure ordez hartu</string>
     <string name="perm_answer_rationale">Virgilek zure larrialdi-kontaktuaren itzuli-deia har dezan telefonoa ukitu gabe. Alerta batean soilik.</string>

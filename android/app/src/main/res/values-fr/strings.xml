@@ -102,9 +102,10 @@
     <string name="settings_auto_answer_switch">Répondre automatiquement aux contacts</string>
     <string name="settings_auto_answer_needs_contact">Ajoutez d\'abord un contact d\'urgence.</string>
     <string name="settings_auto_answer_explainer">Pendant 15 minutes après une alerte, si l\'un de vos contacts d\'urgence vous appelle, Virgil décroche automatiquement, coupe la sirène, active le haut-parleur et monte le volume — pour que vous puissiez parler et entendre sans toucher le téléphone. Les numéros inconnus sonnent normalement. Désactivable à tout moment.</string>
-    <string name="settings_auto_answer_role_needed">Pour décrocher à votre place, Virgil doit être votre filtre d\'appels dans Android.</string>
-    <string name="settings_auto_answer_role_button">Désigner Virgil comme filtre d\'appels</string>
-    <string name="settings_auto_answer_role_granted">Virgil est votre filtre d\'appels ✓</string>
+    <string name="settings_auto_answer_role_needed">Permission Android en attente — autorisez le filtre d\'appels ci-dessous.</string>
+
+    <string name="settings_tag_virgil_setting">RÉGLAGE VIRGIL</string>
+    <string name="settings_tag_android_permission">PERMISSION ANDROID</string>
 
     <string name="perm_answer_title">Décrocher pour vous</string>
     <string name="perm_answer_rationale">Pour que Virgil puisse décrocher un rappel de votre contact d\'urgence sans que vous ayez à toucher le téléphone. Uniquement pendant une alerte.</string>
