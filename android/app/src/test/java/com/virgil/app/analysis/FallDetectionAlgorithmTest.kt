@@ -56,9 +56,86 @@ class FallDetectionAlgorithmTest {
     }
 
     @Test
-    fun `large impact without freefall triggers when followed by stillness`() {
+    fun `trip during sustained motion triggers at 3g without freefall`() {
         var time = 1000L
+        // Walk for ~1.5s: periodic footfall bumps above the stillness band.
+        repeat(75) { i ->
+            val mag = if (i % 5 == 0) 14.7f else 9.0f
+            assertFalse(algo.processSample(mag, time))
+            time += 20
+        }
+        // Trip: 3.06g impact (above LARGE but below REST threshold).
         assertFalse(algo.processSample(30.0f, time))
+        val impactTime = time
+        time = impactTime + FallDetectionAlgorithm.STILLNESS_DELAY_MS + 100
+        assertTrue(algo.processSample(9.8f, time))
+    }
+
+    @Test
+    fun `standing up from rest with 3g pocket jolt does not trigger`() {
+        var time = 1000L
+        // Sit still for 2 seconds.
+        repeat(100) {
+            assertFalse(algo.processSample(9.8f, time))
+            time += 20
+        }
+        // Short rise: 200ms of out-of-band motion — below SUSTAINED_MOTION_MS.
+        repeat(10) {
+            assertFalse(algo.processSample(13.0f, time))
+            time += 20
+        }
+        // 3.16g pocket spike as the user stands.
+        assertFalse(algo.processSample(31.0f, time))
+        val spikeTime = time
+        // User is now standing still — must NOT confirm as a fall.
+        time = spikeTime + FallDetectionAlgorithm.STILLNESS_DELAY_MS + 100
+        assertFalse(algo.processSample(9.8f, time))
+    }
+
+    @Test
+    fun `fall from seated rest triggers at 5g without freefall`() {
+        var time = 1000L
+        // Sit still for 2 seconds.
+        repeat(100) {
+            assertFalse(algo.processSample(9.8f, time))
+            time += 20
+        }
+        // Body hits floor from seated height: 5.1g impact, no prior motion.
+        assertFalse(algo.processSample(50.0f, time))
+        val impactTime = time
+        time = impactTime + FallDetectionAlgorithm.STILLNESS_DELAY_MS + 100
+        assertTrue(algo.processSample(9.8f, time))
+    }
+
+    @Test
+    fun `shallow one-sample freefall dip does not trigger even with hard impact`() {
+        // Regression from the real-device false alarm: one sample at ~0.66g
+        // (not genuine free-fall), then a 4.68g pocket whip as the user stood
+        // up from a chair. Neither path should fire.
+        var time = 1000L
+        repeat(100) {
+            assertFalse(algo.processSample(9.8f, time))
+            time += 20
+        }
+        assertFalse(algo.processSample(6.47f, time))
+        time += 67
+        assertFalse(algo.processSample(45.9f, time))
+        val spikeTime = time
+        time = spikeTime + FallDetectionAlgorithm.STILLNESS_DELAY_MS + 100
+        assertFalse(algo.processSample(9.8f, time))
+    }
+
+    @Test
+    fun `sustained shallow freefall still counts as genuine`() {
+        var time = 1000L
+        // Three samples of shallow free-fall (0.6g) spanning 60ms — long
+        // enough to count even though none is below the deep threshold.
+        repeat(3) {
+            assertFalse(algo.processSample(5.88f, time))
+            time += 30
+        }
+        time += 50
+        assertFalse(algo.processSample(39.2f, time))
         val impactTime = time
         time = impactTime + FallDetectionAlgorithm.STILLNESS_DELAY_MS + 100
         assertTrue(algo.processSample(9.8f, time))
