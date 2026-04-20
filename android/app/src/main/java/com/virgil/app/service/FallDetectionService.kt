@@ -89,6 +89,13 @@ class FallDetectionService : Service(), SensorEventListener {
 
     override fun onSensorChanged(event: SensorEvent) {
         if (event.sensor.type != Sensor.TYPE_ACCELEROMETER) return
+        // Suppress detection while an emergency screen is up — otherwise the
+        // user's own handling (or the activity's own vibration) trips a second
+        // alarm on top of the first.
+        if (alarmInFlight) {
+            if (!algorithm.isIdle) algorithm.reset()
+            return
+        }
 
         val x = event.values[0]
         val y = event.values[1]
@@ -196,6 +203,14 @@ class FallDetectionService : Service(), SensorEventListener {
     }
 
     companion object {
+        /**
+         * True while an emergency UI (countdown or bystander siren) owns the
+         * user's attention. [onSensorChanged] short-circuits — we don't want
+         * fresh alarms stacking on top of the one already in progress.
+         */
+        @Volatile
+        var alarmInFlight: Boolean = false
+
         const val NOTIFICATION_ID = 1
         const val ACTION_STOP = "com.virgil.app.STOP_FALL_DETECTION"
         const val ACTION_DEBUG_REPLAY = "com.virgil.app.DEBUG_REPLAY"

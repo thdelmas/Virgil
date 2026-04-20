@@ -54,6 +54,7 @@ class EmergencySirenService : Service() {
         handler.removeCallbacks(autoStop)
         runCatching { unregisterReceiver(silenceReceiver) }
         AttentionSound.stop()
+        EmergencyLauncher.clearAlarmInFlight()
         super.onDestroy()
     }
 

@@ -22,6 +22,18 @@ object EmergencyLauncher {
     private const val NOTIFICATION_ID = 0x454D // "EM"
 
     fun launch(context: Context, triggerType: String, peakAccel: Float = 0f) {
+        // Gate the fall detector before anything else so the device's own
+        // reaction (vibration, user handling the phone) can't stack a second
+        // alarm on top of this one.
+        FallDetectionService.alarmInFlight = true
+
+        // Start the countdown warning immediately — full-screen-intent paths
+        // can delay the activity's onCreate, but the user needs to hear that
+        // a cancellable alert is underway right now. This is the "you can
+        // still cancel" beep; the full bystander siren only fires after
+        // countdown expires and dispatch completes.
+        AttentionSound.playCountdownWarning(context)
+
         val activityIntent = Intent(context, EmergencyCountdownActivity::class.java).apply {
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
             putExtra(FallDetectionService.EXTRA_TRIGGER_TYPE, triggerType)
@@ -60,5 +72,13 @@ object EmergencyLauncher {
 
     fun cancel(context: Context) {
         context.getSystemService(NotificationManager::class.java)?.cancel(NOTIFICATION_ID)
+    }
+
+    /**
+     * Re-arm fall detection. Call when the user dismisses the countdown or
+     * silences the bystander siren — whichever path ended the alarm.
+     */
+    fun clearAlarmInFlight() {
+        FallDetectionService.alarmInFlight = false
     }
 }

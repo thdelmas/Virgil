@@ -113,6 +113,7 @@ class EmergencyCountdownActivity : ComponentActivity() {
                             AttentionSound.stop()
                             AttentionSound.playDismissCue(this)
                             cueHandoff = true
+                            EmergencyLauncher.clearAlarmInFlight()
                             finish()
                         },
                         onExpired = {
@@ -136,11 +137,15 @@ class EmergencyCountdownActivity : ComponentActivity() {
         }
 
         startVibration()
-        AttentionSound.playEmergencySiren(this)
+        AttentionSound.playCountdownWarning(this)
     }
 
     override fun onDestroy() {
         if (!sirenHandedOff && !cueHandoff) AttentionSound.stop()
+        // If dispatch handed off to the siren service, let that service own
+        // re-arming detection when it stops. Otherwise (swipe, system kill,
+        // etc.) clear here so the sensor isn't left muted indefinitely.
+        if (!sirenHandedOff) EmergencyLauncher.clearAlarmInFlight()
         super.onDestroy()
     }
 

@@ -67,6 +67,10 @@ object AttentionSound {
      */
     @Synchronized
     fun playEmergencySiren(context: Context) {
+        // Idempotent: the launcher and the countdown activity both call this
+        // on the same alarm. Second call is a no-op so the siren keeps going
+        // smoothly instead of restarting and clipping the audio.
+        if (sirenRunning) return
         stop()
         val sampleRate = 44100
         val minBuf = AudioTrack.getMinBufferSize(
@@ -110,6 +114,70 @@ object AttentionSound {
                         buffer[i] = (sin(phase) * Short.MAX_VALUE * 0.9).toInt().toShort()
                         t += 1.0 / sampleRate
                     }
+                    track.write(buffer, 0, buffer.size)
+                }
+            } catch (_: Throwable) {
+                // Track released from another thread — exit cleanly.
+            }
+        }
+    }
+
+    /**
+     * Looping "tap to cancel" beep during the pre-dispatch countdown.
+     * Lower and more sparse than [playEmergencySiren] on purpose — the user
+     * should hear a clearly cancellable warning, not the all-hands bystander
+     * alarm that follows if nothing is tapped.
+     */
+    @Synchronized
+    fun playCountdownWarning(context: Context) {
+        if (sirenRunning) return
+        stop()
+        val sampleRate = 44100
+        val minBuf = AudioTrack.getMinBufferSize(
+            sampleRate,
+            AudioFormat.CHANNEL_OUT_MONO,
+            AudioFormat.ENCODING_PCM_16BIT,
+        ).coerceAtLeast(4096)
+
+        val track = AudioTrack.Builder()
+            .setAudioAttributes(alarmAttributes)
+            .setAudioFormat(
+                AudioFormat.Builder()
+                    .setSampleRate(sampleRate)
+                    .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
+                    .setChannelMask(AudioFormat.CHANNEL_OUT_MONO)
+                    .build(),
+            )
+            .setBufferSizeInBytes(minBuf * 2)
+            .setTransferMode(AudioTrack.MODE_STREAM)
+            .build()
+
+        raiseAlarmVolume(context)
+
+        sirenTrack = track
+        sirenRunning = true
+        track.play()
+
+        sirenThread = thread(name = "VirgilCountdown", isDaemon = true) {
+            val freq = 880.0
+            val beepMs = 180
+            val silenceMs = 520
+            val beepFrames = sampleRate * beepMs / 1000
+            val silenceFrames = sampleRate * silenceMs / 1000
+            val buffer = ShortArray(beepFrames + silenceFrames)
+            val envFrames = (sampleRate * 15 / 1000).coerceAtMost(beepFrames / 2)
+            var phase = 0.0
+            for (i in 0 until beepFrames) {
+                phase += 2 * PI * freq / sampleRate
+                val env = when {
+                    i < envFrames -> i.toDouble() / envFrames
+                    i >= beepFrames - envFrames -> (beepFrames - i).toDouble() / envFrames
+                    else -> 1.0
+                }
+                buffer[i] = (sin(phase) * Short.MAX_VALUE * 0.85 * env).toInt().toShort()
+            }
+            try {
+                while (sirenRunning) {
                     track.write(buffer, 0, buffer.size)
                 }
             } catch (_: Throwable) {
