@@ -5,7 +5,7 @@ Read this before touching code. It tells you the stack, the rules, and what not 
 ## Source of truth
 
 - **Product vision, features, principles, architecture:** [MANIFESTO.md](MANIFESTO.md). If a code change conflicts with the manifesto, the manifesto wins — surface the conflict, don't silently deviate.
-- **Regulatory / Play Store / distribution guardrails:** [docs/COMPLIANCE.md](docs/COMPLIANCE.md). Enforced by `make compliance` (also part of `make quality` and `make quality-fast`). Violations block pre-commit. Read it before touching user-facing strings, permissions, the manifest, or dependencies.
+- **Regulatory / Play Store / distribution guardrails:** [docs/COMPLIANCE.md](docs/COMPLIANCE.md). Enforced by `make compliance` (also part of `make quality` and `make quality-fast`). Violations block pre-commit. Read it before touching user-facing strings, permissions, the manifest, or dependencies. Especially: §1 (never medical framing), §11 (never imply Virgil dials emergency services — it texts and calls the user's emergency contacts, full stop).
 
 ## Stack
 

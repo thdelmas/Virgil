@@ -2,7 +2,8 @@
 # Compliance checks for Virgil. Enforces docs/COMPLIANCE.md.
 #
 # Five checks:
-#   1. No banned medical-claim vocabulary in user-facing text.
+#   1. No banned medical-claim vocabulary in user-facing text (§1),
+#      plus banned capability-honesty phrasing (§11).
 #   2. No banned Android permissions in the manifest.
 #   3. foregroundServiceType must not be "health".
 #   4. No banned network / analytics dependencies in gradle.
@@ -61,6 +62,11 @@ BANNED_TERMS=(
     'recovery from surgery'
     'recovering from surgery'
     'recovering from illness'
+    # §11 — capability honesty. "for help" as Virgil's action implies
+    # emergency services. Allowed when it's the user's own SMS voice
+    # ("I need help" is fine — no "for help"). Narrative framing can
+    # add an inline compliance-allow marker.
+    '\bfor help\b'
 )
 
 # Files scanned for vocabulary. Everything user-facing: docs, manifesto,

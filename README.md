@@ -12,7 +12,7 @@ A free, open-source Android app that watches over you when you're alone. Two fea
 
 ## What it does
 
-**Fall detection.** Your phone's accelerometer notices a hard fall — free-fall, impact, then stillness. A 30-second countdown appears on your screen. If you don't tap "I'm OK," Virgil sends your GPS location to your emergency contacts and calls the first one.
+**Fall detection.** Your phone's accelerometer notices a hard fall — free-fall, impact, then stillness. A full-screen countdown appears on your screen, escalating over 60 seconds through four stages (calm ping → steady warning → urgent pulse). If you don't hold "I'm OK" for a few seconds, Virgil sends your GPS location to your emergency contacts and calls the first one.
 
 **Check-in.** At an interval you set, Virgil quietly notices whether your phone has seen any sign of life — a screen unlock, a tap, a step. If not, it gently asks if you're OK. If you don't respond within five minutes, it triggers the same emergency alert.
 
@@ -70,10 +70,10 @@ That's it. No accounts. No tutorials.
 Accelerometer (always-on, low-power)
   → free-fall detected (acceleration drops below 0.5g)
   → impact detected within 500ms (acceleration spikes above 3g)
-  → stillness confirmed (near 1g for 2+ seconds)
-  → 30-second countdown with full-screen alert
-     → "I'm OK" tapped → cancel
-     → no response     → SMS with GPS location to all contacts + call primary
+  → stillness confirmed (near 1g, 300 ms–5 s after impact)
+  → 60-second staged countdown, full-screen, escalating audio + haptics
+     → "I'm OK" held for 5s → cancel
+     → no response         → SMS with GPS location to all contacts + call primary
 ```
 
 ### Check-in

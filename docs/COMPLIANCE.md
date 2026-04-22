@@ -199,3 +199,28 @@ The introduction SMS is transmitted by the user's SIM via `SmsManager`, the same
 ### Why this is compatible with the manifesto
 
 The manifesto principle "Location leaves the device only via SMS, only on alert" remains true — the introduction SMS carries **no location**. A broader "network calls for core logic" reading is preserved by "only on explicit user action" and "one per contact, ever."
+
+---
+
+## 11. Capability honesty
+
+Virgil's mechanism is narrow and well-defined: it sends an SMS and places a phone call **to the user's emergency contacts**. It does **not** dial emergency services (911 / 112 / SAMU), does **not** summon an ambulance, and does **not** interact with any dispatch centre. User-facing copy must say this exactly. Ambiguous phrasing like *"Virgil sends for help"* leads the user to rely on the app for a capability it doesn't have — the worst kind of safety-app failure.
+
+This rule complements §1 (medical framing) and MANIFESTO.md §6 (*Honest framing — no false confidence*). §1 keeps us out of regulatory scope; §11 keeps the user's mental model of what Virgil can actually do aligned with what it actually does.
+
+### Banned phrasing (anywhere user-visible)
+
+| Banned | Use instead |
+|---|---|
+| "send for help" / "call for help" / "get help" | "text and call your emergency contacts" / "reach your emergency contacts" |
+| "ask for help" / "cry for help" | "alert your emergency contacts" / "notify the people you chose" |
+| "Virgil calls emergency services" / "dispatches help" | (never — Virgil doesn't) |
+| "help is on the way" (after an alert) | "your emergency contacts have been notified" |
+
+The compliance check enforces `\bfor help\b` as the canonical trigger. Narrative or motivational framing in internal docs (e.g. the MANIFESTO preface describing what a phone *could* do in the abstract) can carry the inline `compliance-allow: <reason>` marker; user-facing strings and the top-level README cannot.
+
+### Allowed
+
+- **First-person SMS templates** sent *by the user* to their contact (e.g. *"URGENT: I may have fallen and need help."*) — this is the user's own voice, not a description of Virgil's capability. The phrase "need help" is fine; "for help" is the banned structure.
+- **Describing the user's state** ("if you need help") as distinct from Virgil's action ("contacts the people you chose"). The former is about them; the latter is about us.
+- **The legal disclaimer** — "not a substitute for emergency services" — with an inline allow marker, since the phrase there is denying a capability rather than claiming one.

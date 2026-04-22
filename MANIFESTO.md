@@ -6,7 +6,7 @@ In Dante's Inferno, Virgil is the guide who walks beside you through darkness. H
 
 Millions of people live alone. Many are elderly. Some are fragile. When they fall and can't get up, or when they simply stop moving, nobody knows. Hours pass. Sometimes days.
 
-The phone in their pocket has everything needed to change this. An accelerometer that detects falls. A clock that can notice silence. A radio that can call for help. Nobody connected those dots into something simple and free.
+The phone in their pocket has everything needed to change this. An accelerometer that detects falls. A clock that can notice silence. A radio that can call for help. Nobody connected those dots into something simple and free. <!-- compliance-allow: narrative framing of the phone's abstract capability, not a description of Virgil's action (see docs/COMPLIANCE.md §11) -->
 
 Virgil does.
 
@@ -14,7 +14,7 @@ Virgil does.
 
 ## What It Does
 
-**Fall detection.** Your phone detects a hard fall — free-fall, impact, then stillness. A countdown appears. If you don't tap "I'm OK" within 30 seconds, Virgil sends your GPS location to your emergency contacts and calls the first one.
+**Fall detection.** Your phone detects a hard fall — free-fall, impact, then stillness. A staged countdown appears. If you don't hold "I'm OK" within 60 seconds, Virgil sends your GPS location to your emergency contacts and calls the first one.
 
 **Check-in.** You set an interval — say, every 6 hours during the day. If your phone sees no sign of life (no screen unlock, no movement, no tap), it asks if you're OK. If you don't respond, same thing: alert your contacts with your location.
 
@@ -79,10 +79,10 @@ Phase 2: Impact detected (acceleration spikes above 3g within 500ms)
 Phase 3: Stillness confirmed (near 1g for 2+ seconds — person is lying down)
   |
   v
-Emergency countdown (30 seconds, full screen, vibration)
+Emergency countdown (60 seconds, four escalating phases, full screen, vibration)
   |
-  "I'm OK" tapped? --> cancel
-  No response?     --> SMS with GPS location to all contacts + call primary contact
+  "I'm OK" held for 5 seconds? --> cancel
+  No response?                 --> SMS with GPS location to all contacts + call primary contact
 ```
 
 ### Check-In
