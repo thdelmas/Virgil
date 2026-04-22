@@ -12,11 +12,15 @@ import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
+import android.os.Build
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
 import android.os.PowerManager
 import android.os.SystemClock
+import android.os.VibrationEffect
+import android.os.Vibrator
+import android.os.VibratorManager
 import androidx.core.app.NotificationCompat
 import com.virgil.app.BuildConfig
 import com.virgil.app.R
@@ -44,11 +48,42 @@ class FallDetectionService : Service(), SensorEventListener {
     @Volatile private var verifyingStartedAt: Long = 0
     private var verifyMotionSamples = 0
     private var verifyPeakAccel: Float = 0f
+    private var hapticPhaseEntered = false
+    private var lastHapticBuzzAt: Long = 0
+
+    private enum class NotifState {
+        MONITORING, VERIFYING, ALARMING, LOW_ACTIVITY, AIRPLANE_PAUSED
+    }
+    @Volatile private var notifState: NotifState = NotifState.MONITORING
+    @Volatile private var airplanePaused: Boolean = false
 
     private val screenReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             if (intent.action == Intent.ACTION_SCREEN_ON) {
                 cancelVerify("screen turned on")
+            }
+        }
+    }
+
+    private val powerSaveReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            // Battery saver can kill or deprioritise background work. Our
+            // foreground service should already be exempt, but if the
+            // system transitions fire listener changes we want to make
+            // absolutely sure the sensor is registered and the foreground
+            // notification is up.
+            when (intent.action) {
+                PowerManager.ACTION_POWER_SAVE_MODE_CHANGED,
+                Intent.ACTION_BATTERY_OKAY,
+                Intent.ACTION_BATTERY_LOW -> ensureRunning()
+            }
+        }
+    }
+
+    private val airplaneReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            if (intent.action == Intent.ACTION_AIRPLANE_MODE_CHANGED) {
+                applyAirplaneMode()
             }
         }
     }
@@ -68,10 +103,26 @@ class FallDetectionService : Service(), SensorEventListener {
             IntentFilter(Intent.ACTION_SCREEN_ON),
             Context.RECEIVER_NOT_EXPORTED,
         )
+        registerReceiver(
+            powerSaveReceiver,
+            IntentFilter().apply {
+                addAction(PowerManager.ACTION_POWER_SAVE_MODE_CHANGED)
+                addAction(Intent.ACTION_BATTERY_OKAY)
+                addAction(Intent.ACTION_BATTERY_LOW)
+            },
+            Context.RECEIVER_NOT_EXPORTED,
+        )
+        registerReceiver(
+            airplaneReceiver,
+            IntentFilter(Intent.ACTION_AIRPLANE_MODE_CHANGED),
+            Context.RECEIVER_NOT_EXPORTED,
+        )
     }
 
     override fun onDestroy() {
         runCatching { unregisterReceiver(screenReceiver) }
+        runCatching { unregisterReceiver(powerSaveReceiver) }
+        runCatching { unregisterReceiver(airplaneReceiver) }
         stopSensor()
         super.onDestroy()
     }
@@ -83,6 +134,17 @@ class FallDetectionService : Service(), SensorEventListener {
                 stopForeground(STOP_FOREGROUND_REMOVE)
                 stopSelf()
                 return START_NOT_STICKY
+            }
+            ACTION_MARK_LOW_ACTIVITY -> {
+                ensureRunning()
+                setNotifState(NotifState.LOW_ACTIVITY)
+                return START_STICKY
+            }
+            ACTION_CLEAR_LOW_ACTIVITY -> {
+                if (notifState == NotifState.LOW_ACTIVITY) {
+                    setNotifState(NotifState.MONITORING)
+                }
+                return START_STICKY
             }
             ACTION_DEBUG_REPLAY -> if (BuildConfig.DEBUG) {
                 val magnitudes = intent.getFloatArrayExtra(EXTRA_DEBUG_MAGNITUDES)
@@ -105,22 +167,41 @@ class FallDetectionService : Service(), SensorEventListener {
             buildNotification(),
             ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE
         )
-        startSensor()
+        applyAirplaneMode()
         PermissionMonitor.check(this)
         return START_STICKY
+    }
+
+    private fun applyAirplaneMode() {
+        val on = AirplaneMode.isOn(this)
+        airplanePaused = on
+        if (on) {
+            stopSensor()
+            // If an alarm is in flight, tear it down — we can't dispatch
+            // SMS or a call with the radios off, and the user has told
+            // the system not to do phone things.
+            if (alarmInFlight) EmergencyAlarmService.cancel(this)
+            setNotifState(NotifState.AIRPLANE_PAUSED)
+        } else {
+            setNotifState(NotifState.MONITORING)
+            startSensor()
+        }
     }
 
     override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onSensorChanged(event: SensorEvent) {
+        if (airplanePaused) return
         // Suppress detection while an emergency screen is up — otherwise the
         // user's own handling (or the activity's own vibration) trips a second
         // alarm on top of the first.
         if (alarmInFlight) {
             if (!algorithm.isIdle) algorithm.reset()
             if (verifyingStartedAt != 0L) cancelVerify("alarm in flight")
+            setNotifState(NotifState.ALARMING)
             return
         }
+        if (notifState == NotifState.ALARMING) setNotifState(NotifState.MONITORING)
 
         val x = event.values[0]
         val y = event.values[1]
@@ -141,14 +222,23 @@ class FallDetectionService : Service(), SensorEventListener {
         val startedAt = verifyingStartedAt
         if (startedAt == 0L) return
         val elapsed = SystemClock.elapsedRealtime() - startedAt
-        if (elapsed >= VERIFY_WINDOW_MS) {
+        if (elapsed >= VERIFY_SILENT_MS + VERIFY_HAPTIC_MS) {
             val peak = verifyPeakAccel
-            verifyingStartedAt = 0
-            verifyMotionSamples = 0
-            verifyPeakAccel = 0f
-            android.util.Log.i(TAG, "fall verify expired — escalating peak=$peak")
+            cancelVerify("handed off to countdown")
+            android.util.Log.i(TAG, "fall verify timeout — escalating peak=$peak")
             EmergencyLauncher.launch(this, triggerType = "fall", peakAccel = peak)
             return
+        }
+        if (elapsed >= VERIFY_SILENT_MS) {
+            if (!hapticPhaseEntered) {
+                hapticPhaseEntered = true
+                android.util.Log.i(TAG, "fall verify entering haptic phase")
+                buzz()
+                lastHapticBuzzAt = SystemClock.elapsedRealtime()
+            } else if (SystemClock.elapsedRealtime() - lastHapticBuzzAt >= HAPTIC_BUZZ_INTERVAL_MS) {
+                buzz()
+                lastHapticBuzzAt = SystemClock.elapsedRealtime()
+            }
         }
         val inStillnessBand = magnitude in FallDetectionAlgorithm.STILLNESS_LOW..FallDetectionAlgorithm.STILLNESS_HIGH
         if (!inStillnessBand) {
@@ -164,7 +254,19 @@ class FallDetectionService : Service(), SensorEventListener {
         verifyingStartedAt = 0
         verifyMotionSamples = 0
         verifyPeakAccel = 0f
+        hapticPhaseEntered = false
+        lastHapticBuzzAt = 0
         android.util.Log.i(TAG, "fall verify canceled: $reason")
+        if (!alarmInFlight) setNotifState(NotifState.MONITORING)
+    }
+
+    private fun buzz() {
+        val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            getSystemService(VibratorManager::class.java)?.defaultVibrator
+        } else {
+            @Suppress("DEPRECATION") getSystemService(Vibrator::class.java)
+        } ?: return
+        vibrator.vibrate(VibrationEffect.createWaveform(BUZZ_PATTERN, -1))
     }
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
@@ -241,7 +343,35 @@ class FallDetectionService : Service(), SensorEventListener {
         verifyingStartedAt = SystemClock.elapsedRealtime()
         verifyMotionSamples = 0
         verifyPeakAccel = algorithm.lastPeakAccel
-        android.util.Log.i(TAG, "fall candidate — silent ${VERIFY_WINDOW_MS}ms verify window peak=$verifyPeakAccel")
+        hapticPhaseEntered = false
+        lastHapticBuzzAt = 0
+        setNotifState(NotifState.VERIFYING)
+        android.util.Log.i(TAG, "fall candidate — ${VERIFY_SILENT_MS}ms silent then ${VERIFY_HAPTIC_MS}ms haptic peak=$verifyPeakAccel")
+    }
+
+    private fun setNotifState(next: NotifState) {
+        if (notifState == next) return
+        notifState = next
+        getSystemService(android.app.NotificationManager::class.java)
+            ?.notify(NOTIFICATION_ID, buildNotification())
+    }
+
+    private fun ensureRunning() {
+        // Re-assert the foreground notification and sensor registration.
+        // Safe to call repeatedly — startForeground is idempotent, and
+        // registerListener returns false (without error) on a duplicate.
+        runCatching {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                startForeground(
+                    NOTIFICATION_ID,
+                    buildNotification(),
+                    ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE,
+                )
+            } else {
+                startForeground(NOTIFICATION_ID, buildNotification())
+            }
+        }
+        if (!airplanePaused) startSensor()
     }
 
     private fun buildNotification(): Notification {
@@ -257,9 +387,17 @@ class FallDetectionService : Service(), SensorEventListener {
             PendingIntent.FLAG_IMMUTABLE,
         )
 
+        val textRes = when (notifState) {
+            NotifState.MONITORING -> R.string.fall_detection_running
+            NotifState.VERIFYING -> R.string.fall_detection_verifying
+            NotifState.ALARMING -> R.string.fall_detection_alarming
+            NotifState.LOW_ACTIVITY -> R.string.fall_detection_low_activity
+            NotifState.AIRPLANE_PAUSED -> R.string.fall_detection_airplane_paused
+        }
+
         return NotificationCompat.Builder(this, VirgilApp.CHANNEL_FALL_DETECTION)
             .setContentTitle(getString(R.string.app_name))
-            .setContentText(getString(R.string.fall_detection_running))
+            .setContentText(getString(textRes))
             .setSmallIcon(android.R.drawable.ic_dialog_info)
             .setContentIntent(openApp)
             .addAction(
@@ -282,6 +420,8 @@ class FallDetectionService : Service(), SensorEventListener {
 
         const val NOTIFICATION_ID = 1
         const val ACTION_STOP = "com.virgil.app.STOP_FALL_DETECTION"
+        const val ACTION_MARK_LOW_ACTIVITY = "com.virgil.app.MARK_LOW_ACTIVITY"
+        const val ACTION_CLEAR_LOW_ACTIVITY = "com.virgil.app.CLEAR_LOW_ACTIVITY"
         const val ACTION_DEBUG_REPLAY = "com.virgil.app.DEBUG_REPLAY"
         const val EXTRA_PEAK_ACCEL = "peak_accel"
         const val EXTRA_TRIGGER_TYPE = "trigger_type"
@@ -289,7 +429,10 @@ class FallDetectionService : Service(), SensorEventListener {
         const val EXTRA_DEBUG_DELAYS = "debug_delays"
         const val EXTRA_DEBUG_LABEL = "debug_label"
         private const val TAG = "FallDetectionService"
-        private const val VERIFY_WINDOW_MS = 12_000L
+        private const val VERIFY_SILENT_MS = 15_000L
+        private const val VERIFY_HAPTIC_MS = 15_000L
+        private const val HAPTIC_BUZZ_INTERVAL_MS = 3_000L
         private const val VERIFY_MOTION_CANCEL_SAMPLES = 8
+        private val BUZZ_PATTERN = longArrayOf(0, 250, 120, 250, 120, 400)
     }
 }

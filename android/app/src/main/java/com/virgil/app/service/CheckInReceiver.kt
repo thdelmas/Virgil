@@ -28,6 +28,10 @@ class CheckInReceiver : BroadcastReceiver() {
         val prefs = EmergencyPreferences(context)
         val force = intent.getBooleanExtra(EXTRA_FORCE, false)
 
+        // Airplane mode is a hard off-switch: no SMS, no call, no point
+        // ringing to wake someone up only to fail the escalation.
+        if (AirplaneMode.isOn(context)) return
+
         // Check if we're in sleep hours
         if (isDuringSleepHours(context)) {
             // Reschedule — CheckInService will handle next alarm

@@ -6,6 +6,11 @@
     <!-- Notification channels -->
     <string name="fall_detection_channel">Fall Detection</string>
     <string name="fall_detection_running">Virgil is watching over you</string>
+    <string name="fall_detection_verifying">Checking if you\'re OK…</string>
+    <string name="fall_detection_alarming">Emergency countdown in progress</string>
+    <string name="fall_detection_low_activity">Low activity noticed — looking in on you</string>
+    <string name="fall_detection_airplane_paused">Paused — airplane mode is on</string>
+    <string name="checkin_airplane_paused">Paused — airplane mode is on</string>
     <string name="fall_channel_description">Persistent notification while fall detection is active</string>
     <string name="emergency_channel">Emergency Alert</string>
     <string name="emergency_channel_description">Emergency alert when a fall or missed check-in is detected</string>
@@ -82,7 +87,50 @@
     <string name="countdown_before">Emergency alert in</string>
     <string name="countdown_seconds_label">seconds</string>
     <string name="countdown_im_ok">I\'m OK</string>
+    <string name="countdown_keep_holding">Keep holding…</string>
+    <string name="countdown_hold_to_cancel">Press and hold 5s to cancel</string>
+    <string name="countdown_paused_label">Paused — keep holding</string>
     <string name="countdown_tap_cancel">Tap to cancel</string>
+    <string name="countdown_step_label">Step %1$d of %2$d</string>
+    <string name="countdown_notification_step">Step %1$d of %2$d — %3$ds left</string>
+    <string name="countdown_notification_paused">Paused — step %1$d of %2$d</string>
+
+    <!-- Reports -->
+    <string name="report_prompt_title">Was that a false alarm?</string>
+    <string name="report_prompt_body">Tell us what you were doing so we can make Virgil smarter.</string>
+    <string name="report_prompt_action">Report</string>
+    <string name="report_screen_title_false_alarm">Report false alarm</string>
+    <string name="report_screen_title_missed_fall">Report a missed fall</string>
+    <string name="report_intro_false_alarm">Thanks for checking in. Describe what you were doing when Virgil triggered — the phone, your movement, anything unusual. This stays on your phone unless you send it.</string>
+    <string name="report_intro_missed_fall">Describe the fall Virgil didn\'t catch — when it happened, what you were doing, where the phone was (pocket, hand, table). This helps us tune detection. Nothing leaves your phone until you send the email.</string>
+    <string name="report_description_label">What was happening?</string>
+    <string name="report_description_hint_false_alarm">e.g. I dropped the phone on the sofa, or I was running and it buzzed.</string>
+    <string name="report_description_hint_missed_fall">e.g. I slipped on stairs, phone in my back pocket. Virgil didn\'t ring.</string>
+    <string name="report_when_heading">When did it happen?</string>
+    <string name="report_when_just_now">Just now</string>
+    <string name="report_when_today">Earlier today</string>
+    <string name="report_when_yesterday">Yesterday</string>
+    <string name="report_when_older">Older</string>
+    <string name="report_when_label">When: %1$s</string>
+    <string name="report_consent_heading">Include diagnostic data?</string>
+    <string name="report_consent_body_false_alarm">With your explicit permission Virgil can attach a short technical summary of the alarm: when it fired, what sensor reading triggered it, how long you held the button, your device model, and the app version. No location. No contacts. No identifiers.</string>
+    <string name="report_consent_body_missed_fall">With your explicit permission Virgil can attach your device model, Android version, and app version so we can investigate hardware or algorithm gaps. No location. No contacts. No identifiers.</string>
+    <string name="report_consent_checkbox">Include the diagnostic summary in the email</string>
+    <string name="report_send_button">Open email with report</string>
+    <string name="report_discard_button">Discard and close</string>
+    <string name="report_email_subject_false_alarm">Virgil false-alarm report</string>
+    <string name="report_email_subject_missed_fall">Virgil missed-fall report</string>
+    <string name="report_email_prefix_false_alarm">Virgil false-alarm report.</string>
+    <string name="report_email_prefix_missed_fall">Virgil missed-fall report — Virgil didn\'t detect a fall that happened.</string>
+    <string name="report_email_diagnostics_header">--- Diagnostic data (shared with your consent) ---</string>
+    <string name="report_email_no_mail_app">No email app found. Install one, or copy the text and send another way.</string>
+    <string name="report_email_recipient" translatable="false">virgil-app@theophile.world</string>
+
+    <!-- Settings Help section -->
+    <string name="settings_help_title">Help improve Virgil</string>
+    <string name="settings_help_desc">Reports stay on your phone unless you send the email. No telemetry.</string>
+    <string name="settings_help_false_alarm">Report a false alarm</string>
+    <string name="settings_help_missed_fall">Report a missed fall</string>
     <string name="siren_dispatching">Sending alert…</string>
     <string name="siren_sent_title">Alert sent</string>
     <string name="siren_sent_body">Your contacts were notified. The siren helps bystanders find you.</string>

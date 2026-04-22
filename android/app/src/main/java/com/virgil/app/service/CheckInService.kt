@@ -30,9 +30,19 @@ class CheckInService : Service() {
 
     private lateinit var prefs: EmergencyPreferences
 
+    @Volatile private var airplanePaused: Boolean = false
+
     private val presenceReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             InteractionTracker.record(context)
+        }
+    }
+
+    private val airplaneReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            if (intent.action == Intent.ACTION_AIRPLANE_MODE_CHANGED) {
+                applyAirplaneMode()
+            }
         }
     }
 
@@ -41,10 +51,16 @@ class CheckInService : Service() {
         prefs = EmergencyPreferences(this)
         // ACTION_USER_PRESENT is a protected broadcast and must be registered at runtime.
         registerReceiver(presenceReceiver, IntentFilter(Intent.ACTION_USER_PRESENT))
+        registerReceiver(
+            airplaneReceiver,
+            IntentFilter(Intent.ACTION_AIRPLANE_MODE_CHANGED),
+            Context.RECEIVER_NOT_EXPORTED,
+        )
     }
 
     override fun onDestroy() {
         runCatching { unregisterReceiver(presenceReceiver) }
+        runCatching { unregisterReceiver(airplaneReceiver) }
         super.onDestroy()
     }
 
@@ -61,11 +77,23 @@ class CheckInService : Service() {
             buildNotification(),
             ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE
         )
-        scheduleNextCheckIn()
-        scheduleBaselineCheck()
+        applyAirplaneMode()
         PermissionMonitor.check(this)
 
         return START_STICKY
+    }
+
+    private fun applyAirplaneMode() {
+        val on = AirplaneMode.isOn(this)
+        airplanePaused = on
+        if (on) {
+            cancelAlarm()
+        } else {
+            scheduleNextCheckIn()
+            scheduleBaselineCheck()
+        }
+        getSystemService(android.app.NotificationManager::class.java)
+            ?.notify(NOTIFICATION_ID, buildNotification())
     }
 
     override fun onBind(intent: Intent?): IBinder? = null
@@ -127,9 +155,14 @@ class CheckInService : Service() {
             PendingIntent.FLAG_IMMUTABLE,
         )
 
+        val textRes = if (airplanePaused) {
+            R.string.checkin_airplane_paused
+        } else {
+            R.string.checkin_running
+        }
         return NotificationCompat.Builder(this, VirgilApp.CHANNEL_FALL_DETECTION)
             .setContentTitle(getString(R.string.app_name))
-            .setContentText(getString(R.string.checkin_running))
+            .setContentText(getString(textRes))
             .setSmallIcon(android.R.drawable.ic_dialog_info)
             .setContentIntent(openApp)
             .setOngoing(true)

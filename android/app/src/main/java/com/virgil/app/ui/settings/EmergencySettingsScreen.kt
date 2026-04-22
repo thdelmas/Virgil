@@ -151,6 +151,8 @@ fun EmergencySettingsScreen(
                 onShowTestDialog = { showTestDialog = true },
             )
 
+            helpSection()
+
             item {
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(

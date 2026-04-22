@@ -2,78 +2,73 @@ package com.virgil.app.ui.emergency
 
 import android.app.KeyguardManager
 import android.content.Context
-import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
-import android.os.VibrationEffect
-import android.os.Vibrator
-import android.os.VibratorManager
+import android.view.KeyEvent
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
-import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import com.virgil.app.R
 import com.virgil.app.data.AppLocale
-import com.virgil.app.data.EmergencyPreferences
-import com.virgil.app.service.AttentionSound
-import com.virgil.app.service.EmergencyDispatcher
-import com.virgil.app.service.EmergencyLauncher
+import com.virgil.app.service.EmergencyAlarmService
 import com.virgil.app.service.EmergencySirenService
-import com.virgil.app.service.FallDetectionService
 import com.virgil.app.ui.theme.VirgilTheme
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.runBlocking
 
 /**
- * Full-screen emergency countdown shown when a fall is detected or check-in expires.
- * Large "I'm OK" button to cancel. If countdown expires, triggers emergency dispatch.
+ * Full-screen skin over [EmergencyAlarmService]. The service owns the
+ * countdown state, audio, and vibration — this activity only renders them
+ * and forwards the cancel tap. If the user tries to dismiss while the
+ * alarm is still in flight, the service immediately re-launches this
+ * activity so the alert cannot be abandoned mid-flow.
  */
 class EmergencyCountdownActivity : ComponentActivity() {
-
-    private lateinit var prefs: EmergencyPreferences
-    private lateinit var dispatcher: EmergencyDispatcher
-
-    private var sirenHandedOff = false
-    private var cueHandoff = false
-
-    private sealed interface Phase {
-        data object Countdown : Phase
-        data object Dispatching : Phase
-        data class Done(val sent: Int, val failed: Int) : Phase
-    }
 
     override fun attachBaseContext(newBase: Context) {
         super.attachBaseContext(AppLocale.wrap(newBase))
@@ -81,79 +76,75 @@ class EmergencyCountdownActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        EmergencyLauncher.cancel(this)
         showOverLockScreen()
 
-        prefs = EmergencyPreferences(this)
-        dispatcher = EmergencyDispatcher(this)
-
-        val triggerType = intent.getStringExtra(FallDetectionService.EXTRA_TRIGGER_TYPE) ?: "fall"
-        val isFall = triggerType == "fall"
-        val titleRes = if (isFall) {
-            R.string.countdown_title_fall
-        } else {
-            R.string.countdown_title_no_response
-        }
-        val dispatchTrigger = if (isFall) {
-            EmergencyDispatcher.TriggerType.FALL
-        } else {
-            EmergencyDispatcher.TriggerType.NO_RESPONSE
-        }
+        // Back must not dismiss the alarm — the only way out is to hold
+        // the disarm button long enough for the gesture to complete.
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                // Swallow. Relaunch so the UI cannot be hidden.
+                EmergencyAlarmService.reportActivityVisibility(
+                    this@EmergencyCountdownActivity, visible = false,
+                )
+            }
+        })
 
         setContent {
             VirgilTheme {
-                var phase: Phase by remember { mutableStateOf(Phase.Countdown) }
-
-                when (val p = phase) {
-                    Phase.Countdown -> CountdownScreen(
-                        titleRes = titleRes,
-                        onCancel = {
-                            stopVibration()
-                            AttentionSound.stop()
-                            AttentionSound.playDismissCue(this)
-                            cueHandoff = true
-                            EmergencyLauncher.clearAlarmInFlight()
-                            finish()
-                        },
-                        onExpired = {
-                            stopVibration()
-                            AttentionSound.stop()
-                            cueHandoff = true
-                            phase = Phase.Dispatching
-                            triggerEmergency(dispatchTrigger) { result ->
-                                phase = Phase.Done(result.smsSent, result.smsFailed)
-                            }
-                        },
-                    )
-                    Phase.Dispatching -> DispatchingScreen()
-                    is Phase.Done -> SirenActiveScreen(
-                        sent = p.sent,
-                        failed = p.failed,
+                val state by EmergencyAlarmService.state.collectAsState()
+                if (!state.active) {
+                    // Service stopped — nothing to show. Finish so the
+                    // activity isn't left floating without audio/state.
+                    finish()
+                } else if (state.done) {
+                    SirenActiveScreen(
+                        sent = state.finishedSent,
+                        failed = state.finishedFailed,
                         onStop = { stopEverythingAndFinish() },
                     )
+                } else if (state.dispatching) {
+                    DispatchingScreen()
+                } else {
+                    CountdownScreen(state = state)
                 }
             }
         }
-
-        startVibration()
-        AttentionSound.playCountdownWarning(this)
     }
 
-    override fun onDestroy() {
-        if (!sirenHandedOff && !cueHandoff) AttentionSound.stop()
-        // If dispatch handed off to the siren service, let that service own
-        // re-arming detection when it stops. Otherwise (swipe, system kill,
-        // etc.) clear here so the sensor isn't left muted indefinitely.
-        if (!sirenHandedOff) EmergencyLauncher.clearAlarmInFlight()
-        super.onDestroy()
+    override fun onStart() {
+        super.onStart()
+        EmergencyAlarmService.reportActivityVisibility(this, visible = true)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        EmergencyAlarmService.reportActivityVisibility(this, visible = false)
+    }
+
+    override fun onUserLeaveHint() {
+        super.onUserLeaveHint()
+        // Home / recents: tell the service we've been backgrounded so it
+        // re-fires the full-screen intent and brings us back.
+        EmergencyAlarmService.reportActivityVisibility(this, visible = false)
+    }
+
+    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+        // Volume / power shouldn't silence the alarm. Let them pass but
+        // don't let them dismiss the activity.
+        return when (keyCode) {
+            KeyEvent.KEYCODE_VOLUME_UP,
+            KeyEvent.KEYCODE_VOLUME_DOWN,
+            KeyEvent.KEYCODE_VOLUME_MUTE,
+            KeyEvent.KEYCODE_POWER -> true
+            else -> super.onKeyDown(keyCode, event)
+        }
     }
 
     private fun stopEverythingAndFinish() {
         sendBroadcast(
-            Intent(EmergencySirenService.ACTION_SILENCE).setPackage(packageName)
+            android.content.Intent(EmergencySirenService.ACTION_SILENCE)
+                .setPackage(packageName)
         )
-        AttentionSound.stop()
         finish()
     }
 
@@ -173,115 +164,90 @@ class EmergencyCountdownActivity : ComponentActivity() {
         }
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
     }
+}
 
-    private fun startVibration() {
-        val pattern = longArrayOf(0, 500, 300, 500, 300, 500, 300)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            val manager = getSystemService(VibratorManager::class.java)
-            manager.defaultVibrator.vibrate(
-                VibrationEffect.createWaveform(pattern, 0)
-            )
-        } else {
-            @Suppress("DEPRECATION")
-            val vibrator = getSystemService(Vibrator::class.java)
-            vibrator.vibrate(VibrationEffect.createWaveform(pattern, 0))
-        }
-    }
+private val PHASE_COLORS = mapOf(
+    EmergencyAlarmService.Phase.P1_CALM to Color(0xFF1565C0),
+    EmergencyAlarmService.Phase.P2_NOTIFY to Color(0xFFF9A825),
+    EmergencyAlarmService.Phase.P3_WARN to Color(0xFFE65100),
+    EmergencyAlarmService.Phase.P4_URGENT to Color(0xFFB71C1C),
+)
 
-    private fun stopVibration() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            getSystemService(VibratorManager::class.java).defaultVibrator.cancel()
-        } else {
-            @Suppress("DEPRECATION")
-            getSystemService(Vibrator::class.java).cancel()
-        }
-    }
-
-    private fun triggerEmergency(
-        triggerType: EmergencyDispatcher.TriggerType,
-        onDone: (EmergencyDispatcher.Result) -> Unit,
-    ) {
-        val contacts = runBlocking { prefs.contacts.first() }
-        val customTemplate = runBlocking { prefs.smsMessageOverride.first() }
-        val appContext = applicationContext
-
-        if (contacts.isEmpty()) {
-            AttentionSound.playFailureCue(appContext)
-            onDone(EmergencyDispatcher.Result(locationAvailable = false, smsSent = 0, smsFailed = 0))
-            return
-        }
-
-        dispatcher.dispatch(contacts, customTemplate, triggerType) { result ->
-            if (result.smsSent > 0) {
-                AttentionSound.playSentCue(appContext)
-            } else {
-                AttentionSound.playFailureCue(appContext)
-            }
-            // Let the outcome cue (~0.5–0.8s) be heard before the bystander
-            // siren drowns it out.
-            Handler(Looper.getMainLooper()).postDelayed({
-                sirenHandedOff = true
-                EmergencySirenService.start(appContext)
-            }, 1200)
-            onDone(result)
-        }
-    }
+private fun EmergencyAlarmService.Phase.stepIndex(): Int = when (this) {
+    EmergencyAlarmService.Phase.P1_CALM -> 1
+    EmergencyAlarmService.Phase.P2_NOTIFY -> 2
+    EmergencyAlarmService.Phase.P3_WARN -> 3
+    EmergencyAlarmService.Phase.P4_URGENT -> 4
 }
 
 @Composable
-fun CountdownScreen(
-    titleRes: Int = R.string.countdown_title_fall,
-    totalSeconds: Int = 30,
-    onCancel: () -> Unit,
-    onExpired: () -> Unit,
-) {
-    var remaining by remember { mutableIntStateOf(totalSeconds) }
-
-    val progress by animateFloatAsState(
-        targetValue = remaining.toFloat() / totalSeconds,
-        animationSpec = tween(durationMillis = 1000),
-        label = "countdown",
-    )
-
-    LaunchedEffect(Unit) {
-        while (remaining > 0) {
-            delay(1000)
-            remaining--
-        }
-        onExpired()
+private fun CountdownScreen(state: EmergencyAlarmService.State) {
+    val titleRes = if (state.triggerType == "fall") {
+        R.string.countdown_title_fall
+    } else {
+        R.string.countdown_title_no_response
     }
+    val targetColor = PHASE_COLORS[state.phase] ?: Color(0xFFB71C1C)
+    val bg by animateColorAsState(
+        targetValue = targetColor,
+        animationSpec = tween(durationMillis = 600),
+        label = "phase-bg",
+    )
+    val stepIndex = state.phase.stepIndex()
+    val totalSteps = EmergencyAlarmService.TOTAL_STEPS
 
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFB71C1C)),
+            .background(bg),
         contentAlignment = Alignment.Center,
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
+            modifier = Modifier.padding(horizontal = 24.dp),
         ) {
+            StepIndicator(currentStep = stepIndex, totalSteps = totalSteps)
+
+            Spacer(modifier = Modifier.height(16.dp))
+
             Text(
-                text = stringResource(titleRes),
+                text = stringResource(
+                    R.string.countdown_step_label, stepIndex, totalSteps,
+                ),
                 color = Color.White,
-                fontSize = 32.sp,
-                fontWeight = FontWeight.Bold,
+                fontSize = 20.sp,
+                fontWeight = FontWeight.SemiBold,
             )
 
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = stringResource(R.string.countdown_before),
-                color = Color.White.copy(alpha = 0.8f),
+                text = stringResource(titleRes),
+                color = Color.White,
+                fontSize = 32.sp,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center,
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            Text(
+                text = if (state.paused) {
+                    stringResource(R.string.countdown_paused_label)
+                } else {
+                    stringResource(R.string.countdown_before)
+                },
+                color = Color.White.copy(alpha = 0.85f),
                 fontSize = 18.sp,
             )
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = "$remaining",
+                text = "${state.secondsLeftInPhase}",
                 color = Color.White,
-                fontSize = 96.sp,
+                fontSize = 112.sp,
                 fontWeight = FontWeight.Bold,
             )
 
@@ -291,34 +257,129 @@ fun CountdownScreen(
                 fontSize = 18.sp,
             )
 
-            Spacer(modifier = Modifier.height(48.dp))
+            Spacer(modifier = Modifier.height(32.dp))
 
-            Button(
-                onClick = onCancel,
-                modifier = Modifier
-                    .size(200.dp)
-                    .clip(CircleShape),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.White,
-                ),
-                shape = CircleShape,
-            ) {
-                Text(
-                    text = stringResource(R.string.countdown_im_ok),
-                    color = Color(0xFFB71C1C),
-                    fontSize = 36.sp,
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center,
-                )
-            }
+            HoldToDisarmButton(ringColor = bg)
 
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = stringResource(R.string.countdown_tap_cancel),
-                color = Color.White.copy(alpha = 0.7f),
+                text = stringResource(R.string.countdown_hold_to_cancel),
+                color = Color.White.copy(alpha = 0.9f),
                 fontSize = 18.sp,
+                fontWeight = FontWeight.SemiBold,
+                textAlign = TextAlign.Center,
             )
+        }
+    }
+}
+
+@Composable
+private fun HoldToDisarmButton(ringColor: Color) {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    var progress by remember { mutableFloatStateOf(0f) }
+    var isPressed by remember { mutableStateOf(false) }
+    val holdMs = EmergencyAlarmService.HOLD_TO_DISARM_MS
+
+    val gestureModifier = Modifier.pointerInput(Unit) {
+        awaitEachGesture {
+            awaitFirstDown(requireUnconsumed = false)
+            isPressed = true
+            EmergencyAlarmService.pause(context)
+            val startedAt = System.currentTimeMillis()
+            var completed = false
+            val holdJob: Job = scope.launch {
+                while (isActive) {
+                    val elapsed = System.currentTimeMillis() - startedAt
+                    progress = (elapsed.toFloat() / holdMs).coerceAtMost(1f)
+                    if (progress >= 1f) {
+                        completed = true
+                        EmergencyAlarmService.cancel(context)
+                        break
+                    }
+                    delay(16L)
+                }
+            }
+            waitForUpOrCancellation()
+            holdJob.cancel()
+            if (!completed) {
+                EmergencyAlarmService.resume(context)
+            }
+            progress = 0f
+            isPressed = false
+        }
+    }
+
+    Box(
+        modifier = Modifier.size(260.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        Canvas(modifier = Modifier.size(260.dp)) {
+            val strokeWidth = 14.dp.toPx()
+            val diameter = size.minDimension - strokeWidth
+            val topLeft = Offset(
+                (size.width - diameter) / 2f,
+                (size.height - diameter) / 2f,
+            )
+            drawArc(
+                color = Color.White.copy(alpha = 0.25f),
+                startAngle = -90f,
+                sweepAngle = 360f,
+                useCenter = false,
+                topLeft = topLeft,
+                size = androidx.compose.ui.geometry.Size(diameter, diameter),
+                style = Stroke(width = strokeWidth),
+            )
+            if (progress > 0f) {
+                drawArc(
+                    color = Color.White,
+                    startAngle = -90f,
+                    sweepAngle = 360f * progress,
+                    useCenter = false,
+                    topLeft = topLeft,
+                    size = androidx.compose.ui.geometry.Size(diameter, diameter),
+                    style = Stroke(width = strokeWidth),
+                )
+            }
+        }
+        Button(
+            onClick = { /* swallow — gesture handler drives pause/cancel */ },
+            modifier = Modifier
+                .size(220.dp)
+                .clip(CircleShape)
+                .then(gestureModifier),
+            colors = ButtonDefaults.buttonColors(containerColor = Color.White),
+            shape = CircleShape,
+        ) {
+            Text(
+                text = if (isPressed) {
+                    stringResource(R.string.countdown_keep_holding)
+                } else {
+                    stringResource(R.string.countdown_im_ok)
+                },
+                color = ringColor,
+                fontSize = 30.sp,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center,
+            )
+        }
+    }
+}
+
+@Composable
+private fun StepIndicator(currentStep: Int, totalSteps: Int) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        for (i in 1..totalSteps) {
+            val active = i <= currentStep
+            val color = if (active) Color.White else Color.White.copy(alpha = 0.3f)
+            Box(
+                modifier = Modifier
+                    .size(width = 36.dp, height = 8.dp)
+                    .clip(CircleShape)
+                    .background(color)
+            )
+            if (i < totalSteps) Spacer(modifier = Modifier.width(8.dp))
         }
     }
 }

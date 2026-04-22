@@ -24,6 +24,20 @@ class BaselineCheckReceiver : BroadcastReceiver() {
         if (isDuringSleepHours(context)) return
         if (!ActivityBaseline(context).isAnomalouslyQuiet(LOOKBACK_HOURS)) return
 
+        // Flag the monitoring notification so the user can see Virgil has
+        // noticed unusual quiet before the check-in prompt fires — but
+        // only if fall detection is currently running (otherwise we'd
+        // start it just to edit a notification).
+        val fallEnabled = runBlocking {
+            EmergencyPreferences(context).fallDetectionEnabled.first()
+        }
+        if (fallEnabled) {
+            context.startForegroundService(
+                Intent(context, FallDetectionService::class.java)
+                    .setAction(FallDetectionService.ACTION_MARK_LOW_ACTIVITY)
+            )
+        }
+
         val forward = Intent(context, CheckInReceiver::class.java).apply {
             putExtra(CheckInReceiver.EXTRA_FORCE, true)
         }

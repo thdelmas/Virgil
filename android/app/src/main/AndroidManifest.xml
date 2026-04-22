@@ -42,10 +42,19 @@
         </activity>
 
         <activity
+            android:name=".ui.report.ReportActivity"
+            android:exported="false"
+            android:label="@string/report_screen_title_false_alarm"
+            android:theme="@style/Theme.Virgil" />
+
+        <activity
             android:name=".ui.emergency.EmergencyCountdownActivity"
             android:exported="false"
             android:showOnLockScreen="true"
             android:turnScreenOn="true"
+            android:launchMode="singleInstance"
+            android:excludeFromRecents="true"
+            android:taskAffinity=""
             android:theme="@style/Theme.Virgil" />
 
         <service
@@ -73,6 +82,15 @@
             <property
                 android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
                 android:value="on_device_emergency_siren_for_personal_safety_no_network_no_cloud" />
+        </service>
+
+        <service
+            android:name=".service.EmergencyAlarmService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="on_device_staged_emergency_countdown_for_personal_safety_no_network_no_cloud" />
         </service>
 
         <receiver
