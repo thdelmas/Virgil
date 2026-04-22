@@ -180,7 +180,11 @@ private fun ReportScreen(
     onDiscard: () -> Unit,
 ) {
     var description by remember { mutableStateOf("") }
-    var includeDiagnostics by remember { mutableStateOf(false) }
+    // Default to checked — the snapshot carries no PII (no location, no
+    // contacts, no identifiers). A pre-ticked consent box is still
+    // explicit consent: the checkbox is labelled, visible, and the user
+    // can uncheck it before sending if they'd rather keep the data local.
+    var includeDiagnostics by remember { mutableStateOf(true) }
     var whenChoice by remember { mutableStateOf<Int?>(null) }
 
     val titleRes = when (type) {
@@ -252,8 +256,15 @@ private fun ReportScreen(
             }
 
             val whenLabel = whenChoice?.let { stringResource(it) }
-            val canSend = description.isNotBlank() &&
-                (type == ReportActivity.Type.FALSE_ALARM || whenChoice != null)
+            // Missed-fall reports need the user's description to be useful
+            // (there is no snapshot to carry signal). False-alarm reports
+            // carry a snapshot, so diagnostics-only sends are allowed.
+            val canSend = when (type) {
+                ReportActivity.Type.FALSE_ALARM ->
+                    description.isNotBlank() || includeDiagnostics
+                ReportActivity.Type.MISSED_FALL ->
+                    description.isNotBlank() && whenChoice != null
+            }
 
             Button(
                 onClick = { onSend(description, whenLabel, includeDiagnostics) },
