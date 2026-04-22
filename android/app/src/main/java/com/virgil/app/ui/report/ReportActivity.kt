@@ -1,5 +1,7 @@
 package com.virgil.app.ui.report
 
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -23,6 +25,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -36,6 +39,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -47,6 +51,8 @@ import com.virgil.app.data.FalseAlarmLog
 import com.virgil.app.data.FalseAlarmSnapshot
 import com.virgil.app.service.FalseAlarmReportPrompt
 import com.virgil.app.ui.theme.VirgilTheme
+import java.util.Locale
+import java.util.TimeZone
 
 /**
  * Unified report flow — two types:
@@ -89,6 +95,9 @@ class ReportActivity : ComponentActivity() {
                     onSend = { description, when_, includeDiagnostics ->
                         launchMail(type, description, when_, includeDiagnostics, snapshot)
                     },
+                    onCopy = { description, when_, includeDiagnostics ->
+                        copyReport(type, description, when_, includeDiagnostics, snapshot)
+                    },
                     onDiscard = {
                         if (type == Type.FALSE_ALARM) FalseAlarmLog.clear(this)
                         finish()
@@ -105,34 +114,9 @@ class ReportActivity : ComponentActivity() {
         includeDiagnostics: Boolean,
         snapshot: FalseAlarmSnapshot?,
     ) {
-        val subjectRes = when (type) {
-            Type.FALSE_ALARM -> R.string.report_email_subject_false_alarm
-            Type.MISSED_FALL -> R.string.report_email_subject_missed_fall
-        }
-        val prefixRes = when (type) {
-            Type.FALSE_ALARM -> R.string.report_email_prefix_false_alarm
-            Type.MISSED_FALL -> R.string.report_email_prefix_missed_fall
-        }
-
-        val body = buildString {
-            append(getString(prefixRes))
-            append("\n\n")
-            if (!whenLabel.isNullOrBlank()) {
-                append(getString(R.string.report_when_label, whenLabel))
-                append("\n\n")
-            }
-            if (description.isNotBlank()) {
-                append(description.trim())
-                append("\n\n")
-            }
-            if (includeDiagnostics) {
-                append(getString(R.string.report_email_diagnostics_header))
-                append("\n")
-                append(snapshot?.toReportText() ?: deviceOnlyDiagnostics())
-            }
-        }
         val recipient = getString(R.string.report_email_recipient)
-        val subject = getString(subjectRes)
+        val subject = getString(subjectRes(type))
+        val body = buildReportBody(this, type, description, whenLabel, includeDiagnostics, snapshot)
         // Encode subject + body into the mailto URI query. Some mail apps
         // (Gmail, most notably) ignore EXTRA_SUBJECT / EXTRA_TEXT and only
         // parse the URI; embedding the fields directly guarantees the
@@ -141,14 +125,15 @@ class ReportActivity : ComponentActivity() {
         val mailto = "mailto:" + recipient +
             "?subject=" + Uri.encode(subject) +
             "&body=" + Uri.encode(body)
-        val intent = Intent(Intent.ACTION_SENDTO).apply {
+        val sendTo = Intent(Intent.ACTION_SENDTO).apply {
             data = Uri.parse(mailto)
             putExtra(Intent.EXTRA_EMAIL, arrayOf(recipient))
             putExtra(Intent.EXTRA_SUBJECT, subject)
             putExtra(Intent.EXTRA_TEXT, body)
         }
+        val chooser = Intent.createChooser(sendTo, getString(R.string.report_email_chooser_title))
         try {
-            startActivity(intent)
+            startActivity(chooser)
             if (type == Type.FALSE_ALARM) FalseAlarmLog.clear(this)
             finish()
         } catch (_: Throwable) {
@@ -156,10 +141,28 @@ class ReportActivity : ComponentActivity() {
         }
     }
 
-    private fun deviceOnlyDiagnostics(): String = buildString {
-        appendLine("App version: ${BuildConfig.VERSION_NAME}")
-        appendLine("Device: ${Build.MANUFACTURER ?: "unknown"} ${Build.MODEL ?: "unknown"}")
-        appendLine("Android API: ${Build.VERSION.SDK_INT}")
+    private fun copyReport(
+        type: Type,
+        description: String,
+        whenLabel: String?,
+        includeDiagnostics: Boolean,
+        snapshot: FalseAlarmSnapshot?,
+    ) {
+        val recipient = getString(R.string.report_email_recipient)
+        val subject = getString(subjectRes(type))
+        val body = buildReportBody(this, type, description, whenLabel, includeDiagnostics, snapshot)
+        // Prepend subject + recipient so the user can paste the whole
+        // thing into any chat, note, or webmail compose window without
+        // losing context about where it's meant to go.
+        val clipText = buildString {
+            appendLine("To: $recipient")
+            appendLine("Subject: $subject")
+            appendLine()
+            append(body)
+        }
+        val cm = getSystemService(ClipboardManager::class.java) ?: return
+        cm.setPrimaryClip(ClipData.newPlainText("Virgil report", clipText))
+        Toast.makeText(this, R.string.report_copied_toast, Toast.LENGTH_SHORT).show()
     }
 
     companion object {
@@ -171,14 +174,65 @@ class ReportActivity : ComponentActivity() {
     }
 }
 
+private fun subjectRes(type: ReportActivity.Type): Int = when (type) {
+    ReportActivity.Type.FALSE_ALARM -> R.string.report_email_subject_false_alarm
+    ReportActivity.Type.MISSED_FALL -> R.string.report_email_subject_missed_fall
+}
+
+private fun prefixRes(type: ReportActivity.Type): Int = when (type) {
+    ReportActivity.Type.FALSE_ALARM -> R.string.report_email_prefix_false_alarm
+    ReportActivity.Type.MISSED_FALL -> R.string.report_email_prefix_missed_fall
+}
+
+private fun deviceOnlyDiagnostics(): String = buildString {
+    appendLine("Report schema: v2")
+    appendLine("App version: ${BuildConfig.VERSION_NAME}")
+    appendLine("Device: ${Build.MANUFACTURER ?: "unknown"} ${Build.MODEL ?: "unknown"}")
+    appendLine("Android API: ${Build.VERSION.SDK_INT}")
+    appendLine("App locale: ${Locale.getDefault().toLanguageTag()}")
+    appendLine("Timezone: ${TimeZone.getDefault().id}")
+}
+
+/**
+ * Builds the exact email body that gets either mailed or copied. Kept as
+ * a pure function of its inputs so the on-screen preview is byte-for-byte
+ * identical to what leaves the device.
+ */
+internal fun buildReportBody(
+    context: Context,
+    type: ReportActivity.Type,
+    description: String,
+    whenLabel: String?,
+    includeDiagnostics: Boolean,
+    snapshot: FalseAlarmSnapshot?,
+): String = buildString {
+    append(context.getString(prefixRes(type)))
+    append("\n\n")
+    if (!whenLabel.isNullOrBlank()) {
+        append(context.getString(R.string.report_when_label, whenLabel))
+        append("\n\n")
+    }
+    if (description.isNotBlank()) {
+        append(description.trim())
+        append("\n\n")
+    }
+    if (includeDiagnostics) {
+        append(context.getString(R.string.report_email_diagnostics_header))
+        append("\n")
+        append(snapshot?.toReportText() ?: deviceOnlyDiagnostics())
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ReportScreen(
     type: ReportActivity.Type,
     snapshot: FalseAlarmSnapshot?,
     onSend: (description: String, whenLabel: String?, includeDiagnostics: Boolean) -> Unit,
+    onCopy: (description: String, whenLabel: String?, includeDiagnostics: Boolean) -> Unit,
     onDiscard: () -> Unit,
 ) {
+    val context = LocalContext.current
     var description by remember { mutableStateOf("") }
     // Default to checked — the snapshot carries no PII (no location, no
     // contacts, no identifiers). A pre-ticked consent box is still
@@ -186,6 +240,7 @@ private fun ReportScreen(
     // can uncheck it before sending if they'd rather keep the data local.
     var includeDiagnostics by remember { mutableStateOf(true) }
     var whenChoice by remember { mutableStateOf<Int?>(null) }
+    var previewExpanded by remember { mutableStateOf(false) }
 
     val titleRes = when (type) {
         ReportActivity.Type.FALSE_ALARM -> R.string.report_screen_title_false_alarm
@@ -242,8 +297,6 @@ private fun ReportScreen(
                 fontSize = 14.sp,
             )
 
-            if (snapshot != null) DiagnosticsPreview(snapshot)
-
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Checkbox(
                     checked = includeDiagnostics,
@@ -256,6 +309,15 @@ private fun ReportScreen(
             }
 
             val whenLabel = whenChoice?.let { stringResource(it) }
+
+            ReportPreview(
+                expanded = previewExpanded,
+                onToggle = { previewExpanded = !previewExpanded },
+                body = buildReportBody(
+                    context, type, description, whenLabel, includeDiagnostics, snapshot,
+                ),
+            )
+
             // Missed-fall reports need the user's description to be useful
             // (there is no snapshot to carry signal). False-alarm reports
             // carry a snapshot, so diagnostics-only sends are allowed.
@@ -272,6 +334,13 @@ private fun ReportScreen(
                 enabled = canSend,
             ) {
                 Text(stringResource(R.string.report_send_button))
+            }
+            OutlinedButton(
+                onClick = { onCopy(description, whenLabel, includeDiagnostics) },
+                modifier = Modifier.fillMaxWidth(),
+                enabled = canSend,
+            ) {
+                Text(stringResource(R.string.report_copy_button))
             }
             TextButton(onClick = onDiscard, modifier = Modifier.fillMaxWidth()) {
                 Text(stringResource(R.string.report_discard_button))
@@ -306,16 +375,28 @@ private fun WhenSelector(selected: Int?, onSelect: (Int) -> Unit) {
 }
 
 @Composable
-private fun DiagnosticsPreview(snapshot: FalseAlarmSnapshot) {
-    Surface(
-        tonalElevation = 2.dp,
-        shape = RoundedCornerShape(8.dp),
-        modifier = Modifier.fillMaxWidth(),
-    ) {
-        Text(
-            text = snapshot.toReportText(),
-            fontSize = 13.sp,
-            modifier = Modifier.padding(12.dp),
-        )
+private fun ReportPreview(expanded: Boolean, onToggle: () -> Unit, body: String) {
+    Column {
+        TextButton(onClick = onToggle) {
+            Text(
+                stringResource(
+                    if (expanded) R.string.report_preview_hide
+                    else R.string.report_preview_show,
+                ),
+            )
+        }
+        if (expanded) {
+            Surface(
+                tonalElevation = 2.dp,
+                shape = RoundedCornerShape(8.dp),
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text(
+                    text = body,
+                    fontSize = 13.sp,
+                    modifier = Modifier.padding(12.dp),
+                )
+            }
+        }
     }
 }

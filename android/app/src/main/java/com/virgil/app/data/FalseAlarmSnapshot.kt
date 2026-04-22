@@ -8,6 +8,7 @@ import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import java.util.TimeZone
 
 /**
  * Snapshot of the last alarm that the user hold-disarmed. Captured at the
@@ -56,6 +57,7 @@ data class FalseAlarmSnapshot(
         val dismissed = fmt.format(Date(dismissedAt))
         val heldMs = (dismissedAt - triggeredAt).coerceAtLeast(0)
         return buildString {
+            appendLine("Report schema: v2")
             appendLine("Triggered at: $triggered")
             appendLine("Dismissed at: $dismissed (${heldMs / 1000}s later)")
             appendLine("Trigger type: $triggerType")
@@ -67,6 +69,8 @@ data class FalseAlarmSnapshot(
             appendLine("App version: $appVersion")
             appendLine("Device: $deviceManufacturer $deviceModel")
             appendLine("Android API: $androidVersion")
+            appendLine("App locale: ${Locale.getDefault().toLanguageTag()}")
+            appendLine("Timezone: ${TimeZone.getDefault().id}")
         }
     }
 

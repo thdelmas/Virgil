@@ -117,7 +117,12 @@
     <string name="report_consent_body_missed_fall">With your explicit permission Virgil can attach your device model, Android version, and app version so we can investigate hardware or algorithm gaps. No location. No contacts. No identifiers.</string>
     <string name="report_consent_checkbox">Include the diagnostic summary in the email</string>
     <string name="report_send_button">Open email with report</string>
+    <string name="report_copy_button">Copy report to clipboard</string>
+    <string name="report_copied_toast">Report copied — paste it anywhere.</string>
     <string name="report_discard_button">Discard and close</string>
+    <string name="report_preview_show">Preview the email</string>
+    <string name="report_preview_hide">Hide preview</string>
+    <string name="report_email_chooser_title">Send Virgil report</string>
     <string name="report_email_subject_false_alarm">Virgil false-alarm report</string>
     <string name="report_email_subject_missed_fall">Virgil missed-fall report</string>
     <string name="report_email_prefix_false_alarm">Virgil false-alarm report.</string>
