@@ -12,3 +12,6 @@ android/app/build/
 android/.gradle/
 android/.kotlin/
 /traces/
+
+# Local Netlify folder
+.netlify
