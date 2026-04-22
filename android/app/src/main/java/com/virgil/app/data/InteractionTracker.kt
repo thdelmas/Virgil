@@ -35,6 +35,11 @@ object InteractionTracker {
         context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
             .getLong(KEY_LAST_CHECKIN_DISMISS_MS, 0L)
 
+    /** Epoch-ms of the last recorded presence signal, or 0 if never recorded. */
+    fun lastInteractionMs(context: Context): Long =
+        context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+            .getLong(KEY_LAST_MS, 0L)
+
     /** True if a presence signal was recorded within [windowMs] of now. */
     fun isRecent(context: Context, windowMs: Long): Boolean {
         val last = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)

@@ -15,6 +15,7 @@ import com.google.android.gms.tasks.CancellationTokenSource
 import com.virgil.app.R
 import com.virgil.app.data.AppLocale
 import com.virgil.app.data.EmergencyContact
+import com.virgil.app.data.InteractionTracker
 import java.time.Instant
 import java.time.ZoneId
 import java.time.ZonedDateTime
@@ -63,13 +64,16 @@ class EmergencyDispatcher(private val context: Context) {
             else -> R.string.emergency_sms_no_response
         }
 
+        val lastActivityMs = if (isTest) 0L else InteractionTracker.lastInteractionMs(context)
+
         getLocation { location ->
             var sent = 0
             var failed = 0
             for (contact in contacts) {
                 val localized = localizedContext(contact.languageCode)
                 val template = customTemplate ?: localized.getString(defaultRes)
-                if (sendSms(contact.phone, buildMessage(localized, template, location))) sent++
+                val body = buildMessage(localized, template, location, lastActivityMs)
+                if (sendSms(contact.phone, body)) sent++
                 else failed++
             }
 
@@ -137,14 +141,29 @@ class EmergencyDispatcher(private val context: Context) {
             .addOnFailureListener { callback(null) }
     }
 
-    private fun buildMessage(localized: Context, template: String, location: Location?): String {
+    private fun buildMessage(
+        localized: Context,
+        template: String,
+        location: Location?,
+        lastActivityMs: Long,
+    ): String {
+        val lastActivityLine = if (lastActivityMs > 0L) {
+            localized.getString(R.string.sms_last_activity, formatDateTime(lastActivityMs))
+        } else {
+            null
+        }
         if (location == null) {
             val unavailable = localized.getString(R.string.sms_location_unavailable)
             val sentAt = localized.getString(
                 R.string.sms_alert_time,
                 formatDateTime(System.currentTimeMillis()),
             )
-            return "$template\n\n$unavailable\n$sentAt"
+            val tail = buildList {
+                add(unavailable)
+                add(sentAt)
+                lastActivityLine?.let(::add)
+            }.joinToString("\n")
+            return "$template\n\n$tail"
         }
         val altitudeM = if (location.hasAltitude()) location.altitude.toInt() else null
         val verticalAccM = if (location.hasVerticalAccuracy()) {
@@ -152,7 +171,7 @@ class EmergencyDispatcher(private val context: Context) {
         } else {
             null
         }
-        return template + formatLocation(
+        val locationBlock = formatLocation(
             localized,
             location.latitude,
             location.longitude,
@@ -161,6 +180,7 @@ class EmergencyDispatcher(private val context: Context) {
             altitudeM = altitudeM,
             verticalAccuracyM = verticalAccM,
         )
+        return template + locationBlock + (lastActivityLine?.let { "\n$it" } ?: "")
     }
 
     private fun sendSms(phone: String, message: String): Boolean {
