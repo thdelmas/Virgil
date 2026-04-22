@@ -31,6 +31,7 @@
     <string name="sms_altitude_with_accuracy">Altitud: ~%1$d m (±%2$d m)</string>
     <string name="sms_fix_time">Hora: %1$s</string>
     <string name="sms_alert_time">Alerta enviada: %1$s</string>
+    <string name="sms_last_activity">Última activitat: %1$s</string>
     <string name="sms_map_google">Google Maps</string>
     <string name="sms_map_osm">OpenStreetMap</string>
 
@@ -44,6 +45,8 @@
     <string name="home_watching">Virgil té cura de tu</string>
     <string name="home_ready">Preparat quan tu ho estiguis</string>
     <string name="home_turn_on_prompt">Activa el que vulguis a continuació.</string>
+    <string name="home_airplane_paused">En pausa — mode avió activat</string>
+    <string name="home_airplane_paused_hint">Desactiva el mode avió perquè Virgil pugui avisar els teus contactes d\'emergència.</string>
     <string name="home_feature_fall_title">Si caic</string>
     <string name="home_feature_fall_on">Virgil està vigilant. Enviarem un SMS a %1$s amb la teva ubicació.</string>
     <string name="home_feature_fall_off">Virgil pot vigilar caigudes mentre fas la teva vida.</string>
@@ -57,7 +60,7 @@
     <string name="home_disclaimer">Virgil és una eina de seguretat personal, no un dispositiu mèdic. Pot no detectar caigudes o enviar falses alertes. Mantén la mateixa prudència que tindries sense ell.</string>
 
     <string name="empty_home_title">Gairebé a punt</string>
-    <string name="empty_home_body">Afegeix la persona a qui Virgil ha de trucar per demanar ajuda i ja estarà tot a punt.</string>
+    <string name="empty_home_body">Afegeix el contacte d\'emergència a qui Virgil ha d\'avisar si passa alguna cosa i ja estarà tot a punt.</string>
     <string name="empty_home_add">Afegir algú</string>
 
     <string name="test_confirm_title">Enviar alerta de prova?</string>
@@ -125,7 +128,7 @@
     <string name="dialog_cancel">Cancel·lar</string>
 
     <string name="onboarding_welcome_title">Benvingut</string>
-    <string name="onboarding_welcome_body">Virgil té cura de tu en silenci. Si caus o no respons, Virgil demana ajuda.\n\nConfigurem-ho — només uns passos senzills.</string>
+    <string name="onboarding_welcome_body">Virgil té cura de tu en silenci. Si caus o no respons, Virgil envia un SMS i truca els teus contactes d\'emergència.\n\nConfigurem-ho — només uns passos senzills.</string>
     <string name="onboarding_begin">Comença</string>
     <string name="onboarding_turn_on">Activar</string>
     <string name="onboarding_not_now">Ara no</string>

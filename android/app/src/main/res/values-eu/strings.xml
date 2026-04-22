@@ -31,6 +31,7 @@
     <string name="sms_altitude_with_accuracy">Altitudea: ~%1$d m (±%2$d m)</string>
     <string name="sms_fix_time">Ordua: %1$s</string>
     <string name="sms_alert_time">Alerta bidalia: %1$s</string>
+    <string name="sms_last_activity">Azken jarduera: %1$s</string>
     <string name="sms_map_google">Google Maps</string>
     <string name="sms_map_osm">OpenStreetMap</string>
 
@@ -44,6 +45,8 @@
     <string name="home_watching">Virgil zure zaintzan dago</string>
     <string name="home_ready">Prest zu prest zaudenean</string>
     <string name="home_turn_on_prompt">Aktibatu nahi duzuna behean.</string>
+    <string name="home_airplane_paused">Pausan — hegazkin modua aktibo</string>
+    <string name="home_airplane_paused_hint">Desaktibatu hegazkin modua Virgilek zure larrialdiko kontaktuei abisatu ahal izateko.</string>
     <string name="home_feature_fall_title">Erortzen banaiz</string>
     <string name="home_feature_fall_on">Virgil adi dago. SMS bat bidaliko diogu %1$s pertsonari zure kokapenarekin.</string>
     <string name="home_feature_fall_off">Virgilek erorketen gaineko zaintza egin dezake zuk bizitzari ekiten diozun bitartean.</string>
@@ -57,7 +60,7 @@
     <string name="home_disclaimer">Virgil segurtasun pertsonaleko tresna bat da, ez gailu mediko bat. Erorketak huts ditzake edo abisu faltsuak bidal ditzake. Izan kontuz berau gabe izango zinatekeen bezalaxe.</string>
 
     <string name="empty_home_title">Ia prest</string>
-    <string name="empty_home_body">Gehitu Virgilek laguntza eskatzeko deitu beharko liokeen pertsona, eta dena prest egongo da.</string>
+    <string name="empty_home_body">Gehitu Virgilek zerbait gertatzen bada abisatu beharko liokeen larrialdiko kontaktua, eta dena prest egongo da.</string>
     <string name="empty_home_add">Norbait gehitu</string>
 
     <string name="test_confirm_title">Proba abisua bidali?</string>
@@ -125,7 +128,7 @@
     <string name="dialog_cancel">Utzi</string>
 
     <string name="onboarding_welcome_title">Ongi etorri</string>
-    <string name="onboarding_welcome_body">Virgilek zaindu egiten zaitu isilka. Erortzen bazara edo erantzuten ez baduzu, Virgilek laguntza eskatuko du.\n\nKonfigura dezagun — urrats erraz batzuk.</string>
+    <string name="onboarding_welcome_body">Virgilek zaindu egiten zaitu isilka. Erortzen bazara edo erantzuten ez baduzu, Virgilek SMS bidali eta deituko die zure larrialdiko kontaktuei.\n\nKonfigura dezagun — urrats erraz batzuk.</string>
     <string name="onboarding_begin">Has gaitezen</string>
     <string name="onboarding_turn_on">Aktibatu</string>
     <string name="onboarding_not_now">Orain ez</string>

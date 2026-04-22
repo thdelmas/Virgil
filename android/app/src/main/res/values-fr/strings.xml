@@ -31,6 +31,7 @@
     <string name="sms_altitude_with_accuracy">Altitude : ~%1$d m (±%2$d m)</string>
     <string name="sms_fix_time">Heure : %1$s</string>
     <string name="sms_alert_time">Alerte envoyée : %1$s</string>
+    <string name="sms_last_activity">Dernière activité : %1$s</string>
     <string name="sms_map_google">Google Maps</string>
     <string name="sms_map_osm">OpenStreetMap</string>
 
@@ -44,6 +45,8 @@
     <string name="home_watching">Virgil veille sur vous</string>
     <string name="home_ready">Prêt quand vous l\'êtes</string>
     <string name="home_turn_on_prompt">Activez ce que vous souhaitez ci-dessous.</string>
+    <string name="home_airplane_paused">En pause — mode avion activé</string>
+    <string name="home_airplane_paused_hint">Désactivez le mode avion pour que Virgil puisse prévenir vos contacts d\'urgence.</string>
     <string name="home_feature_fall_title">Si je tombe</string>
     <string name="home_feature_fall_on">Virgil surveille. Nous préviendrons %1$s avec votre localisation.</string>
     <string name="home_feature_fall_off">Virgil peut surveiller les chutes pendant que vous vaquez à vos occupations.</string>
@@ -57,7 +60,7 @@
     <string name="home_disclaimer">Virgil est un outil de sécurité personnelle, pas un dispositif médical. Il peut manquer des chutes ou déclencher de fausses alertes. Restez aussi prudent·e que vous le seriez sans lui.</string>
 
     <string name="empty_home_title">Presque prêt</string>
-    <string name="empty_home_body">Ajoutez la personne que Virgil doit appeler en cas de besoin, et tout sera en place.</string>
+    <string name="empty_home_body">Ajoutez le contact d\'urgence que Virgil doit prévenir en cas de problème, et tout sera en place.</string>
     <string name="empty_home_add">Ajouter quelqu\'un</string>
 
     <string name="test_confirm_title">Envoyer une alerte de test ?</string>
@@ -125,7 +128,7 @@
     <string name="dialog_cancel">Annuler</string>
 
     <string name="onboarding_welcome_title">Bienvenue</string>
-    <string name="onboarding_welcome_body">Virgil veille discrètement sur vous. Si vous tombez ou ne répondez pas, Virgil demande de l\'aide.\n\nConfigurons tout ça — quelques étapes simples.</string>
+    <string name="onboarding_welcome_body">Virgil veille discrètement sur vous. Si vous tombez ou ne répondez pas, Virgil envoie un SMS et appelle vos contacts d\'urgence.\n\nConfigurons tout ça — quelques étapes simples.</string>
     <string name="onboarding_begin">Commencer</string>
     <string name="onboarding_turn_on">Activer</string>
     <string name="onboarding_not_now">Plus tard</string>

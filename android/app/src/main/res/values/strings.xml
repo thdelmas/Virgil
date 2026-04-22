@@ -45,6 +45,7 @@
     <string name="sms_altitude_with_accuracy">Altitude: ~%1$dm (±%2$dm)</string>
     <string name="sms_fix_time">Time: %1$s</string>
     <string name="sms_alert_time">Alert sent: %1$s</string>
+    <string name="sms_last_activity">Last activity: %1$s</string>
     <string name="sms_map_google">Google Maps</string>
     <string name="sms_map_osm">OpenStreetMap</string>
 
@@ -60,6 +61,8 @@
     <string name="home_watching">Virgil is watching over you</string>
     <string name="home_ready">Ready when you are</string>
     <string name="home_turn_on_prompt">Turn on what you\'d like below.</string>
+    <string name="home_airplane_paused">Paused — airplane mode is on</string>
+    <string name="home_airplane_paused_hint">Turn airplane mode off so Virgil can reach your emergency contacts.</string>
     <string name="home_feature_fall_title">If I fall</string>
     <string name="home_feature_fall_on">Virgil is watching. We\'ll text %1$s with your location.</string>
     <string name="home_feature_fall_off">Virgil can watch for falls while you go about your day.</string>
@@ -74,7 +77,7 @@
 
     <!-- Empty home -->
     <string name="empty_home_title">Almost ready</string>
-    <string name="empty_home_body">Add the person Virgil should call for help, and you\'re all set.</string>
+    <string name="empty_home_body">Add the emergency contact Virgil should text and call if something happens, and you\'re all set.</string>
     <string name="empty_home_add">Add someone</string>
 
     <!-- Test dialog -->
@@ -205,7 +208,7 @@
 
     <!-- Onboarding -->
     <string name="onboarding_welcome_title">Welcome</string>
-    <string name="onboarding_welcome_body">Virgil quietly watches over you. If you fall or don\'t respond, Virgil asks for help.\n\nLet\'s set things up — just a few simple steps.</string>
+    <string name="onboarding_welcome_body">Virgil quietly watches over you. If you fall or don\'t respond, Virgil texts and calls your emergency contacts.\n\nLet\'s set things up — just a few simple steps.</string>
     <string name="onboarding_begin">Let\'s begin</string>
     <string name="onboarding_turn_on">Turn on</string>
     <string name="onboarding_not_now">Not now</string>

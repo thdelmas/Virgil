@@ -1,5 +1,9 @@
 package com.virgil.app.ui
 
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -23,15 +27,23 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import com.virgil.app.R
 import com.virgil.app.data.EmergencyContact
+import com.virgil.app.service.AirplaneMode
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -45,6 +57,8 @@ fun HomeScreen(
     onToggleCheckIn: (Boolean) -> Unit,
 ) {
     val anyOn = fallEnabled || checkInEnabled
+    val airplaneOn = rememberAirplaneMode()
+    val paused = anyOn && airplaneOn
     val primaryName = contacts.firstOrNull { it.isPrimary }?.name
         ?: contacts.first().name
 
@@ -60,22 +74,30 @@ fun HomeScreen(
             painter = painterResource(R.drawable.ic_lantern),
             contentDescription = null,
             modifier = Modifier.size(96.dp),
-            alpha = if (anyOn) 1f else 0.45f,
+            alpha = if (anyOn && !paused) 1f else 0.45f,
         )
 
         Spacer(Modifier.height(16.dp))
 
+        val headlineRes = when {
+            paused -> R.string.home_airplane_paused
+            anyOn -> R.string.home_watching
+            else -> R.string.home_ready
+        }
         Text(
-            text = stringResource(
-                if (anyOn) R.string.home_watching else R.string.home_ready
-            ),
+            text = stringResource(headlineRes),
             style = MaterialTheme.typography.headlineSmall,
             textAlign = TextAlign.Center,
         )
-        if (!anyOn) {
+        val subHintRes = when {
+            paused -> R.string.home_airplane_paused_hint
+            !anyOn -> R.string.home_turn_on_prompt
+            else -> null
+        }
+        if (subHintRes != null) {
             Spacer(Modifier.height(6.dp))
             Text(
-                stringResource(R.string.home_turn_on_prompt),
+                stringResource(subHintRes),
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                 textAlign = TextAlign.Center,
@@ -212,6 +234,29 @@ private fun DisclaimerBanner() {
             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
         )
     }
+}
+
+@Composable
+private fun rememberAirplaneMode(): Boolean {
+    val context = LocalContext.current
+    var on by remember { mutableStateOf(AirplaneMode.isOn(context)) }
+    DisposableEffect(context) {
+        val receiver = object : BroadcastReceiver() {
+            override fun onReceive(ctx: Context, intent: Intent) {
+                if (intent.action == Intent.ACTION_AIRPLANE_MODE_CHANGED) {
+                    on = AirplaneMode.isOn(ctx)
+                }
+            }
+        }
+        ContextCompat.registerReceiver(
+            context,
+            receiver,
+            IntentFilter(Intent.ACTION_AIRPLANE_MODE_CHANGED),
+            ContextCompat.RECEIVER_NOT_EXPORTED,
+        )
+        onDispose { context.unregisterReceiver(receiver) }
+    }
+    return on
 }
 
 @Composable
