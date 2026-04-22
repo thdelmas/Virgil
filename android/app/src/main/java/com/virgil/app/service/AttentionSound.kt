@@ -112,9 +112,11 @@ object AttentionSound {
 
     /**
      * Phase-appropriate audio for the staged pre-dispatch countdown.
-     * - [Stage.RAMPING]: calm 880 Hz ping, volume fades from ~10% to 90% over 15 s.
-     * - [Stage.STEADY]: same ping at full volume.
-     * - [Stage.URGENT]: denser two-tone pulse, full volume.
+     * Progression is by pitch + cadence (still tonal, not a siren) so each
+     * step is audibly more insistent than the last:
+     * - [Stage.RAMPING]: warm E5 ping, slow ~0.8 s cadence, volume 10 % → 85 %.
+     * - [Stage.STEADY]:  higher A5 ping, tighter ~0.55 s cadence, full volume.
+     * - [Stage.URGENT]:  two-tone 880 / 1320 Hz pulse, full volume.
      */
     @Synchronized
     fun playStagedAlarm(context: Context, stage: Stage) {
@@ -137,15 +139,16 @@ object AttentionSound {
     }
 
     private fun runRampingPing(track: AudioTrack) {
-        val freq = 880.0
-        val beepFrames = SAMPLE_RATE * 180 / 1000
-        val silenceFrames = SAMPLE_RATE * 520 / 1000
+        // Warm E5 at a leisurely cadence — once roughly every 0.8 s.
+        val freq = 659.25
+        val beepFrames = SAMPLE_RATE * 160 / 1000
+        val silenceFrames = SAMPLE_RATE * 640 / 1000
         val buffer = ShortArray(beepFrames + silenceFrames)
         var cycleIdx = 0
         val rampCycles = 15 * SAMPLE_RATE / (beepFrames + silenceFrames)
         while (loopingRunning) {
             val progress = min(1.0, cycleIdx.toDouble() / rampCycles)
-            val vol = 0.10 + 0.80 * progress
+            val vol = 0.10 + 0.75 * progress
             fillBeep(buffer, beepFrames, freq, vol)
             track.write(buffer, 0, buffer.size)
             cycleIdx++
@@ -153,9 +156,12 @@ object AttentionSound {
     }
 
     private fun runSteadyPing(track: AudioTrack) {
+        // A5 — a major third above the ramping ping — at a noticeably tighter
+        // cadence (~0.55 s) so the step up from P2 is unmistakable even though
+        // we're still in tonal-ping territory.
         val freq = 880.0
         val beepFrames = SAMPLE_RATE * 180 / 1000
-        val silenceFrames = SAMPLE_RATE * 520 / 1000
+        val silenceFrames = SAMPLE_RATE * 380 / 1000
         val buffer = ShortArray(beepFrames + silenceFrames)
         fillBeep(buffer, beepFrames, freq, 0.9)
         while (loopingRunning) {
@@ -240,7 +246,17 @@ object AttentionSound {
     }
 
     fun playDismissCue(context: Context, onFinished: () -> Unit = {}) {
-        playCue(context, listOf(Tone(700.0, 160), Tone(500.0, 200)), onFinished)
+        // Downward perfect fifth G5 → C5 — a resolved cadence that reads as
+        // "stand down, you're safe". Soft attack and a long release on the
+        // tonic so the cue exhales into silence rather than clipping off.
+        playCue(
+            context,
+            listOf(
+                Tone(783.99, 180, attackMs = 25, releaseMs = 40, volume = 0.70),
+                Tone(523.25, 560, attackMs = 15, releaseMs = 260, volume = 0.70),
+            ),
+            onFinished,
+        )
     }
 
     fun playSentCue(context: Context, onFinished: () -> Unit = {}) {
@@ -263,7 +279,13 @@ object AttentionSound {
         )
     }
 
-    private data class Tone(val freq: Double, val ms: Int)
+    private data class Tone(
+        val freq: Double,
+        val ms: Int,
+        val attackMs: Int = 15,
+        val releaseMs: Int = 15,
+        val volume: Double = 0.85,
+    )
 
     @Synchronized
     private fun playCue(context: Context, tones: List<Tone>, onFinished: () -> Unit) {
@@ -281,15 +303,19 @@ object AttentionSound {
                 phase = 0.0
                 continue
             }
-            val envFrames = (SAMPLE_RATE * 15 / 1000).coerceAtMost(frames / 2)
+            val half = frames / 2
+            val attackFrames = (SAMPLE_RATE * tone.attackMs / 1000).coerceAtMost(half)
+            val releaseFrames = (SAMPLE_RATE * tone.releaseMs / 1000).coerceAtMost(half)
             for (i in 0 until frames) {
                 phase += 2 * PI * tone.freq / SAMPLE_RATE
                 val env = when {
-                    i < envFrames -> i.toDouble() / envFrames
-                    i >= frames - envFrames -> (frames - i).toDouble() / envFrames
+                    i < attackFrames -> i.toDouble() / attackFrames
+                    i >= frames - releaseFrames ->
+                        (frames - i).toDouble() / releaseFrames
                     else -> 1.0
                 }
-                buffer[idx++] = (sin(phase) * Short.MAX_VALUE * 0.85 * env).toInt().toShort()
+                buffer[idx++] =
+                    (sin(phase) * Short.MAX_VALUE * tone.volume * env).toInt().toShort()
             }
         }
 

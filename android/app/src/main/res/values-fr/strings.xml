@@ -3,7 +3,7 @@
     <string name="app_name">Virgil</string>
 
     <string name="fall_detection_channel">Détection de chute</string>
-    <string name="fall_detection_running">Virgil veille sur vous</string>
+    <string name="fall_detection_running">Détection de chute activée</string>
     <string name="fall_channel_description">Notification persistante tant que la détection de chute est active</string>
     <string name="emergency_channel">Alerte d\'urgence</string>
     <string name="emergency_channel_description">Alerte déclenchée en cas de chute ou d\'échec du contrôle de sécurité</string>

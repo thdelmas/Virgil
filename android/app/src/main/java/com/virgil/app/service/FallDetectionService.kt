@@ -146,6 +146,10 @@ class FallDetectionService : Service(), SensorEventListener {
                 }
                 return START_STICKY
             }
+            ACTION_CANCEL_VERIFY -> {
+                cancelVerify("user tapped verify notification")
+                return START_STICKY
+            }
             ACTION_DEBUG_REPLAY -> if (BuildConfig.DEBUG) {
                 val magnitudes = intent.getFloatArrayExtra(EXTRA_DEBUG_MAGNITUDES)
                 val delays = intent.getLongArrayExtra(EXTRA_DEBUG_DELAYS)
@@ -197,7 +201,7 @@ class FallDetectionService : Service(), SensorEventListener {
         // alarm on top of the first.
         if (alarmInFlight) {
             if (!algorithm.isIdle) algorithm.reset()
-            if (verifyingStartedAt != 0L) cancelVerify("alarm in flight")
+            if (verifyingStartedAt != 0L) cancelVerify("alarm in flight", isUserDisarm = false)
             setNotifState(NotifState.ALARMING)
             return
         }
@@ -224,7 +228,7 @@ class FallDetectionService : Service(), SensorEventListener {
         val elapsed = SystemClock.elapsedRealtime() - startedAt
         if (elapsed >= VERIFY_SILENT_MS + VERIFY_HAPTIC_MS) {
             val peak = verifyPeakAccel
-            cancelVerify("handed off to countdown")
+            cancelVerify("handed off to countdown", isUserDisarm = false)
             android.util.Log.i(TAG, "fall verify timeout — escalating peak=$peak")
             EmergencyLauncher.launch(this, triggerType = "fall", peakAccel = peak)
             return
@@ -233,6 +237,7 @@ class FallDetectionService : Service(), SensorEventListener {
             if (!hapticPhaseEntered) {
                 hapticPhaseEntered = true
                 android.util.Log.i(TAG, "fall verify entering haptic phase")
+                postVerifyHeadsUp()
                 buzz()
                 lastHapticBuzzAt = SystemClock.elapsedRealtime()
             } else if (SystemClock.elapsedRealtime() - lastHapticBuzzAt >= HAPTIC_BUZZ_INTERVAL_MS) {
@@ -249,15 +254,63 @@ class FallDetectionService : Service(), SensorEventListener {
         }
     }
 
-    private fun cancelVerify(reason: String) {
+    private fun cancelVerify(reason: String, isUserDisarm: Boolean = true) {
         if (verifyingStartedAt == 0L) return
+        val leaveTrace = hapticPhaseEntered && isUserDisarm
         verifyingStartedAt = 0
         verifyMotionSamples = 0
         verifyPeakAccel = 0f
         hapticPhaseEntered = false
         lastHapticBuzzAt = 0
+        dismissVerifyHeadsUp()
         android.util.Log.i(TAG, "fall verify canceled: $reason")
+        if (leaveTrace) postVerifyTrace()
         if (!alarmInFlight) setNotifState(NotifState.MONITORING)
+    }
+
+    private fun postVerifyHeadsUp() {
+        val cancelIntent = PendingIntent.getService(
+            this, 2,
+            Intent(this, FallDetectionService::class.java).apply { action = ACTION_CANCEL_VERIFY },
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
+        )
+        val notif = NotificationCompat.Builder(this, VirgilApp.CHANNEL_VERIFY)
+            .setContentTitle(getString(R.string.verify_notif_title))
+            .setContentText(getString(R.string.verify_notif_body))
+            .setSmallIcon(android.R.drawable.ic_dialog_info)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setCategory(NotificationCompat.CATEGORY_ALARM)
+            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            .setContentIntent(cancelIntent)
+            .setAutoCancel(true)
+            .setOngoing(true)
+            .build()
+        getSystemService(android.app.NotificationManager::class.java)
+            ?.notify(VERIFY_NOTIFICATION_ID, notif)
+    }
+
+    private fun dismissVerifyHeadsUp() {
+        getSystemService(android.app.NotificationManager::class.java)
+            ?.cancel(VERIFY_NOTIFICATION_ID)
+    }
+
+    private fun postVerifyTrace() {
+        val openApp = PendingIntent.getActivity(
+            this, 3,
+            Intent(this, MainActivity::class.java),
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
+        )
+        val notif = NotificationCompat.Builder(this, VirgilApp.CHANNEL_FALL_DETECTION)
+            .setContentTitle(getString(R.string.verify_trace_title))
+            .setContentText(getString(R.string.verify_trace_body))
+            .setSmallIcon(android.R.drawable.ic_dialog_info)
+            .setPriority(NotificationCompat.PRIORITY_LOW)
+            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            .setContentIntent(openApp)
+            .setAutoCancel(true)
+            .build()
+        getSystemService(android.app.NotificationManager::class.java)
+            ?.notify(VERIFY_TRACE_NOTIFICATION_ID, notif)
     }
 
     private fun buzz() {
@@ -336,7 +389,10 @@ class FallDetectionService : Service(), SensorEventListener {
     private fun onFallDetected() {
         if (verifyingStartedAt != 0L) return
         val pm = getSystemService(PowerManager::class.java)
-        if (pm?.isInteractive == true) {
+        // Release builds skip detection while the screen is on — "the phone
+        // is in the user's hand, they're fine". Debug builds must still run
+        // the verify → alarm flow so falls can be tested with the screen up.
+        if (!BuildConfig.DEBUG && pm?.isInteractive == true) {
             android.util.Log.i(TAG, "fall ignored: screen interactive (phone in use)")
             return
         }
@@ -419,9 +475,12 @@ class FallDetectionService : Service(), SensorEventListener {
         var alarmInFlight: Boolean = false
 
         const val NOTIFICATION_ID = 1
+        const val VERIFY_NOTIFICATION_ID = 0x5646 // "VF" — verify-fall
+        const val VERIFY_TRACE_NOTIFICATION_ID = 0x5654 // "VT" — verify-trace
         const val ACTION_STOP = "com.virgil.app.STOP_FALL_DETECTION"
         const val ACTION_MARK_LOW_ACTIVITY = "com.virgil.app.MARK_LOW_ACTIVITY"
         const val ACTION_CLEAR_LOW_ACTIVITY = "com.virgil.app.CLEAR_LOW_ACTIVITY"
+        const val ACTION_CANCEL_VERIFY = "com.virgil.app.CANCEL_VERIFY"
         const val ACTION_DEBUG_REPLAY = "com.virgil.app.DEBUG_REPLAY"
         const val EXTRA_PEAK_ACCEL = "peak_accel"
         const val EXTRA_TRIGGER_TYPE = "trigger_type"

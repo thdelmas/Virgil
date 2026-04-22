@@ -56,10 +56,24 @@ class VirgilApp : Application() {
             enableVibration(true)
         }
 
+        // High-importance, no channel-level vibration — the service drives its
+        // own buzz pattern, and we only need this channel for the heads-up so
+        // the user can see *why* their phone just vibrated.
+        val verifyChannel = NotificationChannel(
+            CHANNEL_VERIFY,
+            getString(R.string.verify_channel),
+            NotificationManager.IMPORTANCE_HIGH
+        ).apply {
+            description = getString(R.string.verify_channel_description)
+            enableVibration(false)
+            setSound(null, null)
+        }
+
         manager.createNotificationChannel(fallChannel)
         manager.createNotificationChannel(alertChannel)
         manager.createNotificationChannel(checkinChannel)
         manager.createNotificationChannel(permissionChannel)
+        manager.createNotificationChannel(verifyChannel)
     }
 
     companion object {
@@ -67,5 +81,6 @@ class VirgilApp : Application() {
         const val CHANNEL_EMERGENCY = "emergency"
         const val CHANNEL_CHECKIN = "checkin"
         const val CHANNEL_PERMISSION = "permission"
+        const val CHANNEL_VERIFY = "fall_verify"
     }
 }

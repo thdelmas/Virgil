@@ -3,7 +3,7 @@
     <string name="app_name">Virgil</string>
 
     <string name="fall_detection_channel">Erorketen detekzioa</string>
-    <string name="fall_detection_running">Virgil zure zaintzan dago</string>
+    <string name="fall_detection_running">Erorketa-detekzioa aktibo</string>
     <string name="fall_channel_description">Jakinarazpen iraunkorra erorketen detekzioa aktibo dagoen bitartean</string>
     <string name="emergency_channel">Larrialdi abisua</string>
     <string name="emergency_channel_description">Erorketa edo segurtasun egiaztapenari erantzunik ez egotean abisua</string>

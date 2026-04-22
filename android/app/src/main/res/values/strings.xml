@@ -5,8 +5,14 @@
 
     <!-- Notification channels -->
     <string name="fall_detection_channel">Fall Detection</string>
-    <string name="fall_detection_running">Virgil is watching over you</string>
+    <string name="fall_detection_running">Fall detection active</string>
     <string name="fall_detection_verifying">Checking if you\'re OK…</string>
+    <string name="verify_channel">Fall Verification</string>
+    <string name="verify_channel_description">Alerts you during a possible fall so you can cancel if you\'re OK.</string>
+    <string name="verify_notif_title">Virgil: are you OK?</string>
+    <string name="verify_notif_body">Possible fall detected. Move or tap to cancel.</string>
+    <string name="verify_trace_title">Virgil checked on you</string>
+    <string name="verify_trace_body">We thought you might have fallen, but you responded — stood down. Swipe to dismiss.</string>
     <string name="fall_detection_alarming">Emergency countdown in progress</string>
     <string name="fall_detection_low_activity">Low activity noticed — looking in on you</string>
     <string name="fall_detection_airplane_paused">Paused — airplane mode is on</string>

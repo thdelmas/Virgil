@@ -3,7 +3,7 @@
     <string name="app_name">Virgil</string>
 
     <string name="fall_detection_channel">Detecció de caigudes</string>
-    <string name="fall_detection_running">Virgil té cura de tu</string>
+    <string name="fall_detection_running">Detecció de caigudes activada</string>
     <string name="fall_channel_description">Notificació persistent mentre la detecció de caigudes està activa</string>
     <string name="emergency_channel">Alerta d\'emergència</string>
     <string name="emergency_channel_description">Alerta quan es detecta una caiguda o una falta de resposta al control</string>
