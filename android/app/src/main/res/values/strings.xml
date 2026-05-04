@@ -150,6 +150,14 @@
     <string name="siren_sent_body">Your contacts were notified. The siren helps bystanders find you.</string>
     <string name="siren_failed_title">Alert not sent</string>
     <string name="siren_failed_body">Could not reach your contacts. Call them directly if you can.</string>
+    <string name="siren_partial_title">Alert partially sent</string>
+    <string name="siren_partial_body">Some contacts didn\'t get the alert. Call them directly if you can.</string>
+    <string name="siren_status_sent">Sent</string>
+    <string name="siren_status_failed">Failed</string>
+    <string name="siren_status_no_signal">No signal</string>
+    <string name="siren_status_radio_off">Radio off</string>
+    <string name="siren_status_unconfirmed">Unconfirmed</string>
+    <string name="siren_status_no_permission">No SMS permission</string>
     <string name="siren_stop_button">STOP SIREN</string>
 
     <!-- Settings -->

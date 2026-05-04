@@ -49,6 +49,7 @@ class EmergencyAlarmService : Service() {
         val dispatching: Boolean,
         val finishedSent: Int,
         val finishedFailed: Int,
+        val contactResults: List<EmergencyDispatcher.ContactResult>,
         val done: Boolean,
         val paused: Boolean,
     )
@@ -253,7 +254,9 @@ class EmergencyAlarmService : Service() {
             _state.value = State(
                 active = true, phase = Phase.P4_URGENT, secondsLeftInPhase = 0,
                 triggerType = triggerType, dispatching = false,
-                finishedSent = 0, finishedFailed = 0, done = true,
+                finishedSent = 0, finishedFailed = 0,
+                contactResults = emptyList(),
+                done = true,
                 paused = false,
             )
             return
@@ -269,6 +272,7 @@ class EmergencyAlarmService : Service() {
                 active = true, phase = Phase.P4_URGENT, secondsLeftInPhase = 0,
                 triggerType = triggerType, dispatching = false,
                 finishedSent = result.smsSent, finishedFailed = result.smsFailed,
+                contactResults = result.contactResults,
                 done = true,
                 paused = false,
             )
@@ -343,7 +347,9 @@ class EmergencyAlarmService : Service() {
         _state.value = State(
             active = true, phase = phase, secondsLeftInPhase = secondsLeft,
             triggerType = triggerType, dispatching = dispatching,
-            finishedSent = 0, finishedFailed = 0, done = false,
+            finishedSent = 0, finishedFailed = 0,
+            contactResults = emptyList(),
+            done = false,
             paused = paused,
         )
     }
@@ -410,7 +416,9 @@ class EmergencyAlarmService : Service() {
         private val IDLE_STATE = State(
             active = false, phase = Phase.P1_CALM, secondsLeftInPhase = 0,
             triggerType = "fall", dispatching = false,
-            finishedSent = 0, finishedFailed = 0, done = false,
+            finishedSent = 0, finishedFailed = 0,
+            contactResults = emptyList(),
+            done = false,
             paused = false,
         )
 

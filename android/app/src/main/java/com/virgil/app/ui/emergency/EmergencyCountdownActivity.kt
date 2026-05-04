@@ -100,6 +100,7 @@ class EmergencyCountdownActivity : ComponentActivity() {
                     SirenActiveScreen(
                         sent = state.finishedSent,
                         failed = state.finishedFailed,
+                        contactResults = state.contactResults,
                         onStop = { stopEverythingAndFinish() },
                     )
                 } else if (state.dispatching) {
@@ -384,80 +385,3 @@ private fun StepIndicator(currentStep: Int, totalSteps: Int) {
     }
 }
 
-@Composable
-private fun DispatchingScreen() {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0xFF212121)),
-        contentAlignment = Alignment.Center,
-    ) {
-        Text(
-            text = stringResource(R.string.siren_dispatching),
-            color = Color.White,
-            fontSize = 28.sp,
-            fontWeight = FontWeight.SemiBold,
-        )
-    }
-}
-
-@Composable
-private fun SirenActiveScreen(sent: Int, failed: Int, onStop: () -> Unit) {
-    val success = sent > 0
-    val bg = if (success) Color(0xFF1B5E20) else Color(0xFFB71C1C)
-    val titleRes = if (success) R.string.siren_sent_title else R.string.siren_failed_title
-    val bodyRes = if (success) R.string.siren_sent_body else R.string.siren_failed_body
-
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(bg),
-        contentAlignment = Alignment.Center,
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
-            modifier = Modifier.padding(horizontal = 32.dp),
-        ) {
-            Text(
-                text = stringResource(titleRes),
-                color = Color.White,
-                fontSize = 36.sp,
-                fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Center,
-            )
-            Spacer(modifier = Modifier.height(12.dp))
-            Text(
-                text = stringResource(bodyRes),
-                color = Color.White.copy(alpha = 0.9f),
-                fontSize = 18.sp,
-                textAlign = TextAlign.Center,
-            )
-            Spacer(modifier = Modifier.height(48.dp))
-            Button(
-                onClick = onStop,
-                modifier = Modifier
-                    .size(220.dp)
-                    .clip(CircleShape),
-                colors = ButtonDefaults.buttonColors(containerColor = Color.White),
-                shape = CircleShape,
-            ) {
-                Text(
-                    text = stringResource(R.string.siren_stop_button),
-                    color = bg,
-                    fontSize = 28.sp,
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center,
-                )
-            }
-            if (failed > 0) {
-                Spacer(modifier = Modifier.height(16.dp))
-                Text(
-                    text = "$failed failed",
-                    color = Color.White.copy(alpha = 0.7f),
-                    fontSize = 18.sp,
-                )
-            }
-        }
-    }
-}

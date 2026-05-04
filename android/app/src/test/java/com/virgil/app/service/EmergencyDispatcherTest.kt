@@ -1,11 +1,48 @@
 package com.virgil.app.service
 
+import android.telephony.SmsManager
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import org.junit.Test
 import kotlin.test.assertEquals
 
 class EmergencyDispatcherTest {
+
+    @Test
+    fun `mapSmsErrorCode distinguishes radio off and no service from generic`() {
+        assertEquals(
+            EmergencyDispatcher.SmsStatus.FAILED_RADIO_OFF,
+            EmergencyDispatcher.mapSmsErrorCode(SmsManager.RESULT_ERROR_RADIO_OFF),
+        )
+        assertEquals(
+            EmergencyDispatcher.SmsStatus.FAILED_NO_SERVICE,
+            EmergencyDispatcher.mapSmsErrorCode(SmsManager.RESULT_ERROR_NO_SERVICE),
+        )
+        assertEquals(
+            EmergencyDispatcher.SmsStatus.FAILED_GENERIC,
+            EmergencyDispatcher.mapSmsErrorCode(SmsManager.RESULT_ERROR_GENERIC_FAILURE),
+        )
+    }
+
+    @Test
+    fun `Result derives sent and failed counts from per-contact statuses`() {
+        val result = EmergencyDispatcher.Result(
+            locationAvailable = true,
+            contactResults = listOf(
+                EmergencyDispatcher.ContactResult(
+                    "A", "+1", EmergencyDispatcher.SmsStatus.SENT,
+                ),
+                EmergencyDispatcher.ContactResult(
+                    "B", "+2", EmergencyDispatcher.SmsStatus.FAILED_RADIO_OFF,
+                ),
+                EmergencyDispatcher.ContactResult(
+                    "C", "+3", EmergencyDispatcher.SmsStatus.FAILED_TIMEOUT,
+                ),
+            ),
+        )
+        assertEquals(1, result.smsSent)
+        assertEquals(2, result.smsFailed)
+    }
 
     @Test
     fun `formatOffset renders whole-hour positive offsets without minutes`() {
