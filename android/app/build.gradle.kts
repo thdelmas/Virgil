@@ -1,8 +1,18 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("org.jetbrains.kotlin.plugin.compose")
 }
+
+val keystoreProperties = Properties().apply {
+    val file = rootProject.file("keystore.properties")
+    if (file.exists()) file.inputStream().use { load(it) }
+}
+
+fun signingValue(key: String): String? =
+    (keystoreProperties[key] as String?) ?: System.getenv("VIRGIL_${key.uppercase()}")
 
 android {
     namespace = "com.virgil.app"
@@ -17,6 +27,18 @@ android {
         resourceConfigurations += listOf("en", "fr", "es", "ca", "pt", "eu")
     }
 
+    signingConfigs {
+        create("release") {
+            val storeFilePath = signingValue("storeFile")
+            if (storeFilePath != null) {
+                storeFile = rootProject.file(storeFilePath)
+                storePassword = signingValue("storePassword")
+                keyAlias = signingValue("keyAlias")
+                keyPassword = signingValue("keyPassword")
+            }
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = true
@@ -24,6 +46,8 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            val release = signingConfigs.getByName("release")
+            signingConfig = if (release.storeFile?.exists() == true) release else signingConfigs.getByName("debug")
         }
     }
 

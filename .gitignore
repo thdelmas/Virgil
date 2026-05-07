@@ -15,3 +15,8 @@ android/.kotlin/
 
 # Local Netlify folder
 .netlify
+
+# Release signing — never commit
+keystore.properties
+*.jks
+*.keystore
