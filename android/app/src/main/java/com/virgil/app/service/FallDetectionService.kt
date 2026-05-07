@@ -219,6 +219,7 @@ class FallDetectionService : Service(), SensorEventListener {
                 tickVerify(magnitude)
             }
             Sensor.TYPE_GYROSCOPE -> algorithm.processGyro(magnitude, now)
+            Sensor.TYPE_GRAVITY -> algorithm.processGravity(x, y, z)
         }
     }
 
@@ -329,6 +330,7 @@ class FallDetectionService : Service(), SensorEventListener {
         val sensor = accelerometer ?: return
         sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_GAME)
         gyroscope?.let { sensorManager.registerListener(this, it, SensorManager.SENSOR_DELAY_GAME) }
+        sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY)?.let { sensorManager.registerListener(this, it, SensorManager.SENSOR_DELAY_NORMAL) }
         isListening = true
         // Only hold a wake lock when the hardware doesn't have a wake-up
         // accelerometer — otherwise the sensor hub delivers events through

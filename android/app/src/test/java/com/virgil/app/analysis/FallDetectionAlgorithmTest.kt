@@ -241,6 +241,83 @@ class FallDetectionAlgorithmTest {
     }
 
     @Test
+    fun `pocket insertion suppressed when orientation goes from flat to upright`() {
+        var time = 1000L
+        // Pre-event: phone in hand, screen tilted toward user — gravity Z dominant.
+        algo.processGravity(0.5f, 3.0f, 9.2f)
+        repeat(50) {
+            algo.processGyro(0.5f, time)
+            assertFalse(algo.processSample(9.8f, time))
+            time += 20
+        }
+        // Brief downward jab toward the pocket: shallow but genuine free-fall.
+        repeat(3) {
+            algo.processGyro(5.0f, time)
+            assertFalse(algo.processSample(5.5f, time))
+            time += 30
+        }
+        // Phone meets pocket fabric — sharp deceleration, gyro confirms rotation.
+        algo.processGyro(6.0f, time)
+        assertFalse(algo.processSample(35.0f, time))
+        val impactTime = time
+        // Now in pocket — gravity sensor reports portrait-upright (Y dominant).
+        algo.processGravity(0.3f, 9.5f, 1.0f)
+        time = impactTime + FallDetectionAlgorithm.STILLNESS_DELAY_MS + 100
+        assertFalse(algo.processSample(9.8f, time))
+    }
+
+    @Test
+    fun `fall while phone already vertical in pocket still triggers`() {
+        var time = 1000L
+        // Phone in pocket the whole time: gravity Y dominant before AND after.
+        algo.processGravity(0.2f, 9.5f, 1.0f)
+        repeat(50) {
+            algo.processGyro(0.5f, time)
+            assertFalse(algo.processSample(9.8f, time))
+            time += 20
+        }
+        // Genuine free-fall.
+        repeat(3) {
+            algo.processGyro(6.0f, time)
+            assertFalse(algo.processSample(3.0f, time))
+            time += 30
+        }
+        algo.processGyro(8.0f, time)
+        assertFalse(algo.processSample(40.0f, time))
+        val impactTime = time
+        // Person ends up still wearing the phone vertically — but pre was also
+        // vertical, so the pocket-insertion signature does NOT match.
+        algo.processGravity(0.2f, 9.5f, 1.0f)
+        time = impactTime + FallDetectionAlgorithm.STILLNESS_DELAY_MS + 100
+        assertTrue(algo.processSample(9.8f, time))
+    }
+
+    @Test
+    fun `fall onto floor with pre-flat orientation still triggers when post is flat`() {
+        // User holding phone trips and falls; phone lands flat on the floor.
+        // Pre Z-dominant (in hand), post Z-dominant (face-up on floor) — not
+        // an insertion signature.
+        var time = 1000L
+        algo.processGravity(0f, 1.0f, 9.7f)
+        repeat(50) {
+            algo.processGyro(0.5f, time)
+            assertFalse(algo.processSample(9.8f, time))
+            time += 20
+        }
+        repeat(3) {
+            algo.processGyro(6.0f, time)
+            assertFalse(algo.processSample(3.0f, time))
+            time += 30
+        }
+        algo.processGyro(8.0f, time)
+        assertFalse(algo.processSample(40.0f, time))
+        val impactTime = time
+        algo.processGravity(0.1f, 0.3f, 9.7f)
+        time = impactTime + FallDetectionAlgorithm.STILLNESS_DELAY_MS + 100
+        assertTrue(algo.processSample(9.8f, time))
+    }
+
+    @Test
     fun `normal walking does not trigger`() {
         var time = 1000L
         repeat(500) { i ->
