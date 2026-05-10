@@ -12,6 +12,7 @@ import android.os.Build
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
+import android.util.Log
 import com.virgil.app.data.EmergencyPreferences
 import com.virgil.app.ui.emergency.EmergencyCountdownActivity
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -370,7 +371,8 @@ class EmergencyAlarmService : Service() {
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
             putExtra(FallDetectionService.EXTRA_TRIGGER_TYPE, triggerType)
         }
-        runCatching { startActivity(activityIntent) }
+        runCatching { startActivity(activityIntent, balAllowedActivityOptions()) }
+            .onFailure { Log.w("EmergencyAlarm", "startActivity blocked", it) }
     }
 
     /**

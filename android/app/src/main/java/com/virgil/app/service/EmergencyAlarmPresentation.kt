@@ -1,10 +1,12 @@
 package com.virgil.app.service
 
+import android.app.ActivityOptions
 import android.app.Notification
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import android.os.Bundle
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
@@ -34,6 +36,7 @@ fun buildAlarmNotification(
     val fullScreenPi = PendingIntent.getActivity(
         context, 0, activityIntent,
         PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+        balAllowedActivityOptions(),
     )
     val cancelPi = PendingIntent.getService(
         context, 1,
@@ -120,4 +123,19 @@ internal fun EmergencyAlarmService.Phase.stepIndex(): Int = when (this) {
     EmergencyAlarmService.Phase.P2_NOTIFY -> 2
     EmergencyAlarmService.Phase.P3_WARN -> 3
     EmergencyAlarmService.Phase.P4_URGENT -> 4
+}
+
+/**
+ * Android 14 changed the BAL default for PendingIntents fired from notifications,
+ * and Android 15 tightened it further: without this opt-in the full-screen-intent
+ * activity stays hidden behind a heads-up while the alarm rings. Returned bundle
+ * is also passed to the service's direct startActivity so the FGS path is covered.
+ */
+internal fun balAllowedActivityOptions(): Bundle? {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE) return null
+    return ActivityOptions.makeBasic()
+        .setPendingIntentBackgroundActivityStartMode(
+            ActivityOptions.MODE_BACKGROUND_ACTIVITY_START_ALLOWED,
+        )
+        .toBundle()
 }
