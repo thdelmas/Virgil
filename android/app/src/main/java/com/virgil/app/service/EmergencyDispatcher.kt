@@ -47,7 +47,7 @@ class EmergencyDispatcher(private val context: Context) {
 
     private val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
 
-    enum class TriggerType { FALL, NO_RESPONSE }
+    enum class TriggerType { FALL, NO_RESPONSE, PANIC }
 
     enum class SmsStatus {
         SENT,
@@ -100,6 +100,7 @@ class EmergencyDispatcher(private val context: Context) {
         val defaultRes = when {
             isTest -> R.string.test_sms_message
             triggerType == TriggerType.FALL -> R.string.emergency_sms_fall
+            triggerType == TriggerType.PANIC -> R.string.emergency_sms_panic
             else -> R.string.emergency_sms_no_response
         }
 
@@ -143,10 +144,10 @@ class EmergencyDispatcher(private val context: Context) {
                 }
             }
 
-            // The call to the primary contact happens regardless of SMS
-            // confirmation — we don't want to wait on the radio before
-            // dialing, since the call is the loudest signal we have.
-            if (!isTest) {
+            // Call the primary regardless of SMS confirmation — radio waits
+            // would silence the loudest signal we have. PANIC skips: the
+            // alarm is screaming over the mic, contact decides via SMS.
+            if (!isTest && triggerType != TriggerType.PANIC) {
                 AutoAnswer.arm(context)
                 val primaryContact = contacts.firstOrNull { it.isPrimary } ?: contacts.first()
                 makeCall(primaryContact.phone)

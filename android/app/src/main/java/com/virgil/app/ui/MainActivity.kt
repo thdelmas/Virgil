@@ -40,7 +40,10 @@ import com.virgil.app.permissions.PermissionChecker
 import com.virgil.app.permissions.PermissionMonitor
 import com.virgil.app.R
 import com.virgil.app.service.CheckInService
+import com.virgil.app.service.EmergencySirenService
 import com.virgil.app.service.FallDetectionService
+import com.virgil.app.service.PanicTrigger
+import com.virgil.app.service.StopAuthGate
 import com.virgil.app.ui.permissions.OnboardingFlow
 import com.virgil.app.ui.settings.EmergencySettingsScreen
 import com.virgil.app.ui.theme.VirgilTheme
@@ -140,6 +143,12 @@ class MainActivity : ComponentActivity() {
                                 onToggleCheckIn = { newValue ->
                                     scope.launch { prefs.setCheckInEnabled(newValue) }
                                     if (newValue) startCheckIn() else stopCheckIn()
+                                },
+                                onPanic = { PanicTrigger.fire(this@MainActivity) },
+                                onStopPanic = {
+                                    StopAuthGate.authThenStop(this@MainActivity) {
+                                        EmergencySirenService.stop(this@MainActivity)
+                                    }
                                 },
                             )
                         }

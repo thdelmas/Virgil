@@ -31,12 +31,14 @@
     <string name="permission_lost_body">The following required permission(s) were revoked: %1$s. Virgil cannot alert your contacts until they are restored. Tap to review.</string>
     <string name="emergency_siren_title">Emergency siren active</string>
     <string name="emergency_siren_body">Tap to silence. Stops automatically after 5 minutes.</string>
+    <string name="emergency_siren_body_panic">Open Virgil to silence. Unlock required. Stops automatically after 5 minutes.</string>
     <string name="emergency_siren_silence">Silence</string>
     <string name="fall_notification_stop">Stop</string>
 
     <!-- Emergency SMS -->
     <string name="emergency_sms_fall">URGENT: I may have fallen and need help. This is an automatic alert from Virgil.</string>
     <string name="emergency_sms_no_response">URGENT: I may need help. I have not responded to my safety check. This is an automatic alert from Virgil.</string>
+    <string name="emergency_sms_panic">URGENT: I triggered a manual alert from Virgil. I may be in danger and need help. Reach me — this is not a fall.</string>
     <string name="test_sms_message">[Virgil TEST] This is a test from your safety app. No emergency — just checking that alerts and location work.</string>
     <string name="sms_location_unavailable">My location isn\'t available right now.</string>
     <string name="sms_location_label">My location</string>
@@ -74,6 +76,15 @@
     <string name="home_contacts_summary_two">Virgil will reach %1$s and 1 other if you need help.</string>
     <string name="home_contacts_summary_many">Virgil will reach %1$s and %2$d others if you need help.</string>
     <string name="home_disclaimer">Virgil is a personal safety tool, not a medical device. It may miss falls or send false alerts. Stay as careful as you would without it.</string> <!-- compliance-allow: legal disclaimer required by docs/COMPLIANCE.md §6 -->
+
+    <!-- Manual panic button -->
+    <string name="home_panic_label">I need help now</string>
+    <string name="home_panic_hint">Press and hold to alert your contacts and start a loud siren.</string>
+    <string name="home_panic_holding">Keep holding…</string>
+    <string name="home_panic_fired">Alert sent. Tap below and unlock to silence the siren.</string>
+    <string name="home_panic_stop_label">Stop siren</string>
+    <string name="panic_stop_auth_title">Stop Virgil siren?</string>
+    <string name="panic_stop_auth_body">Confirm with your fingerprint, face, or device PIN to silence the alert.</string>
 
     <!-- Empty home -->
     <string name="empty_home_title">Almost ready</string>

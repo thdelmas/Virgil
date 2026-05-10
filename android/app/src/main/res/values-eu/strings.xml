@@ -18,11 +18,13 @@
     <string name="permission_lost_body">Baimen hauek kendu dira: %1$s. Virgilek ezin ditu zure kontaktuak ohartarazi leheneratu arte. Sakatu berrikusteko.</string>
     <string name="emergency_siren_title">Larrialdi sirena aktibo</string>
     <string name="emergency_siren_body">Sakatu isiltzeko. 5 minuturen buruan automatikoki gelditzen da.</string>
+    <string name="emergency_siren_body_panic">Ireki Virgil gelditzeko. Desblokeatzea behar da. 5 minuturen buruan automatikoki gelditzen da.</string>
     <string name="emergency_siren_silence">Isildu</string>
     <string name="fall_notification_stop">Gelditu</string>
 
     <string name="emergency_sms_fall">LARRIALDIA: baliteke erori izana eta laguntza behar izatea. Virgilen abisu automatikoa da hau.</string>
     <string name="emergency_sms_no_response">LARRIALDIA: baliteke laguntza behar izatea. Ez dut nire segurtasun egiaztapenari erantzun. Virgilen abisu automatikoa da hau.</string>
+    <string name="emergency_sms_panic">LARRIALDIA: eskuzko abisu bat aktibatu dut Virgilen. Baliteke arriskuan egotea eta laguntza behar izatea. Jar zaitez nirekin harremanetan — ez da erorketa bat.</string>
     <string name="test_sms_message">[Virgil PROBA] Zure segurtasun aplikazioaren proba bat da. Larrialdirik ez — abisuak eta kokapena ondo dabiltzan egiaztatzen.</string>
     <string name="sms_location_unavailable">Nire kokapena ez dago orain eskuragarri.</string>
     <string name="sms_location_label">Nire kokapena</string>
@@ -58,6 +60,13 @@
     <string name="home_contacts_summary_two">Virgilek %1$s eta beste pertsona bat jakinaraziko ditu laguntza behar baduzu.</string>
     <string name="home_contacts_summary_many">Virgilek %1$s eta beste %2$d pertsona jakinaraziko ditu laguntza behar baduzu.</string>
     <string name="home_disclaimer">Virgil segurtasun pertsonaleko tresna bat da, ez gailu mediko bat. Erorketak huts ditzake edo abisu faltsuak bidal ditzake. Izan kontuz berau gabe izango zinatekeen bezalaxe.</string>
+    <string name="home_panic_label">Laguntza behar dut</string>
+    <string name="home_panic_hint">Sakatu eta eutsi zure kontaktuei abisatzeko eta sirena pizteko.</string>
+    <string name="home_panic_holding">Eutsi…</string>
+    <string name="home_panic_fired">Abisua bidalita. Sakatu behean eta desblokeatu sirena gelditzeko.</string>
+    <string name="home_panic_stop_label">Gelditu sirena</string>
+    <string name="panic_stop_auth_title">Virgilen sirena gelditu?</string>
+    <string name="panic_stop_auth_body">Berretsi hatz-marka, aurpegia edo gailuaren PINarekin abisua gelditzeko.</string>
 
     <string name="empty_home_title">Ia prest</string>
     <string name="empty_home_body">Gehitu Virgilek zerbait gertatzen bada abisatu beharko liokeen larrialdiko kontaktua, eta dena prest egongo da.</string>

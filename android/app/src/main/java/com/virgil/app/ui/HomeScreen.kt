@@ -28,6 +28,7 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,6 +45,7 @@ import androidx.core.content.ContextCompat
 import com.virgil.app.R
 import com.virgil.app.data.EmergencyContact
 import com.virgil.app.service.AirplaneMode
+import com.virgil.app.service.EmergencySirenService
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -55,7 +57,10 @@ fun HomeScreen(
     intervalHours: Long,
     onToggleFall: (Boolean) -> Unit,
     onToggleCheckIn: (Boolean) -> Unit,
+    onPanic: () -> Unit,
+    onStopPanic: () -> Unit,
 ) {
+    val panicFired by EmergencySirenService.activeFlow.collectAsState(initial = false)
     val anyOn = fallEnabled || checkInEnabled
     val airplaneOn = rememberAirplaneMode()
     val paused = anyOn && airplaneOn
@@ -151,6 +156,14 @@ fun HomeScreen(
         )
 
         Spacer(Modifier.height(28.dp))
+
+        PanicButton(
+            fired = panicFired,
+            onFire = onPanic,
+            onStop = onStopPanic,
+        )
+
+        Spacer(Modifier.height(20.dp))
 
         Text(
             text = contactSummary(contacts, primaryName),

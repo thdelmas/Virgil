@@ -18,11 +18,13 @@
     <string name="permission_lost_body">S\'han revocat els permisos següents: %1$s. Virgil no pot avisar els teus contactes fins que no es restaurin. Toca per revisar.</string>
     <string name="emergency_siren_title">Sirena d\'emergència activa</string>
     <string name="emergency_siren_body">Toca per silenciar. S\'atura automàticament després de 5 minuts.</string>
+    <string name="emergency_siren_body_panic">Obre el Virgil per aturar-la. Cal desbloquejar. S\'atura automàticament després de 5 minuts.</string>
     <string name="emergency_siren_silence">Silenciar</string>
     <string name="fall_notification_stop">Aturar</string>
 
     <string name="emergency_sms_fall">URGENT: potser he caigut i necessito ajuda. Aquesta és una alerta automàtica de Virgil.</string>
     <string name="emergency_sms_no_response">URGENT: potser necessito ajuda. No he respost al meu control de seguretat. Aquesta és una alerta automàtica de Virgil.</string>
+    <string name="emergency_sms_panic">URGENT: he activat una alerta manual des del Virgil. Potser estic en perill i necessito ajuda. Contacta\'m — això no és una caiguda.</string>
     <string name="test_sms_message">[Virgil PROVA] Això és una prova de la teva app de seguretat. Sense emergència — només comprovo que les alertes i la ubicació funcionen.</string>
     <string name="sms_location_unavailable">La meva ubicació no està disponible ara.</string>
     <string name="sms_location_label">La meva ubicació</string>
@@ -58,6 +60,13 @@
     <string name="home_contacts_summary_two">Virgil avisarà %1$s i 1 persona més si necessites ajuda.</string>
     <string name="home_contacts_summary_many">Virgil avisarà %1$s i %2$d persones més si necessites ajuda.</string>
     <string name="home_disclaimer">Virgil és una eina de seguretat personal, no un dispositiu mèdic. Pot no detectar caigudes o enviar falses alertes. Mantén la mateixa prudència que tindries sense ell.</string>
+    <string name="home_panic_label">Necessito ajuda</string>
+    <string name="home_panic_hint">Mantén premut per avisar els teus contactes i activar la sirena.</string>
+    <string name="home_panic_holding">Mantén premut…</string>
+    <string name="home_panic_fired">Alerta enviada. Toca a sota i desbloqueja per aturar la sirena.</string>
+    <string name="home_panic_stop_label">Aturar sirena</string>
+    <string name="panic_stop_auth_title">Aturar la sirena del Virgil?</string>
+    <string name="panic_stop_auth_body">Confirma amb l\'empremta, la cara o el PIN del dispositiu per aturar l\'alerta.</string>
 
     <string name="empty_home_title">Gairebé a punt</string>
     <string name="empty_home_body">Afegeix el contacte d\'emergència a qui Virgil ha d\'avisar si passa alguna cosa i ja estarà tot a punt.</string>

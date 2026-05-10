@@ -25,6 +25,15 @@ class EmergencyDispatcherTest {
     }
 
     @Test
+    fun `TriggerType includes PANIC for manual aggression-or-theft alerts`() {
+        // PANIC is the only trigger type that suppresses the auto-call (the
+        // siren would scream over the mic). Lock the enum membership so a
+        // future "simplification" doesn't quietly delete it.
+        val names = EmergencyDispatcher.TriggerType.values().map { it.name }.toSet()
+        assertEquals(setOf("FALL", "NO_RESPONSE", "PANIC"), names)
+    }
+
+    @Test
     fun `Result derives sent and failed counts from per-contact statuses`() {
         val result = EmergencyDispatcher.Result(
             locationAvailable = true,

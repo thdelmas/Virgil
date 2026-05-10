@@ -18,11 +18,13 @@
     <string name="permission_lost_body">Se han revocado los siguientes permisos: %1$s. Virgil no puede alertar a tus contactos hasta que se restauren. Toca para revisar.</string>
     <string name="emergency_siren_title">Sirena de emergencia activa</string>
     <string name="emergency_siren_body">Toca para silenciar. Se detiene automáticamente tras 5 minutos.</string>
+    <string name="emergency_siren_body_panic">Abre Virgil para detener. Requiere desbloqueo. Se detiene automáticamente tras 5 minutos.</string>
     <string name="emergency_siren_silence">Silenciar</string>
     <string name="fall_notification_stop">Detener</string>
 
     <string name="emergency_sms_fall">URGENTE: puede que me haya caído y necesite ayuda. Esta es una alerta automática de Virgil.</string>
     <string name="emergency_sms_no_response">URGENTE: puede que necesite ayuda. No he respondido a mi control de seguridad. Esta es una alerta automática de Virgil.</string>
+    <string name="emergency_sms_panic">URGENTE: he activado una alerta manual desde Virgil. Puede que esté en peligro y necesite ayuda. Contáctame — esto no es una caída.</string>
     <string name="test_sms_message">[Virgil PRUEBA] Esto es una prueba de tu app de seguridad. Sin emergencia — solo estoy comprobando que las alertas y la ubicación funcionan.</string>
     <string name="sms_location_unavailable">Mi ubicación no está disponible ahora.</string>
     <string name="sms_location_label">Mi ubicación</string>
@@ -58,6 +60,13 @@
     <string name="home_contacts_summary_two">Virgil avisará a %1$s y 1 persona más si necesitas ayuda.</string>
     <string name="home_contacts_summary_many">Virgil avisará a %1$s y %2$d personas más si necesitas ayuda.</string>
     <string name="home_disclaimer">Virgil es una herramienta de seguridad personal, no un dispositivo médico. Puede no detectar caídas o enviar falsas alertas. Mantén la misma prudencia que tendrías sin él.</string>
+    <string name="home_panic_label">Necesito ayuda</string>
+    <string name="home_panic_hint">Mantén pulsado para avisar a tus contactos y activar la sirena.</string>
+    <string name="home_panic_holding">Mantén pulsado…</string>
+    <string name="home_panic_fired">Alerta enviada. Pulsa abajo y desbloquea para detener la sirena.</string>
+    <string name="home_panic_stop_label">Detener sirena</string>
+    <string name="panic_stop_auth_title">¿Detener la sirena de Virgil?</string>
+    <string name="panic_stop_auth_body">Confirma con tu huella, rostro o PIN del dispositivo para detener la alerta.</string>
 
     <string name="empty_home_title">Ya casi</string>
     <string name="empty_home_body">Añade el contacto de emergencia al que Virgil debe avisar si pasa algo y estará todo listo.</string>

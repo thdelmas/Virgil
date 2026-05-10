@@ -18,11 +18,13 @@
     <string name="permission_lost_body">Les autorisations suivantes ont été retirées : %1$s. Virgil ne peut pas alerter vos contacts tant qu\'elles ne sont pas rétablies. Appuyez pour corriger.</string>
     <string name="emergency_siren_title">Sirène d\'urgence active</string>
     <string name="emergency_siren_body">Appuyez pour couper. S\'arrête automatiquement après 5 minutes.</string>
+    <string name="emergency_siren_body_panic">Ouvrez Virgil pour couper. Déverrouillage requis. S\'arrête automatiquement après 5 minutes.</string>
     <string name="emergency_siren_silence">Couper</string>
     <string name="fall_notification_stop">Arrêter</string>
 
     <string name="emergency_sms_fall">URGENT : j\'ai peut-être fait une chute et j\'ai besoin d\'aide. Ceci est une alerte automatique de Virgil.</string>
     <string name="emergency_sms_no_response">URGENT : j\'ai peut-être besoin d\'aide. Je n\'ai pas répondu à mon contrôle de sécurité. Ceci est une alerte automatique de Virgil.</string>
+    <string name="emergency_sms_panic">URGENT : j\'ai déclenché une alerte manuelle depuis Virgil. Je suis peut-être en danger et j\'ai besoin d\'aide. Contactez-moi — ce n\'est pas une chute.</string>
     <string name="test_sms_message">[Virgil TEST] Ceci est un test de votre application de sécurité. Aucune urgence — simple vérification que les alertes et la localisation fonctionnent.</string>
     <string name="sms_location_unavailable">Ma position n\'est pas disponible pour le moment.</string>
     <string name="sms_location_label">Ma position</string>
@@ -58,6 +60,13 @@
     <string name="home_contacts_summary_two">Virgil contactera %1$s et 1 autre personne si vous avez besoin d\'aide.</string>
     <string name="home_contacts_summary_many">Virgil contactera %1$s et %2$d autres personnes si vous avez besoin d\'aide.</string>
     <string name="home_disclaimer">Virgil est un outil de sécurité personnelle, pas un dispositif médical. Il peut manquer des chutes ou déclencher de fausses alertes. Restez aussi prudent·e que vous le seriez sans lui.</string>
+    <string name="home_panic_label">J\'ai besoin d\'aide</string>
+    <string name="home_panic_hint">Maintenez appuyé pour alerter vos contacts et déclencher la sirène.</string>
+    <string name="home_panic_holding">Maintenez…</string>
+    <string name="home_panic_fired">Alerte envoyée. Touchez ci-dessous et déverrouillez pour couper la sirène.</string>
+    <string name="home_panic_stop_label">Couper la sirène</string>
+    <string name="panic_stop_auth_title">Couper la sirène Virgil ?</string>
+    <string name="panic_stop_auth_body">Confirmez avec votre empreinte, votre visage ou le code de l\'appareil pour couper l\'alerte.</string>
 
     <string name="empty_home_title">Presque prêt</string>
     <string name="empty_home_body">Ajoutez le contact d\'urgence que Virgil doit prévenir en cas de problème, et tout sera en place.</string>
