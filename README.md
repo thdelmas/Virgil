@@ -6,15 +6,21 @@
 
 > Your silent guardian.
 
-A free, open-source Android app that watches over you when you're alone. Two features, both designed to save lives.
+A free, open-source Android app that watches over you when you're alone. Three triggers, one emergency contract.
 
 ---
 
 ## What it does
 
-**Fall detection.** Your phone's accelerometer notices a hard fall — free-fall, impact, then stillness. A full-screen countdown appears on your screen, escalating over 60 seconds through four stages (calm ping → steady warning → urgent pulse). If you don't hold "I'm OK" for a few seconds, Virgil sends your GPS location to your emergency contacts and calls the first one.
+Three ways an alert can fire — each tuned to a different situation:
 
-**Check-in.** At an interval you set, Virgil quietly notices whether your phone has seen any sign of life — a screen unlock, a tap, a step. If not, it gently asks if you're OK. If you don't respond within five minutes, it triggers the same emergency alert.
+**Fall detection.** Your phone's accelerometer notices a hard fall — free-fall, impact, then stillness. A full-screen countdown appears on your screen, escalating over 60 seconds through four stages (calm ping → steady warning → urgent pulse). If you don't hold "I'm OK" for a few seconds, Virgil sends an SMS with your GPS location to the emergency contacts you chose.
+
+**Check-in.** At an interval you set, Virgil quietly notices whether your phone has seen any sign of life — a screen unlock, a tap, a step. If not, it gently asks if you're OK. If you don't respond within five minutes, it triggers the same emergency SMS.
+
+**Manual alarm.** When *you* know something's wrong — aggression, a theft attempt, a moment that suddenly feels unsafe — hold the red button on the home screen for 1.5 seconds. No countdown (you already decided). A loud siren starts immediately as a deterrent and a beacon for bystanders, and the same SMS goes out to your contacts.
+
+If you grant the optional call permission, fall and check-in alerts also place a follow-up phone call to your primary contact through the system dialer. The manual alarm doesn't call — the siren would drown the line.
 
 ---
 
@@ -33,7 +39,7 @@ A free, open-source Android app that watches over you when you're alone. Two fea
 - **Free forever.** No accounts, no subscription, no premium tier, no ads.
 - **Your data stays on your phone.** No cloud, no servers, no analytics. Your location is only shared when an alert fires — and only with the contacts you chose.
 - **No wearable needed.** Your existing Android phone is all the hardware required.
-- **Works offline.** Alerts go out by SMS and phone call — no internet required.
+- **Works offline.** Alerts go out by SMS — no internet required.
 - **Open source.** Anyone can read the code and verify what it does.
 
 ---
@@ -73,7 +79,7 @@ Accelerometer (always-on, low-power)
   → stillness confirmed (near 1g, 300 ms–5 s after impact)
   → 60-second staged countdown, full-screen, escalating audio + haptics
      → "I'm OK" held for 5s → cancel
-     → no response         → SMS with GPS location to all contacts + call primary
+     → no response         → SMS with GPS to all contacts (+ optional call to primary)
 ```
 
 ### Check-in
@@ -84,11 +90,23 @@ Timer fires at your chosen interval (default: every 6 hours)
     yes → reset, wait for next interval
     no  → "Are you there?" notification (5-minute grace period)
           → tap → reset
-          → no response → same emergency flow as fall detection
+          → no response → same SMS flow as fall detection
   → sleep hours (default 23:00–07:00) → checks paused
 ```
 
 Virgil also quietly learns your typical daily rhythm. If your phone goes unusually quiet compared to your normal activity for this time of day, Virgil can raise a check-in earlier than the fixed interval — while keeping the scheduled check as a safety backstop.
+
+### Manual alarm
+
+```
+Hold the red button on the home screen for 1.5 seconds
+  → loud siren starts immediately (anti-tamper, full volume)
+  → SMS with GPS to all contacts ("this is not a fall")
+  → no countdown (you already decided)
+  → no auto-call (the siren would make the line useless)
+```
+
+The hold duration is the only false-trigger guard — pocket presses won't sustain it; deliberate presses will.
 
 ---
 

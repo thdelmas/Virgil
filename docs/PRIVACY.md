@@ -36,14 +36,14 @@ Virgil sends data off your device in exactly two cases. Both are SMS messages, t
 
 ### 1. Emergency alert (automatic or user-triggered)
 
-When a fall is detected, when a check-in is missed, or when you trigger an alert manually, Virgil sends an SMS to **each emergency contact you added**. The message contains:
+When a fall is detected, when a check-in is missed, or when you trigger the manual alarm, Virgil sends an SMS to **each emergency contact you added**. The message contains:
 
-- A short statement that an alert was triggered.
+- A short statement that an alert was triggered (with the trigger type — fall, missed check-in, or manual alarm).
 - The time of the alert.
 - A Google Maps link with your GPS coordinates at the time of the alert.
 - The time of your last detected activity on the phone.
 
-After sending the SMS, Virgil places a phone call to your **primary** emergency contact through the system dialer. Virgil does **not** dial 911, 112, SAMU, or any emergency dispatch number — only the contacts you chose. <!-- compliance-allow: capability disclaimer per docs/COMPLIANCE.md §11 -->
+If you have granted the optional `CALL_PHONE` permission, fall and missed-check-in alerts also place a follow-up phone call to your **primary** emergency contact through the system dialer. The manual alarm intentionally does not call — its loud siren is running at full volume and would make the line useless. Virgil does **not** dial 911, 112, SAMU, or any emergency dispatch number under any condition — only the contacts you chose. <!-- compliance-allow: capability disclaimer per docs/COMPLIANCE.md §11 -->
 
 ### 2. Introduction SMS (one-time, opt-in, no location)
 
@@ -53,8 +53,8 @@ When you add an emergency contact, Virgil offers to send that person a one-time 
 
 | Permission | Why |
 |---|---|
-| `SEND_SMS` | To send the emergency alert and (optional) introduction SMS to the contacts you chose. |
-| `CALL_PHONE` | To place the follow-up call to your primary contact via the system dialer. |
+| `SEND_SMS` | To send the emergency alert and (optional) introduction SMS to the contacts you chose. Required for any alert. |
+| `CALL_PHONE` | Optional. If granted, fall and missed-check-in alerts also place a follow-up call to your primary contact via the system dialer. The manual alarm never calls. |
 | `ACCESS_FINE_LOCATION`, `ACCESS_COARSE_LOCATION` | To attach your current GPS coordinates to the emergency SMS. Location is read at the moment of the alert; it is not logged or transmitted at any other time. |
 | `FOREGROUND_SERVICE`, `FOREGROUND_SERVICE_SPECIAL_USE` | Required by Android 14+ to run the always-on accelerometer and check-in timer with a persistent notification. |
 | `HIGH_SAMPLING_RATE_SENSORS` | To read the accelerometer at the rate needed for fall detection. Sensor readings are processed on-device in real time and never stored or transmitted. |

@@ -12,20 +12,22 @@ Source of truth for the strings paste into Google Play Console. Compliance-check
 
 ## Short description (max 80 chars)
 
-`Detects falls and silence. Alerts the contacts you chose. Stays on your phone.`
+`Detects falls. Notices silence. Hold for help. Texts the contacts you chose.`
 
-(78 chars)
+(76 chars)
 
 ## Full description (max 4000 chars)
 
 ```
 Virgil is a free personal safety app for people who live alone, hike alone, or simply want a quiet safety net.
 
-It does two things, and only two things:
+It does three things — three ways an alert can fire, each tuned to a different situation:
 
-• Fall detection. The accelerometer notices a hard fall — free-fall, impact, then stillness. A 60-second countdown appears with vibration and a full-screen alert. If you don't hold "I'm OK," Virgil texts your emergency contacts your GPS location and calls your primary contact.
+• Fall detection. The accelerometer notices a hard fall — free-fall, impact, then stillness. A 60-second countdown appears with vibration and a full-screen alert. If you don't hold "I'm OK," Virgil texts the emergency contacts you chose with your GPS location.
 
-• Check-in. You set an interval — say, every 6 hours during the day. If your phone sees no sign of life (no screen unlock, no movement), it asks if you're OK. If you don't respond, the same emergency flow runs.
+• Check-in. You set an interval — say, every 6 hours during the day. If your phone sees no sign of life (no screen unlock, no movement), it asks if you're OK. If you don't respond, the same SMS goes out.
+
+• Manual alarm. When you know something's wrong, hold the red button on the home screen for 1.5 seconds. A loud siren starts immediately (anti-tamper, deterrent), and the same SMS goes out — with a clear "this is not a fall" framing so the people you alerted understand the situation.
 
 That's it. No streaks. No counters. No "incidents detected" badges.
 
@@ -33,6 +35,7 @@ WHO IT IS FOR
 • An elderly parent or grandparent living alone
 • Anyone at home by themselves who wants a simple safety net
 • Hikers and lone workers in remote areas
+• Anyone in a moment that suddenly feels unsafe — a stranger getting too close, a phone-theft attempt
 • Anyone who wants peace of mind without paying a monthly fee
 
 WHAT MAKES VIRGIL DIFFERENT
@@ -43,7 +46,7 @@ Free and open source. No subscription. No "premium tier." No ads. Ever.
 
 Battery-conscious. Virgil uses sensor batching and minimal wake-ups. The check-in feature relies on activity signals the operating system already tracks; it does not poll sensors continuously.
 
-Honest framing. Virgil is a phone app that notices when something might be wrong and tells the people you trust. It is not a medical device. It does not dial 911, 112, or any emergency dispatch service — it texts and calls the contacts you added. It may miss events or trigger false alerts. Stay as careful as you would without it.
+Honest framing. Virgil is a phone app that notices when something might be wrong and tells the people you trust. It is not a medical device. It does not dial 911, 112, or any emergency dispatch service — it texts the contacts you added. If you grant the optional phone-call permission, fall and check-in alerts also place a follow-up call to your primary contact through the system dialer. The manual alarm does not call — the siren would drown the line. Virgil may miss events or trigger false alerts. Stay as careful as you would without it.
 
 WHAT VIRGIL DOES NOT DO
 • It does not call emergency services.
@@ -54,7 +57,8 @@ WHAT VIRGIL DOES NOT DO
 • It does not work without contacts you have added — it has nobody to alert.
 
 PERMISSIONS, EXPLAINED
-• SMS and Phone — to text and call your emergency contacts when an alert fires.
+• SMS — to text your emergency contacts when an alert fires. Required.
+• Phone — optional. If granted, fall and check-in alerts also call your primary contact via the system dialer. The manual alarm never calls.
 • Location — to attach your GPS coordinates to the emergency SMS. Read only at the moment of the alert.
 • Foreground service and notifications — required by Android to keep the safety services running with a persistent notification you can see at all times.
 • Sensors — to detect falls.
@@ -106,7 +110,7 @@ For the per-data-type table: select **none** of the data types as "collected" or
 
 ## Required app access permissions declarations
 
-- **SMS / Call Log access:** the app uses `SEND_SMS` and `CALL_PHONE`. Declaration text: *"Virgil sends an SMS and places a phone call to the user's chosen emergency contacts when a fall is detected or a check-in is missed. The app does not read the SMS log or call log."*
+- **SMS / Call Log access:** the app uses `SEND_SMS` (required) and `CALL_PHONE` (optional). Declaration text: *"Virgil sends an SMS to the user's chosen emergency contacts when a fall is detected, a check-in is missed, or the user holds the manual-alarm button. If the user grants the optional CALL_PHONE permission, Virgil additionally places a follow-up phone call to the primary contact for fall and check-in alerts (not for the manual alarm — its loud siren would render the call useless). The app does not read the SMS log or call log."*
 - **Foreground service (special use):** declared subtype `on_device_fall_and_inactivity_detection_for_personal_safety_no_network_no_cloud`. Justification: *"On-device accelerometer monitoring and inactivity check-in for personal safety. No network use. Cannot be deferred — falls and inactivity occur unpredictably and must be detected continuously."*
 
 ## Screenshots checklist (3-4 phone screenshots, plus feature graphic)
@@ -134,7 +138,8 @@ Style: large readable text, plain backgrounds, no fake demographic stock photos,
 Virgil is a personal safety app — fall detection and inactivity check-in. It runs entirely on-device. There is no server, no account, no analytics, and no INTERNET permission declared.
 
 Permission usage:
-• SEND_SMS + CALL_PHONE: when an alert fires, the app sends an SMS to the user's emergency contacts and places a phone call to the primary contact via the system dialer. The app does not call emergency services.
+• SEND_SMS (required): when an alert fires (fall, missed check-in, or manual alarm), the app sends an SMS to the user's emergency contacts.
+• CALL_PHONE (optional): if granted, the app additionally places a follow-up phone call to the primary contact via the system dialer for fall and missed-check-in alerts. The manual alarm intentionally does not call (the alarm's loud siren would render the call useless). The app does not call emergency services under any condition.
 • ACCESS_FINE_LOCATION: GPS coordinates are read at the moment of the alert and attached to the SMS. No background location use; ACCESS_BACKGROUND_LOCATION is not declared.
 • Foreground service type "specialUse" with subtype on_device_fall_and_inactivity_detection_for_personal_safety_no_network_no_cloud: required for always-on accelerometer monitoring and exact-time check-in.
 
