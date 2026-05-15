@@ -181,3 +181,53 @@ You will want to add "just one more feature" before launching. A widget. A watch
 Every feature you add before launch is a feature that delays the moment a real person's life could be saved by this app.
 
 Ship it. Then improve it.
+
+---
+
+## Phase 5 — Ecosystem integration (Post-launch, defer until 100+ installs)
+
+Virgil sits in a small modular suite — Bios (sensor hub), W2F (mood),
+SoulRadio (ambient radio). The full boundary lives in
+[docs/ECOSYSTEM.md](docs/ECOSYSTEM.md). This phase is **post-launch only**:
+nothing here blocks the Play Store target.
+
+### Wired today (no keystore needed)
+
+- ✅ **Media-playback presence signal** — `MusicActivityWatcher` records the
+  not-playing → playing transition as a presence event, equivalent to a
+  screen unlock. Any music app counts; no new permissions. See
+  [service/MusicActivityWatcher.kt](android/app/src/main/java/com/virgil/app/service/MusicActivityWatcher.kt).
+
+### Deferred (need keystore decision)
+
+- **Fall → Bios outbound.** Three opt-in metric keys (`FALL_EVENT`,
+  `NEAR_MISS_FALL`, `CHECK_IN_MISS`) written to Bios's companion-write URI
+  after `EmergencyDispatcher.dispatch`. Highest-value single edge in the
+  suite — fall frequency is a clinical signal for gait instability,
+  syncope, orthostatic hypotension, neuropathy, MS relapse, medication
+  side effects. Defaults **off** in Virgil settings. Requires shared
+  keystore with Bios (signature-perm) or a runtime-grant alternative.
+  Spec: [docs/ECOSYSTEM.md "What outbound integrations are admissible"](docs/ECOSYSTEM.md).
+  - **Bios side: shipped.** The three `MetricType.SAFETY` keys, the
+    URI whitelist for `com.virgil.app`, and four event-driven
+    `ConditionPattern`s consuming them all landed in
+    [Bios Phase 7.1 / 7.2 / 7.3](../Bios/docs/ROADMAP.md). The schema
+    is ready; the open work is entirely Virgil-side (keystore decision,
+    `BiosClient` writer mirroring the Smokeless pattern, settings
+    opt-out, end-to-end verify on a real device with Bios installed).
+  - **Verification step before Phase 5 closes:** one fall event,
+    one near-miss, and one check-in miss each round-trip from Virgil
+    dispatch → Bios provider → Bios diagnostics surface, with
+    timestamp parity and `sourceId = com.virgil.app` provenance.
+- **Exercise-context check-in suppression.** Read Bios's `STEPS` /
+  `ACTIVE_MINUTES` / `HEART_RATE` to suppress check-in expiry during
+  detected exercise. Marginal value (the stillness verify already handles
+  most exercise false-positives) — defer indefinitely.
+
+### Not planned
+
+- Reading mood state to gate alerts (manifesto §6 violation — paternalism
+  dressed as integration).
+- Publishing panic-trigger events (the panic button is the user's
+  expressive act, not a biometric).
+- Cloud anything (manifesto §2 absolute).

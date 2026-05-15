@@ -4,7 +4,10 @@ import android.content.Context
 
 /**
  * Records timestamps of confirmed user-presence signals (screen unlock,
- * app launch, check-in dismissal) and answers whether one occurred recently.
+ * app launch, check-in dismissal, media-playback start) and answers whether
+ * one occurred recently. Only discrete events count as presence — ongoing
+ * states (sustained playback, sustained motion) do not refresh the timer
+ * on their own.
  */
 object InteractionTracker {
 

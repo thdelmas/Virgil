@@ -29,6 +29,7 @@ import kotlinx.coroutines.runBlocking
 class CheckInService : Service() {
 
     private lateinit var prefs: EmergencyPreferences
+    private lateinit var musicWatcher: MusicActivityWatcher
 
     @Volatile private var airplanePaused: Boolean = false
 
@@ -49,6 +50,7 @@ class CheckInService : Service() {
     override fun onCreate() {
         super.onCreate()
         prefs = EmergencyPreferences(this)
+        musicWatcher = MusicActivityWatcher(this)
         // ACTION_USER_PRESENT is a protected broadcast and must be registered at runtime.
         registerReceiver(presenceReceiver, IntentFilter(Intent.ACTION_USER_PRESENT))
         registerReceiver(
@@ -56,11 +58,13 @@ class CheckInService : Service() {
             IntentFilter(Intent.ACTION_AIRPLANE_MODE_CHANGED),
             Context.RECEIVER_NOT_EXPORTED,
         )
+        musicWatcher.start()
     }
 
     override fun onDestroy() {
         runCatching { unregisterReceiver(presenceReceiver) }
         runCatching { unregisterReceiver(airplaneReceiver) }
+        runCatching { musicWatcher.stop() }
         super.onDestroy()
     }
 

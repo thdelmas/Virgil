@@ -6,6 +6,8 @@ Read this before touching code. It tells you the stack, the rules, and what not 
 
 - **Product vision, features, principles, architecture:** [MANIFESTO.md](MANIFESTO.md). If a code change conflicts with the manifesto, the manifesto wins — surface the conflict, don't silently deviate.
 - **Scope — what belongs in Virgil vs. a separate app:** [docs/SCOPE.md](docs/SCOPE.md). Read before proposing a new feature category or arguing for a fork.
+- **How the code is laid out — pipeline, services, ownership rules:** [DESIGN.md](DESIGN.md). Read before adding a new service, trigger, or persistence path.
+- **Ecosystem boundary — what Virgil reads / writes to sibling apps (Bios, W2F, SoulRadio):** [docs/ECOSYSTEM.md](docs/ECOSYSTEM.md). Read before adding any inter-app coupling, intent broadcast, or ContentProvider read. Suite-wide rule lives in `~/Bios/docs/ECOSYSTEM_BOUNDARIES.md`.
 - **Regulatory / Play Store / distribution guardrails:** [docs/COMPLIANCE.md](docs/COMPLIANCE.md). Enforced by `make compliance` (also part of `make quality` and `make quality-fast`). Violations block pre-commit. Read it before touching user-facing strings, permissions, the manifest, or dependencies. Especially: §1 (never medical framing), §11 (never imply Virgil dials emergency services — it texts and calls the user's emergency contacts, full stop).
 
 ## Stack
