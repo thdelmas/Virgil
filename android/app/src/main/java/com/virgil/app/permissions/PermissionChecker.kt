@@ -46,7 +46,9 @@ object PermissionChecker {
     }
 
     private fun fullScreenIntentStatus(context: Context): Status {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return Status.Granted
+        // canUseFullScreenIntent() is API 34. Before UPSIDE_DOWN_CAKE, the
+        // manifest USE_FULL_SCREEN_INTENT permission was implicitly granted.
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE) return Status.Granted
         val nm = context.getSystemService(NotificationManager::class.java)
             ?: return Status.Denied
         return if (nm.canUseFullScreenIntent()) Status.Granted else Status.Denied
