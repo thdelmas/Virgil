@@ -129,6 +129,7 @@ That's what this app does.
 Contributions are welcome. Start with:
 
 - [MANIFESTO.md](MANIFESTO.md) — the non-negotiable principles
+- [DESIGN.md](DESIGN.md) — how the code is laid out
 - [ROADMAP.md](ROADMAP.md) — what's shipping when
 - [CLAUDE.md](CLAUDE.md) — architecture and compliance rules
 - [docs/COMPLIANCE.md](docs/COMPLIANCE.md) — coding standards
