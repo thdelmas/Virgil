@@ -128,13 +128,14 @@ internal fun EmergencyAlarmService.Phase.stepIndex(): Int = when (this) {
 /**
  * Android 14 changed the BAL default for PendingIntents fired from notifications,
  * and Android 15 tightened it further: without this opt-in the full-screen-intent
- * activity stays hidden behind a heads-up while the alarm rings. Returned bundle
- * is also passed to the service's direct startActivity so the FGS path is covered.
+ * activity stays hidden behind a heads-up while the alarm rings. The *creator*
+ * mode is the one legal at PendingIntent creation time — the sender mode throws
+ * IllegalArgumentException here.
  */
 internal fun balAllowedActivityOptions(): Bundle? {
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE) return null
     return ActivityOptions.makeBasic()
-        .setPendingIntentBackgroundActivityStartMode(
+        .setPendingIntentCreatorBackgroundActivityStartMode(
             ActivityOptions.MODE_BACKGROUND_ACTIVITY_START_ALLOWED,
         )
         .toBundle()
