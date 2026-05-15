@@ -3,6 +3,7 @@ package com.virgil.app.service
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.util.Log
 import com.virgil.app.data.ActivityBaseline
 import com.virgil.app.data.EmergencyPreferences
 import com.virgil.app.permissions.PermissionMonitor
@@ -32,10 +33,16 @@ class BaselineCheckReceiver : BroadcastReceiver() {
             EmergencyPreferences(context).fallDetectionEnabled.first()
         }
         if (fallEnabled) {
-            context.startForegroundService(
-                Intent(context, FallDetectionService::class.java)
-                    .setAction(FallDetectionService.ACTION_MARK_LOW_ACTIVITY)
-            )
+            // The preference may say "enabled" while the service was killed
+            // by the OS; starting an FGS from a background receiver throws
+            // ForegroundServiceStartNotAllowedException. Best-effort: if it's
+            // already running this updates its notification; if not, swallow.
+            runCatching {
+                context.startForegroundService(
+                    Intent(context, FallDetectionService::class.java)
+                        .setAction(FallDetectionService.ACTION_MARK_LOW_ACTIVITY)
+                )
+            }.onFailure { Log.w("BaselineCheck", "FGS update skipped", it) }
         }
 
         val forward = Intent(context, CheckInReceiver::class.java).apply {
