@@ -64,6 +64,10 @@ android {
         compose = true
         buildConfig = true
     }
+
+    lint {
+        warning += "MissingTranslation"
+    }
 }
 
 dependencies {

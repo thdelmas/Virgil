@@ -133,6 +133,7 @@ Contributions are welcome. Start with:
 - [ROADMAP.md](ROADMAP.md) — what's shipping when
 - [CLAUDE.md](CLAUDE.md) — architecture and compliance rules
 - [docs/COMPLIANCE.md](docs/COMPLIANCE.md) — coding standards
+- [Ecosystem map ↗](https://github.com/mi4m/miam-knowledge-base/blob/main/docs/ecosystem-map.md) — Virgil's place in the 6-app Bios suite (standalone today; opt-in fall-event keys reserved for future Bios integration)
 
 Common commands:
 
