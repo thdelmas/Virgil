@@ -46,7 +46,21 @@ If you grant the optional call permission, fall and check-in alerts also place a
 
 ## Installing
 
-Virgil is not yet on the Play Store (target: mid-2026). Until then, you can build it yourself:
+### Option 1: Direct download (recommended)
+
+Grab the latest signed APK from [Releases](https://github.com/thdelmas/Virgil/releases/latest). Verify SHA-256 against the published `.sha256` file, then sideload. "Install unknown apps" must be enabled for your browser or file manager.
+
+### Option 2: Obtainium (auto-updates)
+
+[Obtainium](https://github.com/ImranR98/Obtainium) tracks GitHub Releases and auto-updates apps without a store. Install Obtainium, paste:
+
+```
+https://github.com/thdelmas/Virgil
+```
+
+Future releases install automatically once you tap update.
+
+### Option 3: Build from source
 
 ```bash
 git clone https://github.com/thdelmas/Virgil.git
@@ -55,6 +69,18 @@ make install
 ```
 
 You'll need an Android device with USB debugging enabled, running Android 10 or newer.
+
+### Signing identity
+
+All apps in the Bios ecosystem share one signing key. Cert SHA-256:
+
+```
+D4:18:F5:1B:E9:D0:28:5D:0B:A8:27:4B:0E:E9:67:8F:F9:DB:DC:1D:32:D5:97:3C:ED:F3:23:59:3F:55:46:33
+```
+
+Compare against `apksigner verify --print-certs Virgil-vX.Y.Z.apk` before trusting an install.
+
+A Play Store listing may follow if review allows it (Virgil uses SMS, phone, and background-location permissions that Play scrutinizes closely). Direct download and Obtainium remain the authoritative channels — don't wait on the store.
 
 ---
 

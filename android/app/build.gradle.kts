@@ -1,18 +1,8 @@
-import java.util.Properties
-
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("org.jetbrains.kotlin.plugin.compose")
 }
-
-val keystoreProperties = Properties().apply {
-    val file = rootProject.file("keystore.properties")
-    if (file.exists()) file.inputStream().use { load(it) }
-}
-
-fun signingValue(key: String): String? =
-    (keystoreProperties[key] as String?) ?: System.getenv("VIRGIL_${key.uppercase()}")
 
 android {
     namespace = "com.virgil.app"
@@ -29,12 +19,12 @@ android {
 
     signingConfigs {
         create("release") {
-            val storeFilePath = signingValue("storeFile")
-            if (storeFilePath != null) {
-                storeFile = rootProject.file(storeFilePath)
-                storePassword = signingValue("storePassword")
-                keyAlias = signingValue("keyAlias")
-                keyPassword = signingValue("keyPassword")
+            val keystorePath: String? = System.getenv("RELEASE_KEYSTORE_PATH")
+            if (!keystorePath.isNullOrBlank()) {
+                storeFile = file(keystorePath)
+                storePassword = System.getenv("RELEASE_KEYSTORE_PASSWORD")
+                keyAlias = System.getenv("RELEASE_KEY_ALIAS")
+                keyPassword = System.getenv("RELEASE_KEY_PASSWORD")
             }
         }
     }
@@ -46,8 +36,11 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            val release = signingConfigs.getByName("release")
-            signingConfig = if (release.storeFile?.exists() == true) release else signingConfigs.getByName("debug")
+            signingConfig = if (!System.getenv("RELEASE_KEYSTORE_PATH").isNullOrBlank()) {
+                signingConfigs.getByName("release")
+            } else {
+                signingConfigs.getByName("debug")
+            }
         }
     }
 
