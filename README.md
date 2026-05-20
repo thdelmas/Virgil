@@ -80,7 +80,7 @@ D4:18:F5:1B:E9:D0:28:5D:0B:A8:27:4B:0E:E9:67:8F:F9:DB:DC:1D:32:D5:97:3C:ED:F3:23
 
 Compare against `apksigner verify --print-certs Virgil-vX.Y.Z.apk` before trusting an install.
 
-Virgil is not on the Play Store and won't be — the install paths above are the authoritative distribution channels.
+A Play Store listing may follow if review allows it (Virgil uses SMS, phone, and background-location permissions that Play scrutinizes closely). Direct download and Obtainium remain the authoritative channels — don't wait on the store.
 
 ---
 
