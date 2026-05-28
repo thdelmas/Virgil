@@ -68,6 +68,11 @@
     <string name="panic_stop_auth_title">Virgilen sirena gelditu?</string>
     <string name="panic_stop_auth_body">Berretsi hatz-marka, aurpegia edo gailuaren PINarekin abisua gelditzeko.</string>
 
+    <string name="panic_connect_title">Beste aplikazio batek izua piztea baimendu?</string>
+    <string name="panic_connect_body">%1$s aplikazioak Virgilen larrialdi-abisua piztu nahi du. Baimentzen baduzu, %1$sek SMS bidez bidal diezaieke zure larrialdi-kontaktuei eta sirena pizten du zure izenean. Hau baliogabe dezakezu %1$s aplikazioaren ezarpenetatik.</string>
+    <string name="panic_connect_allow">Baimendu</string>
+    <string name="panic_connect_deny">Ez baimendu</string>
+
     <string name="empty_home_title">Ia prest</string>
     <string name="empty_home_body">Gehitu Virgilek zerbait gertatzen bada abisatu beharko liokeen larrialdiko kontaktua, eta dena prest egongo da.</string>
     <string name="empty_home_add">Norbait gehitu</string>

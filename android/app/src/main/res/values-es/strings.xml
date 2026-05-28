@@ -68,6 +68,11 @@
     <string name="panic_stop_auth_title">¿Detener la sirena de Virgil?</string>
     <string name="panic_stop_auth_body">Confirma con tu huella, rostro o PIN del dispositivo para detener la alerta.</string>
 
+    <string name="panic_connect_title">¿Permitir que otra app active el pánico?</string>
+    <string name="panic_connect_body">%1$s quiere activar la alerta de pánico de Virgil. Si lo permites, %1$s podrá enviar un SMS a tus contactos de emergencia y activar la sirena en tu nombre. Puedes revocar esto desde los ajustes de %1$s.</string>
+    <string name="panic_connect_allow">Permitir</string>
+    <string name="panic_connect_deny">No permitir</string>
+
     <string name="empty_home_title">Ya casi</string>
     <string name="empty_home_body">Añade el contacto de emergencia al que Virgil debe avisar si pasa algo y estará todo listo.</string>
     <string name="empty_home_add">Añadir a alguien</string>

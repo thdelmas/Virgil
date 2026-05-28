@@ -68,6 +68,11 @@
     <string name="panic_stop_auth_title">Couper la sirène Virgil ?</string>
     <string name="panic_stop_auth_body">Confirmez avec votre empreinte, votre visage ou le code de l\'appareil pour couper l\'alerte.</string>
 
+    <string name="panic_connect_title">Autoriser une autre app à déclencher la panique ?</string>
+    <string name="panic_connect_body">%1$s veut déclencher l\'alerte de panique de Virgil. Si vous autorisez, %1$s pourra envoyer un SMS à vos contacts d\'urgence et déclencher la sirène à votre place. Vous pouvez révoquer cela depuis les réglages de %1$s.</string>
+    <string name="panic_connect_allow">Autoriser</string>
+    <string name="panic_connect_deny">Ne pas autoriser</string>
+
     <string name="empty_home_title">Presque prêt</string>
     <string name="empty_home_body">Ajoutez le contact d\'urgence que Virgil doit prévenir en cas de problème, et tout sera en place.</string>
     <string name="empty_home_add">Ajouter quelqu\'un</string>

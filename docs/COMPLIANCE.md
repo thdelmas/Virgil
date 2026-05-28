@@ -238,3 +238,28 @@ The compliance check enforces `\bfor help\b` as the canonical trigger. Narrative
 - **Describing the user's state** ("if you need help") as distinct from Virgil's action ("contacts the people you chose"). The former is about them; the latter is about us.
 - **The legal disclaimer** — "not a substitute for emergency services" — with an inline allow marker, since the phrase there is denying a capability rather than claiming one.
 - **Conditional call mentions** in deeper copy, framed as best-effort and permission-dependent, and only for fall + life-signal triggers.
+
+---
+
+## 12. PanicKit interop (responder)
+
+Virgil acts as a [PanicKit](https://github.com/guardianproject/PanicKit) responder so users can fire the manual panic flow from external trigger apps (Ripple, Haven, hardware-button or wear companions). This adds two exported components:
+
+- An **activity** for `info.guardianproject.panic.action.CONNECT` and `…DISCONNECT` — the pairing endpoint.
+- A **broadcast receiver** for `info.guardianproject.panic.action.TRIGGER` — the fire endpoint.
+
+### Pairing model (required)
+
+Virgil only honours a TRIGGER from an app the user has explicitly paired via CONNECT. The user sees a confirmation dialog with the calling app's display name before pairing is saved. An unpaired or anonymous TRIGGER is ignored.
+
+### Limitation: sender identity on a BroadcastReceiver
+
+Android does **not** convey the sender package to a manifest-declared `BroadcastReceiver`. The CONNECT activity uses `getCallingPackage()` and is precise on the way in; the receiver-side gate, by necessity, is coarser: "the user has paired *at least one* PanicKit app." Any app that knows the action and our package could spoof a TRIGGER, but only if pairing already exists at all — i.e. the user has knowingly opted into the responder pathway. The receiver's only effect is to start the same panic flow the user can already trigger from the home screen, so the failure mode of a spoofed trigger is a noisy false alarm, not a privacy or capability escalation.
+
+### Destructive responder semantics — NOT implemented
+
+PanicKit's optional "destructive responder" contract (wipe local data on TRIGGER) is **deliberately not implemented**. Virgil has nothing sensitive to wipe — contacts and preferences are exactly the data we need to *send the alert*. Silently destroying them would directly conflict with the app's purpose. The "Disconnect" action simply removes the sender from the paired-senders set; no further side effects.
+
+### No new permission, no new dependency
+
+Both endpoints use only platform IPC. PanicKit itself is **not** a Gradle dependency — wire constants are duplicated as `PanicResponder.ACTION_*` and pinned by a unit test that asserts the exact strings.
