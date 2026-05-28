@@ -157,6 +157,11 @@
     <string name="onboarding_checkin_title">Le contrôle quotidien</string>
     <string name="onboarding_checkin_how">À l\'intervalle que vous choisissez (toutes les quelques heures dans la journée), Virgil vérifie si vous avez déverrouillé ou bougé le téléphone récemment. Sinon, il sonne comme un appel et demande « Tout va bien ? ». Appuyez sur la notification pour la fermer. Si vous ne répondez pas, un compte à rebours de 30 secondes démarre. Si vous n\'y répondez pas non plus, Virgil envoie la même alerte qu\'en cas de chute — SMS avec localisation et appel au contact principal.</string>
 
+    <string name="onboarding_panic_title">Si quelque chose se passe maintenant</string>
+    <string name="onboarding_panic_how">Appuyez sur le bouton de panique de l\'écran d\'accueil et maintenez-le environ une seconde et demie. Virgil envoie immédiatement votre position par SMS à tous vos contacts d\'urgence et déclenche une sirène forte — pas de compte à rebours, pas d\'appel (une sirène qui hurle rendrait l\'appel inutile). La sirène est dissuasive face à un voleur ou un agresseur, ce n\'est pas une garantie : éteindre le téléphone reste imparable.</string>
+    <string name="onboarding_panic_stop_heading">Pour faire taire la sirène</string>
+    <string name="onboarding_panic_stop_body">Touchez le bouton puis déverrouillez le téléphone avec votre empreinte ou votre code. Personne d\'autre qui tient votre téléphone ne peut baisser le volume ni arrêter l\'alarme.</string>
+
     <string name="onboarding_sounds_title">Les sons que vous entendrez</string>
     <string name="onboarding_sounds_body">Appuyez sur un son pour l\'écouter. Appuyez à nouveau pour arrêter. Pour que vous reconnaissiez chacun d\'eux quand il se produira pour de vrai.</string>
 

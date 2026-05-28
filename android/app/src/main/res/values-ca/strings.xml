@@ -157,6 +157,11 @@
     <string name="onboarding_checkin_title">El control diari</string>
     <string name="onboarding_checkin_how">A l\'interval que triïs (cada poques hores durant el dia), Virgil comprova si has desbloquejat o mogut el mòbil recentment. Si no, sona com una trucada i pregunta «Hi ets?». Toca la notificació per tancar-la. Si no respons, comença un compte enrere de 30 segons. Si tampoc respons, Virgil envia la mateixa alerta que en una caiguda: SMS amb ubicació i trucada al contacte principal.</string>
 
+    <string name="onboarding_panic_title">Si està passant alguna cosa ara mateix</string>
+    <string name="onboarding_panic_how">Mantén premut el botó de pànic de la pantalla d\'inici durant aproximadament un segon i mig. Virgil envia immediatament la teva ubicació per SMS a tots els teus contactes d\'emergència i activa una sirena forta — sense compte enrere, sense trucada (una sirena cridant faria inútil la trucada). La sirena dissuadeix un lladre o un agressor, no és una garantia: apagar el mòbil continua sent imparable.</string>
+    <string name="onboarding_panic_stop_heading">Per silenciar la sirena</string>
+    <string name="onboarding_panic_stop_body">Toca el botó i desbloqueja el mòbil amb la teva empremta o PIN. Ningú més que aguanti el teu mòbil no podrà abaixar el volum ni aturar l\'alarma.</string>
+
     <string name="onboarding_sounds_title">Els sons que sentiràs</string>
     <string name="onboarding_sounds_body">Toca un so per escoltar-lo. Torna a tocar per aturar-lo. Així reconeixeràs cadascun quan passi de veritat.</string>
 

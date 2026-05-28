@@ -157,6 +157,11 @@
     <string name="onboarding_checkin_title">El control diario</string>
     <string name="onboarding_checkin_how">En el intervalo que elijas (cada pocas horas durante el día), Virgil comprueba si has desbloqueado o movido el móvil recientemente. Si no, suena como una llamada y pregunta «¿Estás ahí?». Pulsa la notificación para cerrarla. Si no respondes, comienza una cuenta atrás de 30 segundos. Si tampoco respondes, Virgil envía la misma alerta que en una caída: SMS con ubicación y llamada al contacto principal.</string>
 
+    <string name="onboarding_panic_title">Si algo está pasando ahora mismo</string>
+    <string name="onboarding_panic_how">Mantén pulsado el botón de pánico de la pantalla principal durante aproximadamente un segundo y medio. Virgil envía inmediatamente tu ubicación por SMS a todos tus contactos de emergencia y activa una sirena fuerte — sin cuenta atrás, sin llamada (una sirena gritando haría inútil la llamada). La sirena disuade a un ladrón o agresor, no es una garantía: apagar el móvil sigue siendo imparable.</string>
+    <string name="onboarding_panic_stop_heading">Para silenciar la sirena</string>
+    <string name="onboarding_panic_stop_body">Pulsa el botón y desbloquea el móvil con tu huella o PIN. Nadie más que sostenga tu móvil podrá bajar el volumen ni detener la alarma.</string>
+
     <string name="onboarding_sounds_title">Los sonidos que oirás</string>
     <string name="onboarding_sounds_body">Pulsa un sonido para escucharlo. Pulsa de nuevo para detenerlo. Así reconocerás cada uno cuando ocurra de verdad.</string>
 

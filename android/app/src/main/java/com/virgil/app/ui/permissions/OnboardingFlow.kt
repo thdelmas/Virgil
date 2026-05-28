@@ -66,6 +66,7 @@ private sealed interface OnboardingStep {
     object Contact : OnboardingStep
     object FallInfo : OnboardingStep
     object CheckInInfo : OnboardingStep
+    object PanicInfo : OnboardingStep
     object Sounds : OnboardingStep
 }
 
@@ -87,6 +88,7 @@ fun OnboardingFlow(
                 add(OnboardingStep.Contact)
                 add(OnboardingStep.FallInfo)
                 add(OnboardingStep.CheckInInfo)
+                add(OnboardingStep.PanicInfo)
                 add(OnboardingStep.Sounds)
             }
         }
@@ -171,6 +173,11 @@ fun OnboardingFlow(
                     onContinue = { advance() },
                 )
                 is OnboardingStep.CheckInInfo -> CheckInInfoStep(
+                    stepNumber = currentIndex + 1,
+                    totalSteps = steps.size,
+                    onContinue = { advance() },
+                )
+                is OnboardingStep.PanicInfo -> PanicInfoStep(
                     stepNumber = currentIndex + 1,
                     totalSteps = steps.size,
                     onContinue = { advance() },
