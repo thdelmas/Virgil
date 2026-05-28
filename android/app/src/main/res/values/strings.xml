@@ -86,6 +86,11 @@
     <string name="panic_stop_auth_title">Stop Virgil siren?</string>
     <string name="panic_stop_auth_body">Confirm with your fingerprint, face, or device PIN to silence the alert.</string>
 
+    <string name="panic_connect_title">Let another app trigger panic?</string>
+    <string name="panic_connect_body">%1$s wants to trigger Virgil\'s panic alert. If you allow it, %1$s can text your emergency contacts and start the loud siren on your behalf. You can revoke this from %1$s\'s own settings.</string>
+    <string name="panic_connect_allow">Allow</string>
+    <string name="panic_connect_deny">Don\'t allow</string>
+
     <!-- Empty home -->
     <string name="empty_home_title">Almost ready</string>
     <string name="empty_home_body">Add the emergency contact Virgil should text and call if something happens, and you\'re all set.</string>

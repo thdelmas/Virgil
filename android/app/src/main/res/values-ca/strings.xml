@@ -68,6 +68,11 @@
     <string name="panic_stop_auth_title">Aturar la sirena del Virgil?</string>
     <string name="panic_stop_auth_body">Confirma amb l\'empremta, la cara o el PIN del dispositiu per aturar l\'alerta.</string>
 
+    <string name="panic_connect_title">Permetre que una altra app activi el pànic?</string>
+    <string name="panic_connect_body">%1$s vol activar l\'alerta de pànic de Virgil. Si ho permets, %1$s podrà enviar un SMS als teus contactes d\'emergència i activar la sirena en nom teu. Pots revocar-ho des dels ajustos de %1$s.</string>
+    <string name="panic_connect_allow">Permetre</string>
+    <string name="panic_connect_deny">No permetre</string>
+
     <string name="empty_home_title">Gairebé a punt</string>
     <string name="empty_home_body">Afegeix el contacte d\'emergència a qui Virgil ha d\'avisar si passa alguna cosa i ja estarà tot a punt.</string>
     <string name="empty_home_add">Afegir algú</string>

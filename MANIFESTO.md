@@ -112,6 +112,7 @@ Has the user interacted with the phone since last check?
 - **SMS + phone call** for alerts — works without internet
 - **GPS location** attached to emergency messages
 - **Foreground service** with persistent notification (required by Android for always-on sensors)
+- **PanicKit interop** — Virgil both *emits* the standard `info.guardianproject.panic.action.TRIGGER` broadcast (so secure-wipe responders react when the user fires Virgil's panic button) and *receives* it from trigger apps the user has explicitly paired with via the CONNECT intent flow (Ripple, Haven, hardware-button companions). No new permission, no new dependency — pure platform IPC.
 
 ---
 

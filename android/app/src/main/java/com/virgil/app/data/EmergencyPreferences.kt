@@ -8,6 +8,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -28,6 +29,7 @@ class EmergencyPreferences(private val context: Context) {
     private val checkInSleepEndKey = intPreferencesKey("checkin_sleep_end_hour")
     private val autoAnswerEnabledKey = booleanPreferencesKey("auto_answer_enabled")
     private val autoAnswerArmedUntilKey = longPreferencesKey("auto_answer_armed_until_ms")
+    private val panicSendersKey = stringSetPreferencesKey("panic_connected_senders")
 
     val contacts: Flow<List<EmergencyContact>> = context.dataStore.data.map { prefs ->
         val json = prefs[contactsKey] ?: "[]"
@@ -89,6 +91,15 @@ class EmergencyPreferences(private val context: Context) {
         prefs[autoAnswerArmedUntilKey] ?: 0L
     }
 
+    /**
+     * Package names of PanicKit trigger apps the user has explicitly paired
+     * with Virgil via the CONNECT intent flow. An incoming TRIGGER broadcast
+     * is only honoured when this set is non-empty — see [PanicResponder].
+     */
+    val connectedPanicSenders: Flow<Set<String>> = context.dataStore.data.map { prefs ->
+        prefs[panicSendersKey] ?: emptySet()
+    }
+
     suspend fun saveContacts(contacts: List<EmergencyContact>) {
         val jsonArray = JSONArray()
         for (contact in contacts) {
@@ -137,6 +148,19 @@ class EmergencyPreferences(private val context: Context) {
 
     suspend fun setAutoAnswerArmedUntil(epochMs: Long) {
         context.dataStore.edit { it[autoAnswerArmedUntilKey] = epochMs }
+    }
+
+    suspend fun addConnectedPanicSender(packageName: String) {
+        context.dataStore.edit {
+            it[panicSendersKey] = (it[panicSendersKey] ?: emptySet()) + packageName
+        }
+    }
+
+    suspend fun removeConnectedPanicSender(packageName: String) {
+        context.dataStore.edit {
+            val current = it[panicSendersKey] ?: return@edit
+            it[panicSendersKey] = current - packageName
+        }
     }
 
     private fun parseContacts(json: String): List<EmergencyContact> {
