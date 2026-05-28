@@ -157,6 +157,11 @@
     <string name="onboarding_checkin_title">Eguneroko berrespena</string>
     <string name="onboarding_checkin_how">Aukeratzen duzun tartean (egunean zehar ordu batzuetan behin), Virgilek egiaztatzen du telefonoa desblokeatu edo mugitu al duzun azken aldian. Ezezkoan, deia bezala jotzen du eta «Hor zaude?» galdetzen dizu. Sakatu jakinarazpena baztertzeko. Erantzuten ez baduzu, 30 segundoko atzera-kontaketa hasten da. Horri ere erantzuten ez badiozu, Virgilek erorketa baten alerta bera bidaltzen du: SMS kokapenarekin eta deia kontaktu nagusiari.</string>
 
+    <string name="onboarding_panic_title">Zerbait gertatzen ari bada orain</string>
+    <string name="onboarding_panic_how">Eutsi sakatuta hasiera-pantailako larrialdi-botoiari segundo eta erdi inguruan. Virgilek berehala bidaltzen die zure kokapena SMS bidez larrialdi-kontaktu guztiei eta sirena ozena pizten du — atzera-kontaketarik gabe, deirik gabe (sirena oihukatzeak deia alferrikako bihurtuko luke). Sirena lapur edo eraso-egile baten aurkako oztopoa da, ez berme bat: telefonoa itzaltzeak gainditzen du dena.</string>
+    <string name="onboarding_panic_stop_heading">Sirena isiltzeko</string>
+    <string name="onboarding_panic_stop_body">Sakatu botoia eta desblokeatu telefonoa hatz-markarekin edo PINarekin. Telefonoa duen beste inork ezin du bolumena jaitsi ezta alarma gelditu ere.</string>
+
     <string name="onboarding_sounds_title">Entzungo dituzun hotsak</string>
     <string name="onboarding_sounds_body">Sakatu hots bat entzuteko. Berriro sakatu gelditzeko. Horrela bakoitza ezagutuko duzu benetan gertatzen denean.</string>
 

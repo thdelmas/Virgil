@@ -157,6 +157,11 @@
     <string name="onboarding_checkin_title">A verificação diária</string>
     <string name="onboarding_checkin_how">No intervalo que escolher (a cada poucas horas durante o dia), o Virgil verifica se desbloqueou ou mexeu no telemóvel recentemente. Se não, toca como uma chamada e pergunta «Está aí?». Toque na notificação para a dispensar. Se não responder, começa uma contagem decrescente de 30 segundos. Se também não responder, o Virgil envia o mesmo alerta que numa queda: SMS com localização e chamada ao contacto principal.</string>
 
+    <string name="onboarding_panic_title">Se algo está a acontecer agora</string>
+    <string name="onboarding_panic_how">Mantenha premido o botão de pânico no ecrã inicial durante cerca de um segundo e meio. O Virgil envia imediatamente a sua localização por SMS a todos os seus contactos de emergência e dispara uma sirene forte — sem contagem decrescente, sem chamada (uma sirene a gritar tornaria a chamada inútil). A sirene é dissuasora contra um ladrão ou agressor, não é uma garantia: desligar o telemóvel continua a ser imparável.</string>
+    <string name="onboarding_panic_stop_heading">Para silenciar a sirene</string>
+    <string name="onboarding_panic_stop_body">Toque no botão e desbloqueie o telemóvel com a impressão digital ou PIN. Mais ninguém a segurar o seu telemóvel poderá baixar o volume ou parar o alarme.</string>
+
     <string name="onboarding_sounds_title">Sons que irá ouvir</string>
     <string name="onboarding_sounds_body">Toque num som para o ouvir. Toque de novo para parar. Assim reconhece cada um quando acontecer a sério.</string>
 

@@ -8,6 +8,7 @@ Read this before touching code. It tells you the stack, the rules, and what not 
 - **Scope — what belongs in Virgil vs. a separate app:** [docs/SCOPE.md](docs/SCOPE.md). Read before proposing a new feature category or arguing for a fork.
 - **How the code is laid out — pipeline, services, ownership rules:** [DESIGN.md](DESIGN.md). Read before adding a new service, trigger, or persistence path.
 - **Ecosystem boundary — what Virgil reads / writes to sibling apps (Bios, W2F, SoulRadio):** [docs/ECOSYSTEM.md](docs/ECOSYSTEM.md). Read before adding any inter-app coupling, intent broadcast, or ContentProvider read. Suite-wide rule lives in `~/Bios/docs/ECOSYSTEM_BOUNDARIES.md`.
+- **Visual & design system — palette, typography, component anatomy, Bios-integration UI:** [`~/Bios/docs/DESIGN_SYSTEM.md`](../Bios/docs/DESIGN_SYSTEM.md). Identity palette = Safety orange `#F4A261` + sand `#E0E1DD`. Map the canonical 14-role token set in `res/values/colors.xml`; don't invent new roles.
 - **Regulatory / Play Store / distribution guardrails:** [docs/COMPLIANCE.md](docs/COMPLIANCE.md). Enforced by `make compliance` (also part of `make quality` and `make quality-fast`). Violations block pre-commit. Read it before touching user-facing strings, permissions, the manifest, or dependencies. Especially: §1 (never medical framing), §11 (never imply Virgil dials emergency services — it texts and calls the user's emergency contacts, full stop).
 
 ## Stack
