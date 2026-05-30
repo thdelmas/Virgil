@@ -38,10 +38,14 @@ class VirgilApp : Application() {
             vibrationPattern = longArrayOf(0, 500, 200, 500, 200, 500)
         }
 
+        // A check-in is a gentle "are you there?" nudge, not an emergency:
+        // DEFAULT importance keeps it quiet under silent/DND and out of the
+        // full-screen heads-up lane. The loud alarm-stream siren is reserved
+        // for the no-response escalation, never the prompt itself.
         val checkinChannel = NotificationChannel(
             CHANNEL_CHECKIN,
             getString(R.string.checkin_channel),
-            NotificationManager.IMPORTANCE_HIGH
+            NotificationManager.IMPORTANCE_DEFAULT
         ).apply {
             description = getString(R.string.checkin_channel_description)
             enableVibration(true)

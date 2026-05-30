@@ -55,6 +55,12 @@ class ActivityBaseline(private val context: Context) {
         return currentSum < threshold
     }
 
+    /** True once enough days have been observed for the baseline to be meaningful. */
+    fun hasBaseline(): Boolean {
+        rolloverIfNeeded()
+        return prefs.getInt(KEY_OBSERVED_DAYS, 0) >= MIN_WARMUP_DAYS
+    }
+
     private fun rolloverIfNeeded() {
         val today = dayOfEpoch()
         val lastDay = prefs.getInt(KEY_LAST_DAY, -1)

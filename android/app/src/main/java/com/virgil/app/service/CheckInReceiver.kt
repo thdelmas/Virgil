@@ -10,6 +10,7 @@ import android.os.Looper
 import androidx.core.app.NotificationCompat
 import com.virgil.app.R
 import com.virgil.app.VirgilApp
+import com.virgil.app.data.ActivityBaseline
 import com.virgil.app.data.EmergencyPreferences
 import com.virgil.app.data.InteractionTracker
 import kotlinx.coroutines.flow.first
@@ -25,32 +26,23 @@ import java.util.Calendar
 class CheckInReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
-        val prefs = EmergencyPreferences(context)
         val force = intent.getBooleanExtra(EXTRA_FORCE, false)
 
         // Airplane mode is a hard off-switch: no SMS, no call, no point
         // ringing to wake someone up only to fail the escalation.
         if (AirplaneMode.isOn(context)) return
 
-        // Check if we're in sleep hours
-        if (isDuringSleepHours(context)) {
-            // Reschedule — CheckInService will handle next alarm
+        if (!shouldPrompt(context, force)) {
+            // Nothing to ask this cycle — keep the periodic alarm chain alive.
             if (!force) restartService(context)
             return
         }
 
-        // Binary recent-interaction gate is skipped for baseline-triggered
-        // escalations: those already decided activity is anomalously low.
-        if (!force && hasRecentInteraction(context)) {
-            // User is active, just reschedule
-            restartService(context)
-            return
-        }
-
-        // No recent activity — show check-in notification and ring
+        // Show a *gentle* check-in: the notification channel carries a soft,
+        // silent-/DND-respecting tone. The loud alarm-stream siren is reserved
+        // for the no-response escalation below — a prompt should never blare.
         val shownAt = System.currentTimeMillis()
         showCheckInNotification(context)
-        AttentionSound.playCheckInRing(context)
 
         // If the user hasn't explicitly dismissed within the grace period, escalate.
         // Explicit dismiss (tap or swipe on the check-in notification) beats any
@@ -60,9 +52,29 @@ class CheckInReceiver : BroadcastReceiver() {
                 InteractionTracker.lastCheckInDismissMs(context) >= shownAt
             val nm = context.getSystemService(NotificationManager::class.java)
             nm?.cancel(NOTIFICATION_ID)
-            AttentionSound.stop()
             if (!dismissedAfterShow) triggerEmergency(context)
         }, GRACE_PERIOD_MS)
+    }
+
+    /**
+     * Gathers the live signals and defers to [CheckInDecision]. A normal night
+     * (habitually quiet, even past the fixed wake hour) no longer prompts once
+     * the baseline knows it's normal; an unusual daytime silence still does.
+     */
+    private fun shouldPrompt(context: Context, force: Boolean): Boolean {
+        val intervalHours = runBlocking {
+            EmergencyPreferences(context).checkInIntervalHours.first()
+        }
+        val baseline = ActivityBaseline(context)
+        return CheckInDecision.shouldPrompt(
+            forced = force,
+            duringSleep = isDuringSleepHours(context),
+            hasRecent = InteractionTracker.isRecent(context, intervalHours * 3600_000L),
+            baselineReady = baseline.hasBaseline(),
+            anomalouslyQuiet = baseline.isAnomalouslyQuiet(
+                intervalHours.toInt().coerceIn(1, CheckInDecision.MAX_BASELINE_LOOKBACK_HOURS)
+            ),
+        )
     }
 
     private fun isDuringSleepHours(context: Context): Boolean {
@@ -79,14 +91,6 @@ class CheckInReceiver : BroadcastReceiver() {
         }
     }
 
-    private fun hasRecentInteraction(context: Context): Boolean {
-        val intervalHours = runBlocking {
-            EmergencyPreferences(context).checkInIntervalHours.first()
-        }
-        val windowMs = intervalHours * 3600L * 1000L
-        return InteractionTracker.isRecent(context, windowMs)
-    }
-
     private fun showCheckInNotification(context: Context) {
         val nm = context.getSystemService(NotificationManager::class.java) ?: return
 
@@ -101,7 +105,7 @@ class CheckInReceiver : BroadcastReceiver() {
             .setSmallIcon(android.R.drawable.ic_dialog_alert)
             .setContentTitle(context.getString(R.string.checkin_notification_title))
             .setContentText(context.getString(R.string.checkin_notification_body))
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setAutoCancel(true)
             .setDeleteIntent(cancelPi)
             .setContentIntent(cancelPi)
