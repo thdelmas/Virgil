@@ -38,31 +38,53 @@ object AttentionSound {
         .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
         .build()
 
+    private val notificationAttributes = AudioAttributes.Builder()
+        .setUsage(AudioAttributes.USAGE_NOTIFICATION)
+        .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+        .build()
+
     /**
-     * Distinctive synthesised "Virgil is asking if you're there" ring —
-     * a two-tone bell (C5 → G5) that repeats. Deliberately not the user's
-     * system ringtone: if Virgil ever rings, it should be unmistakably
-     * Virgil, not "did someone call me?".
+     * Distinctive synthesised "Virgil is asking if you're there" chime —
+     * a two-tone bell (C5 → G5), played ONCE on the notification stream at
+     * the user's own volume. A check-in is a gentle nudge, never an alarm:
+     * the looping max-volume siren is reserved for real no-response escalation.
+     * Deliberately not the system ringtone — if Virgil chimes, it should be
+     * unmistakably Virgil, not "did someone call me?".
      */
     @Synchronized
     fun playCheckInRing(context: Context) {
         if (loopingRunning) return
         stop()
-        raiseAlarmVolume(context)
-        val track = buildLoopingTrack()
-        loopingTrack = track
-        loopingRunning = true
-        track.play()
-        loopingThread = thread(name = "VirgilCheckInRing", isDaemon = true) {
-            val bell = synthCheckInBell()
-            try {
-                while (loopingRunning) {
-                    track.write(bell, 0, bell.size)
+        val bell = synthCheckInBell()
+        val track = AudioTrack.Builder()
+            .setAudioAttributes(notificationAttributes)
+            .setAudioFormat(
+                AudioFormat.Builder()
+                    .setSampleRate(SAMPLE_RATE)
+                    .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
+                    .setChannelMask(AudioFormat.CHANNEL_OUT_MONO)
+                    .build(),
+            )
+            .setBufferSizeInBytes(bell.size * 2)
+            .setTransferMode(AudioTrack.MODE_STATIC)
+            .build()
+        track.write(bell, 0, bell.size)
+        cueTrack = track
+        track.setNotificationMarkerPosition(bell.size)
+        track.setPlaybackPositionUpdateListener(
+            object : AudioTrack.OnPlaybackPositionUpdateListener {
+                override fun onMarkerReached(t: AudioTrack) {
+                    synchronized(this@AttentionSound) {
+                        if (cueTrack === t) {
+                            runCatching { t.release() }
+                            cueTrack = null
+                        }
+                    }
                 }
-            } catch (_: Throwable) {
-                // Track released from another thread — exit cleanly.
+                override fun onPeriodicNotification(t: AudioTrack) = Unit
             }
-        }
+        )
+        track.play()
     }
 
     /**
