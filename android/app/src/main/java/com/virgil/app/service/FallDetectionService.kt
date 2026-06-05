@@ -45,11 +45,7 @@ class FallDetectionService : Service(), SensorEventListener {
     private var isListening = false
     private var wakeLock: PowerManager.WakeLock? = null
 
-    @Volatile private var verifyingStartedAt: Long = 0
-    private var verifyMotionSamples = 0
-    private var verifyPeakAccel: Float = 0f
-    private var hapticPhaseEntered = false
-    private var lastHapticBuzzAt: Long = 0
+    private val verify = FallVerifyController()
 
     private enum class NotifState {
         MONITORING, VERIFYING, ALARMING, LOW_ACTIVITY, AIRPLANE_PAUSED
@@ -201,7 +197,7 @@ class FallDetectionService : Service(), SensorEventListener {
         // alarm on top of the first.
         if (alarmInFlight) {
             if (!algorithm.isIdle) algorithm.reset()
-            if (verifyingStartedAt != 0L) cancelVerify("alarm in flight", isUserDisarm = false)
+            if (verify.isVerifying) cancelVerify("alarm in flight", isUserDisarm = false)
             setNotifState(NotifState.ALARMING)
             return
         }
@@ -224,45 +220,33 @@ class FallDetectionService : Service(), SensorEventListener {
     }
 
     private fun tickVerify(magnitude: Float) {
-        val startedAt = verifyingStartedAt
-        if (startedAt == 0L) return
-        val elapsed = SystemClock.elapsedRealtime() - startedAt
-        if (elapsed >= VERIFY_SILENT_MS + VERIFY_HAPTIC_MS) {
-            val peak = verifyPeakAccel
-            cancelVerify("handed off to countdown", isUserDisarm = false)
-            android.util.Log.i(TAG, "fall verify timeout — escalating peak=$peak")
-            EmergencyLauncher.launch(this, triggerType = "fall", peakAccel = peak)
-            return
-        }
-        if (elapsed >= VERIFY_SILENT_MS) {
-            if (!hapticPhaseEntered) {
-                hapticPhaseEntered = true
+        // A user who is actively using the phone is conscious — stand verify
+        // down. Debug builds pass false so the flow stays testable screen-on.
+        val interactive = !BuildConfig.DEBUG &&
+            getSystemService(PowerManager::class.java)?.isInteractive == true
+        when (val decision = verify.tick(SystemClock.elapsedRealtime(), magnitude, interactive)) {
+            FallVerifyController.Decision.None -> Unit
+            FallVerifyController.Decision.EnterHaptic -> {
                 android.util.Log.i(TAG, "fall verify entering haptic phase")
                 postVerifyHeadsUp()
                 buzz()
-                lastHapticBuzzAt = SystemClock.elapsedRealtime()
-            } else if (SystemClock.elapsedRealtime() - lastHapticBuzzAt >= HAPTIC_BUZZ_INTERVAL_MS) {
-                buzz()
-                lastHapticBuzzAt = SystemClock.elapsedRealtime()
             }
-        }
-        val inStillnessBand = magnitude in FallDetectionAlgorithm.STILLNESS_LOW..FallDetectionAlgorithm.STILLNESS_HIGH
-        if (!inStillnessBand) {
-            verifyMotionSamples++
-            if (verifyMotionSamples >= VERIFY_MOTION_CANCEL_SAMPLES) {
-                cancelVerify("motion resumed (${verifyMotionSamples} samples)")
+            FallVerifyController.Decision.Buzz -> buzz()
+            is FallVerifyController.Decision.Cancel ->
+                cancelVerify(decision.reason)
+            is FallVerifyController.Decision.Escalate -> {
+                val peak = decision.peak
+                cancelVerify("handed off to countdown", isUserDisarm = false)
+                android.util.Log.i(TAG, "fall verify timeout — escalating peak=$peak")
+                EmergencyLauncher.launch(this, triggerType = "fall", peakAccel = peak)
             }
         }
     }
 
     private fun cancelVerify(reason: String, isUserDisarm: Boolean = true) {
-        if (verifyingStartedAt == 0L) return
-        val leaveTrace = hapticPhaseEntered && isUserDisarm
-        verifyingStartedAt = 0
-        verifyMotionSamples = 0
-        verifyPeakAccel = 0f
-        hapticPhaseEntered = false
-        lastHapticBuzzAt = 0
+        if (!verify.isVerifying) return
+        val leaveTrace = verify.hapticPhaseEntered && isUserDisarm
+        verify.stop()
         dismissVerifyHeadsUp()
         android.util.Log.i(TAG, "fall verify canceled: $reason")
         if (leaveTrace) postVerifyTrace()
@@ -389,7 +373,7 @@ class FallDetectionService : Service(), SensorEventListener {
     }
 
     private fun onFallDetected() {
-        if (verifyingStartedAt != 0L) return
+        if (verify.isVerifying) return
         val pm = getSystemService(PowerManager::class.java)
         // Release builds skip detection while the screen is on — "the phone
         // is in the user's hand, they're fine". Debug builds must still run
@@ -398,13 +382,9 @@ class FallDetectionService : Service(), SensorEventListener {
             android.util.Log.i(TAG, "fall ignored: screen interactive (phone in use)")
             return
         }
-        verifyingStartedAt = SystemClock.elapsedRealtime()
-        verifyMotionSamples = 0
-        verifyPeakAccel = algorithm.lastPeakAccel
-        hapticPhaseEntered = false
-        lastHapticBuzzAt = 0
+        verify.start(SystemClock.elapsedRealtime(), algorithm.lastPeakAccel)
         setNotifState(NotifState.VERIFYING)
-        android.util.Log.i(TAG, "fall candidate — ${VERIFY_SILENT_MS}ms silent then ${VERIFY_HAPTIC_MS}ms haptic peak=$verifyPeakAccel")
+        android.util.Log.i(TAG, "fall candidate — ${FallVerifyController.VERIFY_SILENT_MS}ms silent then ${FallVerifyController.VERIFY_HAPTIC_MS}ms haptic peak=${verify.peakAccel}")
     }
 
     private fun setNotifState(next: NotifState) {
@@ -453,17 +433,36 @@ class FallDetectionService : Service(), SensorEventListener {
             NotifState.AIRPLANE_PAUSED -> R.string.fall_detection_airplane_paused
         }
 
-        return NotificationCompat.Builder(this, VirgilApp.CHANNEL_FALL_DETECTION)
+        val builder = NotificationCompat.Builder(this, VirgilApp.CHANNEL_FALL_DETECTION)
             .setContentTitle(getString(R.string.app_name))
             .setContentText(getString(textRes))
             .setSmallIcon(android.R.drawable.ic_dialog_info)
             .setContentIntent(openApp)
+            .setOngoing(true)
+
+        // During verify the user needs an obvious "I'm OK" the moment the
+        // silent phase starts — not only when the haptic heads-up appears.
+        // This rides the low-importance foreground notification, so it stays
+        // gentle (no sound, no heads-up) until escalation.
+        if (notifState == NotifState.VERIFYING) {
+            val cancelVerifyIntent = PendingIntent.getService(
+                this, 2,
+                Intent(this, FallDetectionService::class.java).apply { action = ACTION_CANCEL_VERIFY },
+                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
+            )
+            builder.addAction(
+                android.R.drawable.ic_menu_close_clear_cancel,
+                getString(R.string.countdown_im_ok),
+                cancelVerifyIntent,
+            )
+        }
+
+        return builder
             .addAction(
                 android.R.drawable.ic_delete,
                 getString(R.string.fall_notification_stop),
                 stopIntent,
             )
-            .setOngoing(true)
             .build()
     }
 
@@ -490,10 +489,6 @@ class FallDetectionService : Service(), SensorEventListener {
         const val EXTRA_DEBUG_DELAYS = "debug_delays"
         const val EXTRA_DEBUG_LABEL = "debug_label"
         private const val TAG = "FallDetectionService"
-        private const val VERIFY_SILENT_MS = 15_000L
-        private const val VERIFY_HAPTIC_MS = 15_000L
-        private const val HAPTIC_BUZZ_INTERVAL_MS = 3_000L
-        private const val VERIFY_MOTION_CANCEL_SAMPLES = 8
         private val BUZZ_PATTERN = longArrayOf(0, 250, 120, 250, 120, 400)
     }
 }
