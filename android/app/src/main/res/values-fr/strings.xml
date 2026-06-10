@@ -205,4 +205,80 @@
     <string name="language_name_ca">Català</string>
     <string name="language_name_pt">Português</string>
     <string name="language_name_eu">Euskara</string>
+
+    <!-- Fall verification -->
+    <string name="fall_detection_verifying">Vérification que vous allez bien…</string>
+    <string name="verify_channel">Vérification de chute</string>
+    <string name="verify_channel_description">Vous alerte lors d\'une chute possible pour que vous puissiez annuler si tout va bien.</string>
+    <string name="verify_notif_title">Virgil : est-ce que ça va ?</string>
+    <string name="verify_notif_body">Chute possible détectée. Bougez ou touchez pour annuler.</string>
+    <string name="verify_trace_title">Virgil a veillé sur vous</string>
+    <string name="verify_trace_body">Nous avons cru à une chute, mais vous avez répondu — alerte levée. Balayez pour ignorer.</string>
+    <string name="fall_detection_alarming">Compte à rebours d\'urgence en cours</string>
+    <string name="fall_detection_low_activity">Peu d\'activité détectée — on prend de vos nouvelles</string>
+    <string name="fall_detection_airplane_paused">En pause — mode avion activé</string>
+    <string name="checkin_airplane_paused">En pause — mode avion activé</string>
+
+    <!-- Countdown -->
+    <string name="countdown_keep_holding">Continuez d\'appuyer…</string>
+    <string name="countdown_hold_to_cancel">Maintenez appuyé 5 s pour annuler</string>
+    <string name="countdown_paused_label">En pause — continuez d\'appuyer</string>
+    <string name="countdown_step_label">Étape %1$d sur %2$d</string>
+    <string name="countdown_notification_step">Étape %1$d sur %2$d — %3$d s restantes</string>
+    <string name="countdown_notification_paused">En pause — étape %1$d sur %2$d</string>
+
+    <!-- False-alarm / missed-fall reports -->
+    <string name="report_prompt_title">C\'était une fausse alerte ?</string>
+    <string name="report_prompt_body">Dites-nous ce que vous faisiez pour nous aider à rendre Virgil plus malin.</string>
+    <string name="report_prompt_action">Signaler</string>
+    <string name="report_screen_title_false_alarm">Signaler une fausse alerte</string>
+    <string name="report_screen_title_missed_fall">Signaler une chute manquée</string>
+    <string name="report_intro_false_alarm">Merci d\'avoir répondu. Décrivez ce que vous faisiez quand Virgil s\'est déclenché — le téléphone, vos mouvements, tout ce qui sort de l\'ordinaire. Cela reste sur votre téléphone tant que vous ne l\'envoyez pas.</string>
+    <string name="report_intro_missed_fall">Décrivez la chute que Virgil n\'a pas détectée — quand elle a eu lieu, ce que vous faisiez, où était le téléphone (poche, main, table). Cela nous aide à régler la détection. Rien ne quitte votre téléphone tant que vous n\'envoyez pas l\'e-mail.</string>
+    <string name="report_description_label">Que se passait-il ?</string>
+    <string name="report_description_hint_false_alarm">p. ex. J\'ai fait tomber le téléphone sur le canapé, ou il a vibré pendant que je courais.</string>
+    <string name="report_description_hint_missed_fall">p. ex. J\'ai glissé dans l\'escalier, téléphone dans la poche arrière. Virgil n\'a pas sonné.</string>
+    <string name="report_when_heading">Quand est-ce arrivé ?</string>
+    <string name="report_when_just_now">À l\'instant</string>
+    <string name="report_when_today">Plus tôt aujourd\'hui</string>
+    <string name="report_when_yesterday">Hier</string>
+    <string name="report_when_older">Plus ancien</string>
+    <string name="report_when_label">Quand : %1$s</string>
+    <string name="report_consent_heading">Inclure les données de diagnostic ?</string>
+    <string name="report_consent_body_false_alarm">Avec votre autorisation explicite, Virgil peut joindre un court résumé technique de l\'alerte : l\'heure du déclenchement, la mesure du capteur en cause, la durée de votre appui sur le bouton, le modèle de votre appareil et la version de l\'appli. Pas de localisation. Pas de contacts. Pas d\'identifiants.</string>
+    <string name="report_consent_body_missed_fall">Avec votre autorisation explicite, Virgil peut joindre le modèle de votre appareil, la version d\'Android et la version de l\'appli pour nous permettre d\'enquêter sur les limites du matériel ou de l\'algorithme. Pas de localisation. Pas de contacts. Pas d\'identifiants.</string>
+    <string name="report_consent_checkbox">Inclure le résumé de diagnostic dans l\'e-mail</string>
+    <string name="report_send_button">Ouvrir l\'e-mail avec le rapport</string>
+    <string name="report_copy_button">Copier le rapport</string>
+    <string name="report_copied_toast">Rapport copié — collez-le où vous voulez.</string>
+    <string name="report_discard_button">Abandonner et fermer</string>
+    <string name="report_preview_show">Aperçu de l\'e-mail</string>
+    <string name="report_preview_hide">Masquer l\'aperçu</string>
+    <string name="report_email_chooser_title">Envoyer le rapport Virgil</string>
+    <string name="report_email_subject_false_alarm">Rapport de fausse alerte Virgil</string>
+    <string name="report_email_subject_missed_fall">Rapport de chute manquée Virgil</string>
+    <string name="report_email_prefix_false_alarm">Rapport de fausse alerte Virgil.</string>
+    <string name="report_email_prefix_missed_fall">Rapport de chute manquée Virgil — Virgil n\'a pas détecté une chute qui a bien eu lieu.</string>
+    <string name="report_email_diagnostics_header">--- Données de diagnostic (partagées avec votre accord) ---</string>
+    <string name="report_email_no_mail_app">Aucune appli e-mail trouvée. Installez-en une, ou copiez le texte et envoyez-le autrement.</string>
+    <string name="settings_help_title">Aider à améliorer Virgil</string>
+    <string name="settings_help_desc">Les rapports restent sur votre téléphone tant que vous n\'envoyez pas l\'e-mail. Aucune télémétrie.</string>
+    <string name="settings_help_false_alarm">Signaler une fausse alerte</string>
+    <string name="settings_help_missed_fall">Signaler une chute manquée</string>
+
+    <!-- Siren / alert dispatch -->
+    <string name="siren_dispatching">Envoi de l\'alerte…</string>
+    <string name="siren_sent_title">Alerte envoyée</string>
+    <string name="siren_sent_body">Vos contacts ont été prévenus. La sirène aide les personnes à proximité à vous trouver.</string>
+    <string name="siren_failed_title">Alerte non envoyée</string>
+    <string name="siren_failed_body">Impossible de joindre vos contacts. Appelez-les directement si vous le pouvez.</string>
+    <string name="siren_partial_title">Alerte partiellement envoyée</string>
+    <string name="siren_partial_body">Certains contacts n\'ont pas reçu l\'alerte. Appelez-les directement si vous le pouvez.</string>
+    <string name="siren_status_sent">Envoyée</string>
+    <string name="siren_status_failed">Échec</string>
+    <string name="siren_status_no_signal">Pas de réseau</string>
+    <string name="siren_status_radio_off">Radio désactivée</string>
+    <string name="siren_status_unconfirmed">Non confirmée</string>
+    <string name="siren_status_no_permission">Autorisation SMS manquante</string>
+    <string name="siren_stop_button">ARRÊTER LA SIRÈNE</string>
 </resources>
