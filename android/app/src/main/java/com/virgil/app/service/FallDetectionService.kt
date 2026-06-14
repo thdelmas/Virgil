@@ -44,6 +44,7 @@ class FallDetectionService : Service(), SensorEventListener {
     }
     private var isListening = false
     private var wakeLock: PowerManager.WakeLock? = null
+    private lateinit var heartbeat: ServiceHeartbeat
 
     private val verify = FallVerifyController()
 
@@ -86,6 +87,7 @@ class FallDetectionService : Service(), SensorEventListener {
 
     override fun onCreate() {
         super.onCreate()
+        heartbeat = ServiceHeartbeat(this).also { it.mark("create") }
         sensorManager = getSystemService(SensorManager::class.java)
         // Prefer the wake-up accelerometer when the hardware sensor hub offers
         // one: events keep flowing with the CPU asleep, no wake lock needed.
@@ -116,6 +118,7 @@ class FallDetectionService : Service(), SensorEventListener {
     }
 
     override fun onDestroy() {
+        heartbeat.mark("destroy")
         runCatching { unregisterReceiver(screenReceiver) }
         runCatching { unregisterReceiver(powerSaveReceiver) }
         runCatching { unregisterReceiver(airplaneReceiver) }
@@ -191,6 +194,7 @@ class FallDetectionService : Service(), SensorEventListener {
     override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onSensorChanged(event: SensorEvent) {
+        heartbeat.beat("sensor")
         if (airplanePaused) return
         // Suppress detection while an emergency screen is up — otherwise the
         // user's own handling (or the activity's own vibration) trips a second
