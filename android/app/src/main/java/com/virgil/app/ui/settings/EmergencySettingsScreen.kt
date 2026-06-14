@@ -241,6 +241,8 @@ fun EmergencySettingsScreen(
             item { Spacer(modifier = Modifier.height(16.dp)) }
             permissionsSection(state = permissionState, activity = activity)
 
+            reliabilitySection()
+
             item {
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(

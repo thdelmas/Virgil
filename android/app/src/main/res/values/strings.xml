@@ -228,6 +228,15 @@
     <string name="heartbeat_gaps_none">No interruptions longer than 5 minutes.</string>
     <string name="heartbeat_gaps">%1$d interruption(s) over 5 min · longest %2$s</string>
 
+    <!-- Reliability / keep-alive section (Settings screen) -->
+    <string name="settings_reliability_title">Keeping Virgil running</string>
+    <string name="settings_reliability_desc">Some phones aggressively stop background apps to save battery, which can silently switch Virgil off. These take you to the settings that let you exempt it.</string>
+    <string name="settings_reliability_ok">Battery optimisation is off for Virgil — good.</string>
+    <string name="settings_reliability_warn">Battery optimisation may stop Virgil while it runs in the background.</string>
+    <string name="settings_reliability_battery_button">Let Virgil run in the background</string>
+    <string name="settings_reliability_autostart_button">Open auto-start settings</string>
+    <string name="settings_reliability_autostart_hint">On this phone, also enable Virgil in the auto-start list so it restarts after a reboot or a memory cleanup.</string>
+
     <!-- Add-contact dialog -->
     <string name="dialog_add_title">Add Emergency Contact</string>
     <string name="dialog_pick_from_contacts">Pick from contacts</string>
