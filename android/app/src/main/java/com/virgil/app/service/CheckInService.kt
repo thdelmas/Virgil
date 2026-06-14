@@ -30,6 +30,7 @@ class CheckInService : Service() {
 
     private lateinit var prefs: EmergencyPreferences
     private lateinit var musicWatcher: MusicActivityWatcher
+    private lateinit var heartbeat: ServiceHeartbeat
 
     @Volatile private var airplanePaused: Boolean = false
 
@@ -49,6 +50,7 @@ class CheckInService : Service() {
 
     override fun onCreate() {
         super.onCreate()
+        heartbeat = ServiceHeartbeat(this).also { it.mark("checkin-create") }
         prefs = EmergencyPreferences(this)
         musicWatcher = MusicActivityWatcher(this)
         // ACTION_USER_PRESENT is a protected broadcast and must be registered at runtime.
@@ -62,6 +64,7 @@ class CheckInService : Service() {
     }
 
     override fun onDestroy() {
+        heartbeat.mark("checkin-destroy")
         runCatching { unregisterReceiver(presenceReceiver) }
         runCatching { unregisterReceiver(airplaneReceiver) }
         runCatching { musicWatcher.stop() }

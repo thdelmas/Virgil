@@ -62,9 +62,14 @@ Xiaomi/Samsung owners, have them run 24h on **default** battery settings (not
 "unrestricted" — that's not what a real user gets), and report the readout.
 This is the only source of true default-battery real-world data.
 
-## What this does NOT cover
+## Coverage notes
 
-- `CheckInService` is alarm-driven, not sensor-driven — it has no opportunistic
-  beat yet. Its survival needs a separate hook.
-- Real **SMS delivery** (trigger a panic, confirm the GPS text lands on a second
-  phone) is a separate end-to-end check.
+- `FallDetectionService` beats every ~minute off sensor callbacks — fine-grained.
+- `CheckInService` is alarm-driven, so it beats hourly from `BaselineCheckReceiver`
+  (tags `baseline`, plus `checkin-create`/`checkin-destroy`). A kill is caught
+  within ~1–2h even when fall detection is off. Both services share one log;
+  any beat resets the gap clock, so a gap means *nothing* was alive.
+- Real **SMS delivery** is verified in code (`EmergencyDispatcher` listens to the
+  radio's sentIntent and reports per-contact status), but an end-to-end check —
+  trigger a panic, confirm the GPS text lands on a second phone — is still worth
+  doing by hand on each test device.

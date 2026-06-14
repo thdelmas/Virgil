@@ -20,6 +20,10 @@ import java.util.Calendar
 class BaselineCheckReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
+        // Fires hourly via AlarmManager regardless of process state, so this is
+        // the check-in path's liveness beat — a missing one means the alarm
+        // pipeline itself died, the kill that matters when fall detection is off.
+        ServiceHeartbeat(context).mark("baseline")
         PermissionMonitor.check(context)
 
         if (isDuringSleepHours(context)) return
