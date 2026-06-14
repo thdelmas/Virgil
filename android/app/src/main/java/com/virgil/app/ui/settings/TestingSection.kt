@@ -97,6 +97,9 @@ internal fun LazyListScope.testingSection(
         )
 
         Spacer(modifier = Modifier.height(20.dp))
+        HeartbeatStatus()
+
+        Spacer(modifier = Modifier.height(20.dp))
         Text(
             text = stringResource(R.string.testing_fall_title),
             style = MaterialTheme.typography.titleMedium,

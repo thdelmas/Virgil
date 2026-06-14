@@ -73,6 +73,28 @@ class ServiceHeartbeat(
             val durationMs: Long get() = toElapsedMs - fromElapsedMs
         }
 
+        /** At-a-glance liveness, for the in-app readout. */
+        data class Summary(
+            val beats: Int,
+            val lastWallMs: Long?,
+            val longestGapMs: Long,
+            val gapCount: Int,
+        )
+
+        /** Reads and summarises the log. Call off the main thread (touches disk). */
+        fun summarize(context: Context, gapThresholdMs: Long = 5 * DEFAULT_INTERVAL_MS): Summary {
+            val lines = runCatching {
+                File(context.applicationContext.filesDir, FILE_NAME).readLines()
+            }.getOrDefault(emptyList())
+            val gaps = findGaps(parseElapsed(lines), gapThresholdMs)
+            return Summary(
+                beats = parseElapsed(lines).size,
+                lastWallMs = lines.lastOrNull()?.split(",")?.firstOrNull()?.trim()?.toLongOrNull(),
+                longestGapMs = gaps.maxOfOrNull { it.durationMs } ?: 0L,
+                gapCount = gaps.size,
+            )
+        }
+
         /** Elapsed-realtime column of each log line, in order, malformed lines skipped. */
         fun parseElapsed(lines: List<String>): List<Long> =
             lines.mapNotNull { it.split(",").getOrNull(1)?.trim()?.toLongOrNull() }

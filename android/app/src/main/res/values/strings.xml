@@ -221,6 +221,12 @@
     <string name="testing_desc">Send a test SMS to all your emergency contacts (clearly marked as a test) to confirm the message and your location arrive.</string>
     <string name="testing_sounds_title">Test sounds</string>
     <string name="testing_fall_title">Test fall detection</string>
+    <string name="heartbeat_title">Service heartbeat</string>
+    <string name="heartbeat_desc">Confirms the background watcher is still running. A long gap means a battery setting stopped it — the one failure a safety app must never hide.</string>
+    <string name="heartbeat_none">No heartbeat recorded yet. Leave Virgil running for a minute, then check back.</string>
+    <string name="heartbeat_alive">Last confirmed alive %1$s ago · %2$d beats logged</string>
+    <string name="heartbeat_gaps_none">No interruptions longer than 5 minutes.</string>
+    <string name="heartbeat_gaps">%1$d interruption(s) over 5 min · longest %2$s</string>
 
     <!-- Add-contact dialog -->
     <string name="dialog_add_title">Add Emergency Contact</string>
