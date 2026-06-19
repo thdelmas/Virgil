@@ -20,3 +20,6 @@ android/.kotlin/
 keystore.properties
 *.jks
 *.keystore
+
+# Claude Code local config — never ship to auditors
+.claude/
