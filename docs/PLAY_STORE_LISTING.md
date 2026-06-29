@@ -59,6 +59,7 @@ WHAT VIRGIL DOES NOT DO
 PERMISSIONS, EXPLAINED
 • SMS — to text your emergency contacts when an alert fires. Required.
 • Phone — optional. If granted, fall and check-in alerts also call your primary contact via the system dialer. The manual alarm never calls.
+• Call answering — optional, off by default. If you turn it on, then only during an active alert and only when one of your saved emergency contacts is the caller, Virgil silences the ring and picks up hands-free so you can speak without fighting the siren. Every other call rings normally — Virgil never blocks, screens, or reroutes your ordinary calls.
 • Location — to attach your GPS coordinates to the emergency SMS. Read only at the moment of the alert.
 • Foreground service and notifications — required by Android to keep the safety services running with a persistent notification you can see at all times.
 • Sensors — to detect falls.
@@ -110,8 +111,23 @@ For the per-data-type table: select **none** of the data types as "collected" or
 
 ## Required app access permissions declarations
 
-- **SMS / Call Log access:** the app uses `SEND_SMS` (required) and `CALL_PHONE` (optional). Declaration text: *"Virgil sends an SMS to the user's chosen emergency contacts when a fall is detected, a check-in is missed, or the user holds the manual-alarm button. If the user grants the optional CALL_PHONE permission, Virgil additionally places a follow-up phone call to the primary contact for fall and check-in alerts (not for the manual alarm — its loud siren would render the call useless). The app does not read the SMS log or call log."*
-- **Foreground service (special use):** declared subtype `on_device_fall_and_inactivity_detection_for_personal_safety_no_network_no_cloud`. Justification: *"On-device accelerometer monitoring and inactivity check-in for personal safety. No network use. Cannot be deferred — falls and inactivity occur unpredictably and must be detected continuously."*
+Paste these into the matching Play Console declaration forms. Each is reviewed independently; the most likely rejection points are **SMS** and **call answering** — get those wording-exact.
+
+- **SMS access (`SEND_SMS`) — Permissions Declaration Form.** Virgil is **not** a default SMS handler, so this needs an approved exception use case. Select the closest core-functionality / personal-safety exception, and declare:
+  > *"Virgil is an on-device personal-safety app. When a fall is detected, a scheduled check-in is missed, or the user holds the manual-alarm button, Virgil sends a single SMS — from the user's own SIM — to the emergency contacts the user has explicitly added, containing the user's GPS location and the trigger reason. SMS is the core delivery mechanism of the app's only feature: reaching the user's chosen contacts when the user may be unable to. The app declares no INTERNET permission and has no server; SMS is the sole outbound channel. The app does not read the SMS inbox or SMS log."*
+  >
+  > If the exception is rejected, the fallback is to drop `SEND_SMS` and launch the user's SMS app via an `ACTION_SENDTO` intent with a pre-filled message — degraded UX (the user must press send) but policy-safe.
+
+- **Phone call (`CALL_PHONE`) — optional.** *"If the user grants this optional permission, Virgil places a follow-up call to the primary emergency contact via the system dialer for fall and missed-check-in alerts only (never for the manual alarm — its loud siren would render the call useless). Virgil never calls emergency services. The app does not read the call log."*
+
+- **Call answering (`ANSWER_PHONE_CALLS` + Call Screening role) — highest-scrutiny declaration.** *"Virgil registers an optional, off-by-default CallScreeningService. Only while an alert is armed AND the incoming caller's number matches an emergency contact the user saved, Virgil silences the ringtone and accepts the call hands-free, so a user who may be injured or fighting the siren can speak to their contact without touching the phone. The window auto-disarms after one answered call. Every call that is not from a saved emergency contact during an active alert passes through completely untouched — Virgil never inspects, blocks, or reroutes ordinary calls. Virgil does not read the call log and holds no Call Log permissions. This feature stays disabled until the user explicitly grants the Call Screening role in settings."*
+
+- **Foreground service (`specialUse`) — FGS declaration.** The manifest declares four `specialUse` services; declare each subtype and why no standard FGS type fits:
+  > *"All four services run on-device for personal safety with no network use. We use `specialUse` because no standard foreground-service type matches: the work is sensor- and timer-driven safety monitoring, not media, data sync, location-sharing, or a phone call. (1) `on_device_fall_detection…` — continuous accelerometer monitoring; falls occur unpredictably and cannot be deferred. (2) `on_device_inactivity_check_in…` — exact-time inactivity check-in. (3) `on_device_emergency_siren…` — drives the alert siren. (4) `on_device_staged_emergency_countdown…` — the user-cancellable countdown before an alert fires. None use the network or leave the device."*
+
+- **Full-screen intent (`USE_FULL_SCREEN_INTENT`) — Android 14+ declaration.** *"Used only to present the emergency countdown over the lock screen (EmergencyCountdownActivity) so the user can press 'I'm OK' to cancel a false alarm without unlocking. This is alarm-equivalent, time-critical safety UI — not advertising or engagement."*
+
+- **Exact alarm (`SCHEDULE_EXACT_ALARM`).** *"Schedules the inactivity check-in prompt at the exact user-chosen time. Inexact alarms would let the safety check drift by minutes-to-hours, defeating the feature."*
 
 ## Screenshots checklist (3-4 phone screenshots, plus feature graphic)
 
@@ -138,10 +154,13 @@ Style: large readable text, plain backgrounds, no fake demographic stock photos,
 Virgil is a personal safety app — fall detection and inactivity check-in. It runs entirely on-device. There is no server, no account, no analytics, and no INTERNET permission declared.
 
 Permission usage:
-• SEND_SMS (required): when an alert fires (fall, missed check-in, or manual alarm), the app sends an SMS to the user's emergency contacts.
+• SEND_SMS (required): when an alert fires (fall, missed check-in, or manual alarm), the app sends an SMS from the user's own SIM to the emergency contacts the user added. Sole outbound channel; no INTERNET permission is declared.
 • CALL_PHONE (optional): if granted, the app additionally places a follow-up phone call to the primary contact via the system dialer for fall and missed-check-in alerts. The manual alarm intentionally does not call (the alarm's loud siren would render the call useless). The app does not call emergency services under any condition.
+• ANSWER_PHONE_CALLS + Call Screening role (optional, off by default): while an alert is armed, if a saved emergency contact calls back, Virgil silences the ring and answers hands-free so the user can speak without fighting the siren. All other calls pass through untouched; Virgil never blocks or reroutes ordinary calls and holds no Call Log permission.
 • ACCESS_FINE_LOCATION: GPS coordinates are read at the moment of the alert and attached to the SMS. No background location use; ACCESS_BACKGROUND_LOCATION is not declared.
-• Foreground service type "specialUse" with subtype on_device_fall_and_inactivity_detection_for_personal_safety_no_network_no_cloud: required for always-on accelerometer monitoring and exact-time check-in.
+• Foreground service type "specialUse" (four services): on-device fall detection, inactivity check-in, emergency siren, and the staged pre-alert countdown. No standard FGS type fits sensor/timer-driven safety monitoring; none use the network.
+• USE_FULL_SCREEN_INTENT: shows the cancellable emergency countdown over the lock screen so the user can dismiss a false alarm.
+• SCHEDULE_EXACT_ALARM: fires the inactivity check-in at the exact user-chosen time.
 
 Privacy policy: <link to hosted PRIVACY.md>
 Source code: <link to public repository>
