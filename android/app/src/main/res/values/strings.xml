@@ -199,22 +199,11 @@
     <string name="settings_quiet_save">Save quiet hours</string>
 
     <!-- Auto-answer (callback from emergency contacts during an alert) -->
-    <string name="settings_auto_answer_title">Answer callbacks hands-free</string>
-    <string name="settings_auto_answer_desc">After Virgil sends an alert, your contacts often call back to check on you. Optional — off by default.</string>
-    <string name="settings_auto_answer_switch">Auto-answer emergency contacts</string>
-    <string name="settings_auto_answer_needs_contact">Add an emergency contact first.</string>
-    <string name="settings_auto_answer_explainer">For 15 minutes after an alert, if one of your saved emergency contacts calls you, Virgil will pick up automatically, silence the siren, turn on the speaker, and raise the call volume — so you can hear and talk without reaching the phone. Unknown callers always ring normally. Turn this off any time.</string>
-    <string name="settings_auto_answer_role_needed">Android permission pending — grant Call Screener below.</string>
 
     <!-- Section eyebrow tags: Virgil's own pref vs. an Android-granted permission -->
-    <string name="settings_tag_virgil_setting">VIRGIL SETTING</string>
     <string name="settings_tag_android_permission">ANDROID PERMISSION</string>
 
     <!-- Auto-answer permissions -->
-    <string name="perm_answer_title">Pick up calls for you</string>
-    <string name="perm_answer_rationale">So Virgil can answer a callback from your emergency contact without you reaching the phone. Used only while an alert is active.</string>
-    <string name="perm_call_screening_title">Be your Call Screener</string>
-    <string name="perm_call_screening_rationale">Lets Virgil recognise an incoming call from one of your saved contacts and pick up hands-free. Other callers are never affected.</string>
 
     <!-- Testing section (Settings screen) -->
     <string name="testing_title">Testing</string>

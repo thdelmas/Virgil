@@ -148,7 +148,6 @@ class EmergencyDispatcher(private val context: Context) {
             // would silence the loudest signal we have. PANIC skips: the
             // alarm is screaming over the mic, contact decides via SMS.
             if (!isTest && triggerType != TriggerType.PANIC) {
-                AutoAnswer.arm(context)
                 val primaryContact = contacts.firstOrNull { it.isPrimary } ?: contacts.first()
                 makeCall(primaryContact.phone)
             }

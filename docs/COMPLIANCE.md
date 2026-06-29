@@ -71,20 +71,19 @@ Every permission is a **UX cost** (another dialog to accept), a **trust cost** (
 
 ### Currently declared — keep
 
-`CALL_PHONE`, `ANSWER_PHONE_CALLS`, `SEND_SMS`, `ACCESS_FINE_LOCATION`, `ACCESS_COARSE_LOCATION`, `FOREGROUND_SERVICE`, `FOREGROUND_SERVICE_SPECIAL_USE`, `POST_NOTIFICATIONS`, `VIBRATE`, `USE_FULL_SCREEN_INTENT`, `USE_BIOMETRIC`, `HIGH_SAMPLING_RATE_SENSORS`, `WAKE_LOCK`, `RECEIVE_BOOT_COMPLETED`, `SCHEDULE_EXACT_ALARM`.
+`CALL_PHONE`, `SEND_SMS`, `ACCESS_FINE_LOCATION`, `ACCESS_COARSE_LOCATION`, `FOREGROUND_SERVICE`, `FOREGROUND_SERVICE_SPECIAL_USE`, `POST_NOTIFICATIONS`, `VIBRATE`, `USE_FULL_SCREEN_INTENT`, `USE_BIOMETRIC`, `HIGH_SAMPLING_RATE_SENSORS`, `WAKE_LOCK`, `RECEIVE_BOOT_COMPLETED`, `SCHEDULE_EXACT_ALARM`.
 
 ### Rationale for the high-scrutiny entries
 
-Four of the above carry extra Play-review weight or a mandatory Play Console declaration. Each must stay justified here so the doc matches the manifest:
+Three of the above carry extra Play-review weight or a mandatory Play Console declaration. Each must stay justified here so the doc matches the manifest:
 
 | Permission | Why it's declared | Play Console obligation |
 |---|---|---|
-| `ANSWER_PHONE_CALLS` | Hands-free auto-answer: when an alert is armed and a **saved emergency contact** calls back, `VirgilCallScreeningService` silences the ring and accepts the call so the user doesn't have to fight the siren to be heard. Non-matching callers pass through untouched. | Highest scrutiny of any Virgil permission. Programmatic call answering must be declared and justified; expect reviewer questions. Keep the feature clearly **optional** and off by default. |
 | `FOREGROUND_SERVICE_SPECIAL_USE` | Required by the `specialUse` FGS type chosen in §4 (the manifest declares four `specialUse` services). | Mandatory `specialUse` declaration explaining why no standard FGS type fits — see [docs/PLAY_STORE_LISTING.md](PLAY_STORE_LISTING.md). |
 | `USE_BIOMETRIC` | Gates panic-stop (`StopAuthGate`) so a bystander can't silence anti-tamper mode without the user's biometric. | None beyond normal listing. |
 | `WAKE_LOCK` | Holds the CPU awake only for the duration of an active alert/siren so the alert isn't dropped when the screen is off. Every acquire has a matching release (manifesto §"battery is a feature"). | None beyond normal listing. |
 
-> **`ANSWER_PHONE_CALLS` requires explicit project-owner sign-off before the first Play upload.** It was added to the manifest ahead of this doc; it now lives in §3, but the auto-answer feature's Play-review risk (see the table) means the owner must confirm it ships in the first release or is gated behind a flag.
+> **No call-answering.** Virgil deliberately does **not** request `ANSWER_PHONE_CALLS` or register a `CallScreeningService`. Its only outbound actions are the alert SMS and the optional follow-up *outgoing* call (`CALL_PHONE`). Reaching the user's contacts is a one-way push — Virgil never answers, screens, or intercepts incoming calls. Do not reintroduce auto-answer without explicit project-owner approval.
 
 ### Banned (compliance check will fail)
 

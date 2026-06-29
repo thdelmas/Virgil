@@ -27,8 +27,6 @@ class EmergencyPreferences(private val context: Context) {
     private val checkInIntervalKey = longPreferencesKey("checkin_interval_hours")
     private val checkInSleepStartKey = intPreferencesKey("checkin_sleep_start_hour")
     private val checkInSleepEndKey = intPreferencesKey("checkin_sleep_end_hour")
-    private val autoAnswerEnabledKey = booleanPreferencesKey("auto_answer_enabled")
-    private val autoAnswerArmedUntilKey = longPreferencesKey("auto_answer_armed_until_ms")
     private val panicSendersKey = stringSetPreferencesKey("panic_connected_senders")
 
     val contacts: Flow<List<EmergencyContact>> = context.dataStore.data.map { prefs ->
@@ -70,25 +68,6 @@ class EmergencyPreferences(private val context: Context) {
     /** Hour of day when sleep mode ends (check-ins resume). */
     val checkInSleepEndHour: Flow<Int> = context.dataStore.data.map { prefs ->
         prefs[checkInSleepEndKey] ?: 7
-    }
-
-    /**
-     * Whether Virgil may auto-accept incoming calls from saved emergency
-     * contacts during the armed window after an alert. Off by default —
-     * opting in requires granting the Call Screening role.
-     */
-    val autoAnswerEnabled: Flow<Boolean> = context.dataStore.data.map { prefs ->
-        prefs[autoAnswerEnabledKey] ?: false
-    }
-
-    /**
-     * Epoch-millis until which the screener should auto-accept calls from
-     * emergency contacts. 0 (default) means "not armed". Reading this is
-     * the cheapest way for the always-resident screening service to decide
-     * whether to act, without pulling a coroutine.
-     */
-    val autoAnswerArmedUntilMs: Flow<Long> = context.dataStore.data.map { prefs ->
-        prefs[autoAnswerArmedUntilKey] ?: 0L
     }
 
     /**
@@ -142,13 +121,6 @@ class EmergencyPreferences(private val context: Context) {
         }
     }
 
-    suspend fun setAutoAnswerEnabled(enabled: Boolean) {
-        context.dataStore.edit { it[autoAnswerEnabledKey] = enabled }
-    }
-
-    suspend fun setAutoAnswerArmedUntil(epochMs: Long) {
-        context.dataStore.edit { it[autoAnswerArmedUntilKey] = epochMs }
-    }
 
     suspend fun addConnectedPanicSender(packageName: String) {
         context.dataStore.edit {

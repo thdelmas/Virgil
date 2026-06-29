@@ -162,8 +162,6 @@ class MainActivity : ComponentActivity() {
                             .collectAsState(initial = 23)
                         val sleepEnd by prefs.checkInSleepEndHour
                             .collectAsState(initial = 7)
-                        val autoAnswer by prefs.autoAnswerEnabled
-                            .collectAsState(initial = false)
                         val currentLanguage = AppLocale.read(this@MainActivity)
 
                         EmergencySettingsScreen(
@@ -172,7 +170,6 @@ class MainActivity : ComponentActivity() {
                             appLanguageCode = currentLanguage,
                             sleepStartHour = sleepStart,
                             sleepEndHour = sleepEnd,
-                            autoAnswerEnabled = autoAnswer,
                             onSaveContacts = { scope.launch { prefs.saveContacts(it) } },
                             onSaveMessage = { scope.launch { prefs.saveSmsMessage(it) } },
                             onSaveAppLanguage = { newCode ->
@@ -181,9 +178,6 @@ class MainActivity : ComponentActivity() {
                             },
                             onSaveSleepHours = { s, e ->
                                 scope.launch { prefs.setCheckInSleepHours(s, e) }
-                            },
-                            onToggleAutoAnswer = { enabled ->
-                                scope.launch { prefs.setAutoAnswerEnabled(enabled) }
                             },
                         )
                     }

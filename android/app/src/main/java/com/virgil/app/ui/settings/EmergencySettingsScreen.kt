@@ -60,12 +60,10 @@ fun EmergencySettingsScreen(
     appLanguageCode: String?,
     sleepStartHour: Int,
     sleepEndHour: Int,
-    autoAnswerEnabled: Boolean,
     onSaveContacts: (List<EmergencyContact>) -> Unit,
     onSaveMessage: (String?) -> Unit,
     onSaveAppLanguage: (String?) -> Unit,
     onSaveSleepHours: (Int, Int) -> Unit,
-    onToggleAutoAnswer: (Boolean) -> Unit,
 ) {
     val editableContacts = remember(contacts) { mutableStateListOf(*contacts.toTypedArray()) }
     var editingMessage by remember(smsMessageOverride) {
@@ -231,12 +229,6 @@ fun EmergencySettingsScreen(
                     Text(stringResource(R.string.settings_message_save))
                 }
             }
-
-            autoAnswerSection(
-                enabled = autoAnswerEnabled,
-                onToggle = onToggleAutoAnswer,
-                hasContacts = editableContacts.isNotEmpty(),
-            )
 
             item { Spacer(modifier = Modifier.height(16.dp)) }
             permissionsSection(state = permissionState, activity = activity)

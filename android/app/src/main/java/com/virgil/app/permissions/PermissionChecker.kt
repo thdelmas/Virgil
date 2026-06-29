@@ -2,7 +2,6 @@ package com.virgil.app.permissions
 
 import android.app.AlarmManager
 import android.app.NotificationManager
-import android.app.role.RoleManager
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
@@ -19,7 +18,6 @@ object PermissionChecker {
             VirgilPermission.Kind.Runtime -> runtimeStatus(context, permission.androidName!!)
             VirgilPermission.Kind.ExactAlarm -> exactAlarmStatus(context)
             VirgilPermission.Kind.FullScreenIntent -> fullScreenIntentStatus(context)
-            VirgilPermission.Kind.CallScreeningRole -> callScreeningRoleStatus(context)
         }
     }
 
@@ -52,13 +50,6 @@ object PermissionChecker {
         val nm = context.getSystemService(NotificationManager::class.java)
             ?: return Status.Denied
         return if (nm.canUseFullScreenIntent()) Status.Granted else Status.Denied
-    }
-
-    private fun callScreeningRoleStatus(context: Context): Status {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return Status.NotApplicable
-        val rm = context.getSystemService(RoleManager::class.java) ?: return Status.Denied
-        if (!rm.isRoleAvailable(RoleManager.ROLE_CALL_SCREENING)) return Status.NotApplicable
-        return if (rm.isRoleHeld(RoleManager.ROLE_CALL_SCREENING)) Status.Granted else Status.Denied
     }
 }
 

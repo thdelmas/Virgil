@@ -114,20 +114,9 @@
     <string name="settings_quiet_end">Fim</string>
     <string name="settings_quiet_save">Guardar horas</string>
 
-    <string name="settings_auto_answer_title">Atender chamadas de retorno</string>
-    <string name="settings_auto_answer_desc">Após um alerta Virgil, os seus contactos costumam ligar-lhe. Opcional — desativado por predefinição.</string>
-    <string name="settings_auto_answer_switch">Atender automaticamente contactos de emergência</string>
-    <string name="settings_auto_answer_needs_contact">Adicione primeiro um contacto de emergência.</string>
-    <string name="settings_auto_answer_explainer">Durante 15 minutos após um alerta, se um dos seus contactos de emergência lhe ligar, o Virgil atende automaticamente, silencia a sirene, ativa o altifalante e aumenta o volume — para que possa ouvir e falar sem tocar no telemóvel. Números desconhecidos tocam normalmente. Pode desativar quando quiser.</string>
-    <string name="settings_auto_answer_role_needed">Permissão do Android pendente — conceda o filtro de chamadas abaixo.</string>
 
-    <string name="settings_tag_virgil_setting">DEFINIÇÃO DO VIRGIL</string>
     <string name="settings_tag_android_permission">PERMISSÃO DO ANDROID</string>
 
-    <string name="perm_answer_title">Atender por si</string>
-    <string name="perm_answer_rationale">Para que o Virgil possa atender uma chamada de retorno do seu contacto de emergência sem que toque no telemóvel. Apenas durante um alerta.</string>
-    <string name="perm_call_screening_title">Ser o seu filtro de chamadas</string>
-    <string name="perm_call_screening_rationale">Permite ao Virgil reconhecer uma chamada de um dos seus contactos e atender em mãos-livres. As outras chamadas não são afetadas.</string>
 
     <string name="testing_title">Testes</string>
     <string name="testing_desc">Envie um SMS de teste a todos os seus contactos de emergência (claramente marcado como teste) para confirmar que a mensagem e a sua localização chegam bem.</string>

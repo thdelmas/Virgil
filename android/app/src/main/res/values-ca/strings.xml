@@ -114,20 +114,9 @@
     <string name="settings_quiet_end">Fi</string>
     <string name="settings_quiet_save">Desar hores</string>
 
-    <string name="settings_auto_answer_title">Contestar trucades de tornada</string>
-    <string name="settings_auto_answer_desc">Després d\'una alerta, els teus contactes sovint et truquen. Opcional — desactivat per defecte.</string>
-    <string name="settings_auto_answer_switch">Contestar automàticament els contactes d\'emergència</string>
-    <string name="settings_auto_answer_needs_contact">Afegeix primer un contacte d\'emergència.</string>
-    <string name="settings_auto_answer_explainer">Durant 15 minuts després d\'una alerta, si un dels teus contactes d\'emergència et truca, Virgil despenja automàticament, silencia la sirena, activa l\'altaveu i puja el volum — perquè puguis sentir i parlar sense tocar el telèfon. Els números desconeguts sonen amb normalitat. Pots desactivar-ho quan vulguis.</string>
-    <string name="settings_auto_answer_role_needed">Permís d\'Android pendent — concedeix el filtre de trucades a sota.</string>
 
-    <string name="settings_tag_virgil_setting">AJUST DE VIRGIL</string>
     <string name="settings_tag_android_permission">PERMÍS D\'ANDROID</string>
 
-    <string name="perm_answer_title">Despenjar per tu</string>
-    <string name="perm_answer_rationale">Perquè Virgil pugui despenjar una trucada de tornada del teu contacte d\'emergència sense que toquis el telèfon. Només durant una alerta.</string>
-    <string name="perm_call_screening_title">Ser el teu filtre de trucades</string>
-    <string name="perm_call_screening_rationale">Permet a Virgil reconèixer una trucada d\'un dels teus contactes i despenjar en mans lliures. La resta de trucades no es veuen afectades.</string>
 
     <string name="testing_title">Proves</string>
     <string name="testing_desc">Envia un SMS de prova a tots els teus contactes d\'emergència (clarament marcat com a prova) per comprovar que el missatge i la teva ubicació arriben bé.</string>

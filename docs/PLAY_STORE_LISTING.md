@@ -59,7 +59,6 @@ WHAT VIRGIL DOES NOT DO
 PERMISSIONS, EXPLAINED
 • SMS — to text your emergency contacts when an alert fires. Required.
 • Phone — optional. If granted, fall and check-in alerts also call your primary contact via the system dialer. The manual alarm never calls.
-• Call answering — optional, off by default. If you turn it on, then only during an active alert and only when one of your saved emergency contacts is the caller, Virgil silences the ring and picks up hands-free so you can speak without fighting the siren. Every other call rings normally — Virgil never blocks, screens, or reroutes your ordinary calls.
 • Location — to attach your GPS coordinates to the emergency SMS. Read only at the moment of the alert.
 • Foreground service and notifications — required by Android to keep the safety services running with a persistent notification you can see at all times.
 • Sensors — to detect falls.
@@ -120,8 +119,6 @@ Paste these into the matching Play Console declaration forms. Each is reviewed i
 
 - **Phone call (`CALL_PHONE`) — optional.** *"If the user grants this optional permission, Virgil places a follow-up call to the primary emergency contact via the system dialer for fall and missed-check-in alerts only (never for the manual alarm — its loud siren would render the call useless). Virgil never calls emergency services. The app does not read the call log."*
 
-- **Call answering (`ANSWER_PHONE_CALLS` + Call Screening role) — highest-scrutiny declaration.** *"Virgil registers an optional, off-by-default CallScreeningService. Only while an alert is armed AND the incoming caller's number matches an emergency contact the user saved, Virgil silences the ringtone and accepts the call hands-free, so a user who may be injured or fighting the siren can speak to their contact without touching the phone. The window auto-disarms after one answered call. Every call that is not from a saved emergency contact during an active alert passes through completely untouched — Virgil never inspects, blocks, or reroutes ordinary calls. Virgil does not read the call log and holds no Call Log permissions. This feature stays disabled until the user explicitly grants the Call Screening role in settings."*
-
 - **Foreground service (`specialUse`) — FGS declaration.** The manifest declares four `specialUse` services; declare each subtype and why no standard FGS type fits:
   > *"All four services run on-device for personal safety with no network use. We use `specialUse` because no standard foreground-service type matches: the work is sensor- and timer-driven safety monitoring, not media, data sync, location-sharing, or a phone call. (1) `on_device_fall_detection…` — continuous accelerometer monitoring; falls occur unpredictably and cannot be deferred. (2) `on_device_inactivity_check_in…` — exact-time inactivity check-in. (3) `on_device_emergency_siren…` — drives the alert siren. (4) `on_device_staged_emergency_countdown…` — the user-cancellable countdown before an alert fires. None use the network or leave the device."*
 
@@ -156,7 +153,6 @@ Virgil is a personal safety app — fall detection and inactivity check-in. It r
 Permission usage:
 • SEND_SMS (required): when an alert fires (fall, missed check-in, or manual alarm), the app sends an SMS from the user's own SIM to the emergency contacts the user added. Sole outbound channel; no INTERNET permission is declared.
 • CALL_PHONE (optional): if granted, the app additionally places a follow-up phone call to the primary contact via the system dialer for fall and missed-check-in alerts. The manual alarm intentionally does not call (the alarm's loud siren would render the call useless). The app does not call emergency services under any condition.
-• ANSWER_PHONE_CALLS + Call Screening role (optional, off by default): while an alert is armed, if a saved emergency contact calls back, Virgil silences the ring and answers hands-free so the user can speak without fighting the siren. All other calls pass through untouched; Virgil never blocks or reroutes ordinary calls and holds no Call Log permission.
 • ACCESS_FINE_LOCATION: GPS coordinates are read at the moment of the alert and attached to the SMS. No background location use; ACCESS_BACKGROUND_LOCATION is not declared.
 • Foreground service type "specialUse" (four services): on-device fall detection, inactivity check-in, emergency siren, and the staged pre-alert countdown. No standard FGS type fits sensor/timer-driven safety monitoring; none use the network.
 • USE_FULL_SCREEN_INTENT: shows the cancellable emergency countdown over the lock screen so the user can dismiss a false alarm.

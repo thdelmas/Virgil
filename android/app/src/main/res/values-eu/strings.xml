@@ -114,20 +114,9 @@
     <string name="settings_quiet_end">Amaiera</string>
     <string name="settings_quiet_save">Gorde orduak</string>
 
-    <string name="settings_auto_answer_title">Erantzun itzuli-deiei eskuak libre</string>
-    <string name="settings_auto_answer_desc">Alerta baten ondoren, zure kontaktuek sarri deitzen dizute. Aukerakoa — lehenespenez itzalita.</string>
-    <string name="settings_auto_answer_switch">Erantzun automatikoki larrialdi-kontaktuei</string>
-    <string name="settings_auto_answer_needs_contact">Gehitu lehenik larrialdi-kontaktu bat.</string>
-    <string name="settings_auto_answer_explainer">Alerta baten ondorengo 15 minutuetan, zure larrialdi-kontaktuetako batek deitzen badizu, Virgilek automatikoki hartuko du deia, sirena isilduko du, bozgorailua piztuko du eta bolumena igoko du — telefonoa ukitu gabe entzun eta hitz egin dezazun. Zenbaki ezezagunek normal jotzen dute. Nahi duzunean itzal dezakezu.</string>
-    <string name="settings_auto_answer_role_needed">Android baimena zain — eman dei-iragazkia behean.</string>
 
-    <string name="settings_tag_virgil_setting">VIRGILEN EZARPENA</string>
     <string name="settings_tag_android_permission">ANDROID BAIMENA</string>
 
-    <string name="perm_answer_title">Deiak zure ordez hartu</string>
-    <string name="perm_answer_rationale">Virgilek zure larrialdi-kontaktuaren itzuli-deia har dezan telefonoa ukitu gabe. Alerta batean soilik.</string>
-    <string name="perm_call_screening_title">Zure dei-iragazkia izan</string>
-    <string name="perm_call_screening_rationale">Virgilek zure kontaktuetako baten dei bat ezagutzen eta eskuak libre hartzen uzten du. Gainerako deiei ez die eragiten.</string>
 
     <string name="testing_title">Probak</string>
     <string name="testing_desc">Bidali proba-SMS bat zure larrialdi-kontaktu guztiei (proba gisa argi markatuta), mezua eta zure kokapena ondo iristen direla egiaztatzeko.</string>
