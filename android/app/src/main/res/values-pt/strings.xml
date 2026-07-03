@@ -16,6 +16,8 @@
     <string name="permission_channel_description">Avisa quando uma permissão necessária é removida</string>
     <string name="permission_lost_title">O Virgil precisa de uma permissão</string>
     <string name="permission_lost_body">As seguintes permissões foram revogadas: %1$s. O Virgil não pode avisar os seus contactos até que sejam repostas. Toque para rever.</string>
+    <string name="suspension_warning_title">O seu telemóvel colocou o Virgil em pausa</string>
+    <string name="suspension_warning_body">A poupança de bateria ou a pausa de aplicações impediu o Virgil de mostrar alertas e verificações durante algum tempo. Para manter a proteção ativa, exclua o Virgil da pausa de aplicações — por exemplo, marque-o como essencial nas definições da poupança de bateria extrema.</string>
     <string name="emergency_siren_title">Sirene de emergência ativa</string>
     <string name="emergency_siren_body">Toque para silenciar. Para automaticamente após 5 minutos.</string>
     <string name="emergency_siren_body_panic">Abra o Virgil para desligar. Requer desbloqueio. Para automaticamente após 5 minutos.</string>

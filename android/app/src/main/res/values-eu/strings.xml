@@ -16,6 +16,8 @@
     <string name="permission_channel_description">Beharrezkoa den baimen bat kenduta dagoenean abisatzen dizu</string>
     <string name="permission_lost_title">Virgilek baimen bat behar du</string>
     <string name="permission_lost_body">Baimen hauek kendu dira: %1$s. Virgilek ezin ditu zure kontaktuak ohartarazi leheneratu arte. Sakatu berrikusteko.</string>
+    <string name="suspension_warning_title">Zure telefonoak Virgil pausatu du</string>
+    <string name="suspension_warning_body">Bateria-aurrezleak edo aplikazioen pausatzeak Virgili alertak eta egiaztapenak erakustea eragotzi dio aldi batez. Babestuta jarraitzeko, kendu Virgil aplikazioen pausatzetik — adibidez, markatu ezinbesteko gisa muturreko bateria-aurrezlearen ezarpenetan.</string>
     <string name="emergency_siren_title">Larrialdi sirena aktibo</string>
     <string name="emergency_siren_body">Sakatu isiltzeko. 5 minuturen buruan automatikoki gelditzen da.</string>
     <string name="emergency_siren_body_panic">Ireki Virgil gelditzeko. Desblokeatzea behar da. 5 minuturen buruan automatikoki gelditzen da.</string>

@@ -16,6 +16,8 @@
     <string name="permission_channel_description">Vous avertit quand une autorisation nécessaire a été retirée</string>
     <string name="permission_lost_title">Virgil a besoin d\'une autorisation</string>
     <string name="permission_lost_body">Les autorisations suivantes ont été retirées : %1$s. Virgil ne peut pas alerter vos contacts tant qu\'elles ne sont pas rétablies. Appuyez pour corriger.</string>
+    <string name="suspension_warning_title">Virgil a été mis en pause par votre téléphone</string>
+    <string name="suspension_warning_body">L\'économiseur de batterie ou la mise en pause des applis a empêché Virgil d\'afficher les alertes et les vérifications pendant un moment. Pour rester protégé, excluez Virgil de la mise en pause — par exemple, marquez-le comme essentiel dans les réglages de l\'économiseur de batterie extrême.</string>
     <string name="emergency_siren_title">Sirène d\'urgence active</string>
     <string name="emergency_siren_body">Appuyez pour couper. S\'arrête automatiquement après 5 minutes.</string>
     <string name="emergency_siren_body_panic">Ouvrez Virgil pour couper. Déverrouillage requis. S\'arrête automatiquement après 5 minutes.</string>

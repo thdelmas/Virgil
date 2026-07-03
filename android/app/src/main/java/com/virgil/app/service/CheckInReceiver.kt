@@ -12,7 +12,9 @@ import com.virgil.app.R
 import com.virgil.app.VirgilApp
 import com.virgil.app.data.ActivityBaseline
 import com.virgil.app.data.EmergencyPreferences
+import com.virgil.app.data.FallCandidateTrace
 import com.virgil.app.data.InteractionTracker
+import com.virgil.app.permissions.SuspensionMonitor
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import java.util.Calendar
@@ -38,6 +40,15 @@ class CheckInReceiver : BroadcastReceiver() {
             return
         }
 
+        if (SuspensionMonitor.isSuspended(context)) {
+            // The OS is hiding our notifications (Extreme Battery Saver /
+            // app pausing): a prompt no one can see must not arm a countdown
+            // no one can disarm. Keep the chain alive and try next cycle.
+            FallCandidateTrace.append(context, "check-in prompt skipped: app suspended by the OS")
+            if (!force) restartService(context)
+            return
+        }
+
         // Show a *gentle* check-in: the notification channel carries a soft,
         // silent-/DND-respecting tone. The loud alarm-stream siren is reserved
         // for the no-response escalation below — a prompt should never blare.
@@ -52,7 +63,16 @@ class CheckInReceiver : BroadcastReceiver() {
                 InteractionTracker.lastCheckInDismissMs(context) >= shownAt
             val nm = context.getSystemService(NotificationManager::class.java)
             nm?.cancel(NOTIFICATION_ID)
-            if (!dismissedAfterShow) triggerEmergency(context)
+            val suspended = SuspensionMonitor.isSuspended(context)
+            if (CheckInDecision.shouldEscalate(dismissedAfterShow, suspended)) {
+                triggerEmergency(context)
+            } else if (suspended && !dismissedAfterShow) {
+                FallCandidateTrace.append(
+                    context,
+                    "check-in escalation skipped: app was suspended, prompt was never visible",
+                )
+                restartService(context)
+            }
         }, GRACE_PERIOD_MS)
     }
 

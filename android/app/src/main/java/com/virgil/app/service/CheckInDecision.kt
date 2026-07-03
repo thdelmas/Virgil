@@ -27,4 +27,15 @@ object CheckInDecision {
         if (!baselineReady) return true        // no baseline yet — keep the periodic net
         return anomalouslyQuiet                // only nag when this quiet is unusual for them
     }
+
+    /**
+     * Whether an unanswered prompt may escalate to the emergency countdown.
+     * If the app was suspended (Extreme Battery Saver "pauses" non-essential
+     * apps), the prompt and the countdown UI were both invisible — silence
+     * carries no signal, so escalating can only text the contacts by mistake.
+     */
+    fun shouldEscalate(
+        dismissedAfterShow: Boolean,
+        suspended: Boolean,
+    ): Boolean = !dismissedAfterShow && !suspended
 }

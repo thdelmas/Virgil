@@ -55,4 +55,21 @@ class CheckInDecisionTest {
     fun anomalousQuietPrompts() {
         assertTrue(decide(baselineReady = true, anomalouslyQuiet = true))
     }
+
+    @Test
+    fun unansweredPromptEscalates() {
+        assertTrue(CheckInDecision.shouldEscalate(dismissedAfterShow = false, suspended = false))
+    }
+
+    @Test
+    fun dismissedPromptNeverEscalates() {
+        assertFalse(CheckInDecision.shouldEscalate(dismissedAfterShow = true, suspended = false))
+    }
+
+    @Test
+    fun suspendedAppNeverEscalates() {
+        // The Pixel incident: Extreme Battery Saver hid the prompt and the
+        // countdown UI, so "no response" was guaranteed — and meaningless.
+        assertFalse(CheckInDecision.shouldEscalate(dismissedAfterShow = false, suspended = true))
+    }
 }

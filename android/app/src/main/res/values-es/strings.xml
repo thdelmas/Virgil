@@ -16,6 +16,8 @@
     <string name="permission_channel_description">Te avisa cuando se ha revocado un permiso necesario</string>
     <string name="permission_lost_title">Virgil necesita un permiso</string>
     <string name="permission_lost_body">Se han revocado los siguientes permisos: %1$s. Virgil no puede alertar a tus contactos hasta que se restauren. Toca para revisar.</string>
+    <string name="suspension_warning_title">Tu teléfono ha pausado Virgil</string>
+    <string name="suspension_warning_body">El ahorro de batería o la pausa de aplicaciones ha impedido que Virgil muestre alertas y comprobaciones durante un tiempo. Para seguir con la protección activa, excluye Virgil de la pausa de aplicaciones — por ejemplo, márcalo como esencial en los ajustes del ahorro de batería extremo.</string>
     <string name="emergency_siren_title">Sirena de emergencia activa</string>
     <string name="emergency_siren_body">Toca para silenciar. Se detiene automáticamente tras 5 minutos.</string>
     <string name="emergency_siren_body_panic">Abre Virgil para detener. Requiere desbloqueo. Se detiene automáticamente tras 5 minutos.</string>

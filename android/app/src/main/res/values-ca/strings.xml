@@ -16,6 +16,8 @@
     <string name="permission_channel_description">Et avisa quan s\'ha revocat un permís necessari</string>
     <string name="permission_lost_title">Virgil necessita un permís</string>
     <string name="permission_lost_body">S\'han revocat els permisos següents: %1$s. Virgil no pot avisar els teus contactes fins que no es restaurin. Toca per revisar.</string>
+    <string name="suspension_warning_title">El teu telèfon ha posat Virgil en pausa</string>
+    <string name="suspension_warning_body">L\'estalvi de bateria o la pausa d\'aplicacions ha impedit que Virgil mostri alertes i comprovacions durant una estona. Per mantenir la protecció activa, exclou Virgil de la pausa d\'aplicacions — per exemple, marca\'l com a essencial als ajustos de l\'estalvi de bateria extrem.</string>
     <string name="emergency_siren_title">Sirena d\'emergència activa</string>
     <string name="emergency_siren_body">Toca per silenciar. S\'atura automàticament després de 5 minuts.</string>
     <string name="emergency_siren_body_panic">Obre el Virgil per aturar-la. Cal desbloquejar. S\'atura automàticament després de 5 minuts.</string>

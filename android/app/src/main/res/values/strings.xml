@@ -29,6 +29,8 @@
     <string name="permission_channel_description">Warns you when a required permission has been revoked</string>
     <string name="permission_lost_title">Virgil needs a permission back</string>
     <string name="permission_lost_body">The following required permission(s) were revoked: %1$s. Virgil cannot alert your contacts until they are restored. Tap to review.</string>
+    <string name="suspension_warning_title">Virgil was paused by your phone</string>
+    <string name="suspension_warning_body">Battery saver or app pausing kept Virgil from showing alerts and check-ins for a while. To stay protected, exclude Virgil from app pausing — for example, mark it as essential in Extreme Battery Saver settings.</string>
     <string name="emergency_siren_title">Emergency siren active</string>
     <string name="emergency_siren_body">Tap to silence. Stops automatically after 5 minutes.</string>
     <string name="emergency_siren_body_panic">Open Virgil to silence. Unlock required. Stops automatically after 5 minutes.</string>

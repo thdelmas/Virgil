@@ -14,6 +14,8 @@ import android.os.IBinder
 import android.os.Looper
 import android.util.Log
 import com.virgil.app.data.EmergencyPreferences
+import com.virgil.app.data.FallCandidateTrace
+import com.virgil.app.permissions.SuspensionMonitor
 import com.virgil.app.ui.emergency.EmergencyCountdownActivity
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -166,6 +168,12 @@ class EmergencyAlarmService : Service() {
         isActive = true
         FallDetectionService.alarmInFlight = true
 
+        if (SuspensionMonitor.isSuspended(this)) {
+            FallCandidateTrace.append(
+                this,
+                "alarm started while app suspended by the OS — countdown UI and notifications are hidden",
+            )
+        }
         startForegroundInternal()
         emitState()
         AttentionSound.raiseAlarmVolumePublic(this)
