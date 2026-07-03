@@ -23,6 +23,7 @@ import com.virgil.app.BuildConfig
 import com.virgil.app.R
 import com.virgil.app.VirgilApp
 import com.virgil.app.analysis.FallDetectionAlgorithm
+import com.virgil.app.analysis.GravityEstimator
 import com.virgil.app.permissions.PermissionMonitor
 import com.virgil.app.ui.MainActivity
 import kotlin.math.sqrt
@@ -36,6 +37,8 @@ class FallDetectionService : Service(), SensorEventListener {
     private lateinit var sensorManager: SensorManager
     private var accelerometer: Sensor? = null
     private var gyroscope: Sensor? = null
+    private var gravitySensor: Sensor? = null
+    private val gravityEstimator = GravityEstimator()
     private lateinit var algorithm: FallDetectionAlgorithm
     private var isListening = false
     private var wakeLock: PowerManager.WakeLock? = null
@@ -91,8 +94,12 @@ class FallDetectionService : Service(), SensorEventListener {
             ?: sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
         gyroscope = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE, true)
             ?: sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE)
+        gravitySensor = sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY)
         if (gyroscope == null) {
             android.util.Log.i(TAG, "no gyroscope on this device — strict accel-only thresholds")
+        }
+        if (gravitySensor == null) {
+            android.util.Log.i(TAG, "no gravity sensor — estimating gravity from the accelerometer")
         }
         algorithm = FallDetectionAlgorithm(hasGyroscope = gyroscope != null) { msg ->
             android.util.Log.i(TAG, msg)
@@ -216,6 +223,10 @@ class FallDetectionService : Service(), SensorEventListener {
 
         when (event.sensor.type) {
             Sensor.TYPE_ACCELEROMETER -> {
+                if (gravitySensor == null) {
+                    gravityEstimator.process(x, y, z)
+                    algorithm.processGravity(gravityEstimator.x, gravityEstimator.y, gravityEstimator.z)
+                }
                 if (algorithm.processSample(magnitude, now)) onFallDetected()
                 tickVerify(magnitude)
             }
@@ -265,7 +276,7 @@ class FallDetectionService : Service(), SensorEventListener {
         val sensor = accelerometer ?: return
         sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_GAME)
         gyroscope?.let { sensorManager.registerListener(this, it, SensorManager.SENSOR_DELAY_GAME) }
-        sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY)?.let { sensorManager.registerListener(this, it, SensorManager.SENSOR_DELAY_NORMAL) }
+        gravitySensor?.let { sensorManager.registerListener(this, it, SensorManager.SENSOR_DELAY_NORMAL) }
         isListening = true
         // Only hold a wake lock when the hardware doesn't have a wake-up
         // accelerometer — otherwise the sensor hub delivers events through
