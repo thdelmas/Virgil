@@ -398,6 +398,39 @@ class FallDetectionAlgorithmTest {
     }
 
     @Test
+    fun `clipped 4g sensor still detects a railed impact from rest`() {
+        // Galaxy A06 regression: SC7A20 rails at ~39.2 m/s² (±4g), so the 5g
+        // rest threshold was unreachable and detection silently died. A railed
+        // reading is this hardware's hardest expressible impact — it counts.
+        val clipped = FallDetectionAlgorithm(hasGyroscope = false, sensorMaxRange = 39.2f)
+        var time = 1000L
+        repeat(100) {
+            assertFalse(clipped.processSample(9.8f, time))
+            time += 20
+        }
+        assertFalse(clipped.processSample(39.2f, time))
+        val impactTime = time
+        time = impactTime + FallDetectionAlgorithm.STILLNESS_DELAY_MS + 100
+        assertTrue(clipped.processSample(9.8f, time))
+    }
+
+    @Test
+    fun `clipped 4g sensor still rejects the handbag bump`() {
+        // The clamped threshold (~35.3) must stay above a 3g bag set-down.
+        val clipped = FallDetectionAlgorithm(hasGyroscope = false, sensorMaxRange = 39.2f)
+        var time = 1000L
+        repeat(75) { i ->
+            val mag = if (i % 5 == 0) 14.7f else 9.0f
+            assertFalse(clipped.processSample(mag, time))
+            time += 20
+        }
+        assertFalse(clipped.processSample(30.0f, time))
+        val impactTime = time
+        time = impactTime + FallDetectionAlgorithm.STILLNESS_DELAY_MS + 100
+        assertFalse(clipped.processSample(9.8f, time))
+    }
+
+    @Test
     fun `normal walking does not trigger`() {
         var time = 1000L
         repeat(500) { i ->

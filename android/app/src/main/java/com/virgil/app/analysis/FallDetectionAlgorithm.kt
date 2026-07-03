@@ -26,11 +26,22 @@ import kotlin.math.abs
  * Otherwise a phone loose in a handbag — swinging (sustained "motion"), then
  * bumped or set down (>3g), then resting (stillness) — reads exactly like a
  * mid-walk fall.
+ *
+ * Impact thresholds are clamped to [sensorMaxRange]: a ±4g accelerometer
+ * (Galaxy A06) rails at ~39.2 m/s², so a 5g threshold would be unreachable
+ * and silently disable detection. A railed reading near the sensor's ceiling
+ * is "as hard as this hardware can express" and must count.
  */
 class FallDetectionAlgorithm(
     private val hasGyroscope: Boolean = true,
+    sensorMaxRange: Float = Float.MAX_VALUE,
     private val logger: (String) -> Unit = {},
 ) {
+
+    private val restImpactThreshold =
+        minOf(REST_IMPACT_THRESHOLD, sensorMaxRange * RANGE_HEADROOM)
+    private val largeImpactThreshold =
+        minOf(LARGE_IMPACT_THRESHOLD, sensorMaxRange * RANGE_HEADROOM)
 
     var freefallDetectedAt: Long = 0
         private set
@@ -103,8 +114,8 @@ class FallDetectionAlgorithm(
                     logger("freefall rejected (shallow/brief) min=$minFreefallMag dur=${freefallDuration}ms peak=$magnitude")
                 }
             }
-            val largeImpactThreshold = if (hadSustainedMotion && hasGyroscope) LARGE_IMPACT_THRESHOLD else REST_IMPACT_THRESHOLD
-            if (magnitude > largeImpactThreshold) {
+            val impactThreshold = if (hadSustainedMotion && hasGyroscope) largeImpactThreshold else restImpactThreshold
+            if (magnitude > impactThreshold) {
                 if (rotationOk) {
                     impactDetectedAt = timestamp
                     lastPeakAccel = magnitude
@@ -114,7 +125,7 @@ class FallDetectionAlgorithm(
                 }
                 logger("large impact suppressed (no rotation) peak=$magnitude sustainedMotion=$hadSustainedMotion")
             } else if (magnitude > IMPACT_THRESHOLD) {
-                logger("impact candidate below threshold peak=$magnitude thresh=$largeImpactThreshold sustainedMotion=$hadSustainedMotion rotationOk=$rotationOk")
+                logger("impact candidate below threshold peak=$magnitude thresh=$impactThreshold sustainedMotion=$hadSustainedMotion rotationOk=$rotationOk")
             }
         }
 
@@ -235,6 +246,7 @@ class FallDetectionAlgorithm(
         const val STILLNESS_HIGH = 12.25f          // ~1.25g
         const val SUSTAINED_MOTION_MS = 1000L      // motion must last ≥1s to qualify
         const val MOTION_GAP_MS = 500L             // stillness longer than this ends a motion streak
+        const val RANGE_HEADROOM = 0.9f            // ≥90% of a sensor's rail counts as its hardest expressible impact
         const val ROTATION_THRESHOLD = 4.0f        // rad/s (~229°/s) — above normal necklace swing
         const val ROTATION_WINDOW_MS = 500L        // rotation must occur within 500ms of impact
         const val FLAT_PRE_Z_THRESHOLD = 5.0f      // pre-impact: |gz| > 0.5g → phone was flat-ish

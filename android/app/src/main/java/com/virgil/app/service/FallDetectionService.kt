@@ -102,9 +102,13 @@ class FallDetectionService : Service(), SensorEventListener {
         if (gravitySensor == null) {
             android.util.Log.i(TAG, "no gravity sensor — estimating gravity from the accelerometer")
         }
+        android.util.Log.i(TAG, "accelerometer range=${accelerometer?.maximumRange} m/s^2")
         // "freefall entered" fires on every bag swing or pocket jiggle —
         // logcat-only. Everything else is a decision worth keeping.
-        algorithm = FallDetectionAlgorithm(hasGyroscope = gyroscope != null) { msg ->
+        algorithm = FallDetectionAlgorithm(
+            hasGyroscope = gyroscope != null,
+            sensorMaxRange = accelerometer?.maximumRange ?: Float.MAX_VALUE,
+        ) { msg ->
             if (msg.startsWith("freefall entered")) android.util.Log.i(TAG, msg) else trace(msg)
         }
         registerReceiver(
