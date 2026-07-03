@@ -47,6 +47,7 @@ import androidx.compose.ui.unit.sp
 import com.virgil.app.BuildConfig
 import com.virgil.app.R
 import com.virgil.app.data.AppLocale
+import com.virgil.app.data.FallCandidateTrace
 import com.virgil.app.data.FalseAlarmLog
 import com.virgil.app.data.FalseAlarmSnapshot
 import com.virgil.app.service.FalseAlarmReportPrompt
@@ -86,17 +87,23 @@ class ReportActivity : ComponentActivity() {
         }.getOrElse { Type.FALSE_ALARM }
 
         val snapshot = if (type == Type.FALSE_ALARM) FalseAlarmLog.read(this) else null
+        val trace = if (type == Type.FALSE_ALARM) {
+            FallCandidateTrace.readTail(this, TRACE_LINES_IN_REPORT)
+        } else {
+            null
+        }
 
         setContent {
             VirgilTheme {
                 ReportScreen(
                     type = type,
                     snapshot = snapshot,
+                    trace = trace,
                     onSend = { description, when_, includeDiagnostics ->
-                        launchMail(type, description, when_, includeDiagnostics, snapshot)
+                        launchMail(type, description, when_, includeDiagnostics, snapshot, trace)
                     },
                     onCopy = { description, when_, includeDiagnostics ->
-                        copyReport(type, description, when_, includeDiagnostics, snapshot)
+                        copyReport(type, description, when_, includeDiagnostics, snapshot, trace)
                     },
                     onDiscard = {
                         if (type == Type.FALSE_ALARM) FalseAlarmLog.clear(this)
@@ -113,10 +120,11 @@ class ReportActivity : ComponentActivity() {
         whenLabel: String?,
         includeDiagnostics: Boolean,
         snapshot: FalseAlarmSnapshot?,
+        trace: String?,
     ) {
         val recipient = getString(R.string.report_email_recipient)
         val subject = getString(subjectRes(type))
-        val body = buildReportBody(this, type, description, whenLabel, includeDiagnostics, snapshot)
+        val body = buildReportBody(this, type, description, whenLabel, includeDiagnostics, snapshot, trace)
         // Encode subject + body into the mailto URI query. Some mail apps
         // (Gmail, most notably) ignore EXTRA_SUBJECT / EXTRA_TEXT and only
         // parse the URI; embedding the fields directly guarantees the
@@ -147,10 +155,11 @@ class ReportActivity : ComponentActivity() {
         whenLabel: String?,
         includeDiagnostics: Boolean,
         snapshot: FalseAlarmSnapshot?,
+        trace: String?,
     ) {
         val recipient = getString(R.string.report_email_recipient)
         val subject = getString(subjectRes(type))
-        val body = buildReportBody(this, type, description, whenLabel, includeDiagnostics, snapshot)
+        val body = buildReportBody(this, type, description, whenLabel, includeDiagnostics, snapshot, trace)
         // Prepend subject + recipient so the user can paste the whole
         // thing into any chat, note, or webmail compose window without
         // losing context about where it's meant to go.
@@ -167,6 +176,7 @@ class ReportActivity : ComponentActivity() {
 
     companion object {
         const val EXTRA_TYPE = "report_type"
+        const val TRACE_LINES_IN_REPORT = 30
 
         fun intent(context: Context, type: Type): Intent =
             Intent(context, ReportActivity::class.java)
@@ -205,6 +215,7 @@ internal fun buildReportBody(
     whenLabel: String?,
     includeDiagnostics: Boolean,
     snapshot: FalseAlarmSnapshot?,
+    trace: String? = null,
 ): String = buildString {
     append(context.getString(prefixRes(type)))
     append("\n\n")
@@ -220,6 +231,11 @@ internal fun buildReportBody(
         append(context.getString(R.string.report_email_diagnostics_header))
         append("\n")
         append(snapshot?.toReportText() ?: deviceOnlyDiagnostics())
+        if (!trace.isNullOrBlank()) {
+            append("\n")
+            append(trace)
+            append("\n")
+        }
     }
 }
 
@@ -228,6 +244,7 @@ internal fun buildReportBody(
 private fun ReportScreen(
     type: ReportActivity.Type,
     snapshot: FalseAlarmSnapshot?,
+    trace: String?,
     onSend: (description: String, whenLabel: String?, includeDiagnostics: Boolean) -> Unit,
     onCopy: (description: String, whenLabel: String?, includeDiagnostics: Boolean) -> Unit,
     onDiscard: () -> Unit,
@@ -314,7 +331,7 @@ private fun ReportScreen(
                 expanded = previewExpanded,
                 onToggle = { previewExpanded = !previewExpanded },
                 body = buildReportBody(
-                    context, type, description, whenLabel, includeDiagnostics, snapshot,
+                    context, type, description, whenLabel, includeDiagnostics, snapshot, trace,
                 ),
             )
 

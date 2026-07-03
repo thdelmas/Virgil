@@ -24,6 +24,7 @@ import com.virgil.app.R
 import com.virgil.app.VirgilApp
 import com.virgil.app.analysis.FallDetectionAlgorithm
 import com.virgil.app.analysis.GravityEstimator
+import com.virgil.app.data.FallCandidateTrace
 import com.virgil.app.permissions.PermissionMonitor
 import com.virgil.app.ui.MainActivity
 import kotlin.math.sqrt
@@ -101,8 +102,10 @@ class FallDetectionService : Service(), SensorEventListener {
         if (gravitySensor == null) {
             android.util.Log.i(TAG, "no gravity sensor — estimating gravity from the accelerometer")
         }
+        // "freefall entered" fires on every bag swing or pocket jiggle —
+        // logcat-only. Everything else is a decision worth keeping.
         algorithm = FallDetectionAlgorithm(hasGyroscope = gyroscope != null) { msg ->
-            android.util.Log.i(TAG, msg)
+            if (msg.startsWith("freefall entered")) android.util.Log.i(TAG, msg) else trace(msg)
         }
         registerReceiver(
             screenReceiver,
@@ -253,10 +256,15 @@ class FallDetectionService : Service(), SensorEventListener {
             is FallVerifyController.Decision.Escalate -> {
                 val peak = decision.peak
                 cancelVerify("handed off to countdown", isUserDisarm = false)
-                android.util.Log.i(TAG, "fall verify timeout — escalating peak=$peak")
+                trace("fall verify timeout — escalating peak=$peak")
                 EmergencyLauncher.launch(this, triggerType = "fall", peakAccel = peak)
             }
         }
+    }
+
+    private fun trace(msg: String) {
+        android.util.Log.i(TAG, msg)
+        FallCandidateTrace.append(this, msg)
     }
 
     private fun cancelVerify(reason: String, isUserDisarm: Boolean = true) {
@@ -264,7 +272,7 @@ class FallDetectionService : Service(), SensorEventListener {
         val leaveTrace = verify.hapticPhaseEntered && isUserDisarm
         verify.stop()
         dismissVerifyHeadsUp(this)
-        android.util.Log.i(TAG, "fall verify canceled: $reason")
+        trace("fall verify canceled: $reason")
         if (leaveTrace) postVerifyTrace(this)
         if (!alarmInFlight) setNotifState(NotifState.MONITORING)
     }
@@ -341,12 +349,12 @@ class FallDetectionService : Service(), SensorEventListener {
         // is in the user's hand, they're fine". Debug builds must still run
         // the verify → alarm flow so falls can be tested with the screen up.
         if (!BuildConfig.DEBUG && pm?.isInteractive == true) {
-            android.util.Log.i(TAG, "fall ignored: screen interactive (phone in use)")
+            trace("fall ignored: screen interactive (phone in use)")
             return
         }
         verify.start(SystemClock.elapsedRealtime(), algorithm.lastPeakAccel)
         setNotifState(NotifState.VERIFYING)
-        android.util.Log.i(TAG, "fall candidate — ${FallVerifyController.VERIFY_SILENT_MS}ms silent then ${FallVerifyController.VERIFY_HAPTIC_MS}ms haptic peak=${verify.peakAccel}")
+        trace("fall candidate — ${FallVerifyController.VERIFY_SILENT_MS}ms silent then ${FallVerifyController.VERIFY_HAPTIC_MS}ms haptic peak=${verify.peakAccel}")
     }
 
     private fun setNotifState(next: NotifState) {
