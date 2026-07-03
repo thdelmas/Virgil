@@ -36,9 +36,7 @@ class FallDetectionService : Service(), SensorEventListener {
     private lateinit var sensorManager: SensorManager
     private var accelerometer: Sensor? = null
     private var gyroscope: Sensor? = null
-    private val algorithm = FallDetectionAlgorithm { msg ->
-        android.util.Log.i(TAG, msg)
-    }
+    private lateinit var algorithm: FallDetectionAlgorithm
     private var isListening = false
     private var wakeLock: PowerManager.WakeLock? = null
     private lateinit var heartbeat: ServiceHeartbeat
@@ -93,6 +91,12 @@ class FallDetectionService : Service(), SensorEventListener {
             ?: sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
         gyroscope = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE, true)
             ?: sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE)
+        if (gyroscope == null) {
+            android.util.Log.i(TAG, "no gyroscope on this device — strict accel-only thresholds")
+        }
+        algorithm = FallDetectionAlgorithm(hasGyroscope = gyroscope != null) { msg ->
+            android.util.Log.i(TAG, msg)
+        }
         registerReceiver(
             screenReceiver,
             IntentFilter(Intent.ACTION_SCREEN_ON),

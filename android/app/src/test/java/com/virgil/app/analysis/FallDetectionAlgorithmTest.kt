@@ -318,6 +318,86 @@ class FallDetectionAlgorithmTest {
     }
 
     @Test
+    fun `without gyro a handbag bump at 3g during motion does not trigger`() {
+        // Regression from the Galaxy A06 false alarms: no gyroscope, phone
+        // loose in a swinging handbag. The swing counts as sustained motion,
+        // then the bag is set down (~3g) and rests still.
+        val noGyro = FallDetectionAlgorithm(hasGyroscope = false)
+        var time = 1000L
+        repeat(75) { i ->
+            val mag = if (i % 5 == 0) 14.7f else 9.0f
+            assertFalse(noGyro.processSample(mag, time))
+            time += 20
+        }
+        assertFalse(noGyro.processSample(30.0f, time))
+        val impactTime = time
+        time = impactTime + FallDetectionAlgorithm.STILLNESS_DELAY_MS + 100
+        assertFalse(noGyro.processSample(9.8f, time))
+    }
+
+    @Test
+    fun `without gyro a brief shallow freefall with bag-drop impact does not trigger`() {
+        // Bag swing dips to ~0.6g across 60ms — genuine on gyro devices per
+        // the sustained-shallow test above — then a 4g bump. Without the
+        // rotation gate this must not count via the freefall path, nor via
+        // the raised large-impact path.
+        val noGyro = FallDetectionAlgorithm(hasGyroscope = false)
+        var time = 1000L
+        repeat(3) {
+            assertFalse(noGyro.processSample(5.88f, time))
+            time += 30
+        }
+        time += 50
+        assertFalse(noGyro.processSample(39.2f, time))
+        val impactTime = time
+        time = impactTime + FallDetectionAlgorithm.STILLNESS_DELAY_MS + 100
+        assertFalse(noGyro.processSample(9.8f, time))
+    }
+
+    @Test
+    fun `without gyro a deep freefall fall still triggers`() {
+        val noGyro = FallDetectionAlgorithm(hasGyroscope = false)
+        var time = 1000L
+        assertFalse(noGyro.processSample(3.0f, time))
+        time += 100
+        assertFalse(noGyro.processSample(39.2f, time))
+        val impactTime = time
+        time = impactTime + FallDetectionAlgorithm.STILLNESS_DELAY_MS + 100
+        assertTrue(noGyro.processSample(9.8f, time))
+    }
+
+    @Test
+    fun `without gyro a long shallow freefall still counts as genuine`() {
+        // Braced/slow fall: ~0.6g sustained for 160ms — past the stricter
+        // no-gyro duration bar.
+        val noGyro = FallDetectionAlgorithm(hasGyroscope = false)
+        var time = 1000L
+        repeat(5) {
+            assertFalse(noGyro.processSample(5.88f, time))
+            time += 40
+        }
+        time += 40
+        assertFalse(noGyro.processSample(25.0f, time))
+        val impactTime = time
+        time = impactTime + FallDetectionAlgorithm.STILLNESS_DELAY_MS + 100
+        assertTrue(noGyro.processSample(9.8f, time))
+    }
+
+    @Test
+    fun `without gyro a 5g fall from rest still triggers`() {
+        val noGyro = FallDetectionAlgorithm(hasGyroscope = false)
+        var time = 1000L
+        repeat(100) {
+            assertFalse(noGyro.processSample(9.8f, time))
+            time += 20
+        }
+        assertFalse(noGyro.processSample(50.0f, time))
+        val impactTime = time
+        time = impactTime + FallDetectionAlgorithm.STILLNESS_DELAY_MS + 100
+        assertTrue(noGyro.processSample(9.8f, time))
+    }
+
+    @Test
     fun `normal walking does not trigger`() {
         var time = 1000L
         repeat(500) { i ->

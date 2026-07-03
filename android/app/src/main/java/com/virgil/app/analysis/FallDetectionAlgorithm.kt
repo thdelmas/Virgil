@@ -18,8 +18,17 @@ import kotlin.math.abs
  * When a gravity sensor is available, candidates are also rejected if the
  * orientation went from flat-ish (phone in hand) to vertical (phone in
  * pocket): that is the pocket-insertion gesture, not a fall.
+ *
+ * On hardware without a gyroscope ([hasGyroscope] = false) the rotation gate
+ * cannot run, so the impact paths it was tuned for tighten instead: impacts
+ * without free-fall always need the rest threshold (~5g), and shallow
+ * free-fall must last [NO_GYRO_MIN_FREEFALL_DURATION_MS] to count as genuine.
+ * Otherwise a phone loose in a handbag — swinging (sustained "motion"), then
+ * bumped or set down (>3g), then resting (stillness) — reads exactly like a
+ * mid-walk fall.
  */
 class FallDetectionAlgorithm(
+    private val hasGyroscope: Boolean = true,
     private val logger: (String) -> Unit = {},
 ) {
 
@@ -78,7 +87,8 @@ class FallDetectionAlgorithm(
             val recentFreefall = timeSinceFreefall in 1..IMPACT_WINDOW_MS
             if (recentFreefall && magnitude > IMPACT_THRESHOLD) {
                 val freefallDuration = freefallDetectedAt - freefallStartedAt
-                val genuineFreefall = freefallDuration >= MIN_FREEFALL_DURATION_MS ||
+                val minDuration = if (hasGyroscope) MIN_FREEFALL_DURATION_MS else NO_GYRO_MIN_FREEFALL_DURATION_MS
+                val genuineFreefall = freefallDuration >= minDuration ||
                     minFreefallMag < DEEP_FREEFALL_THRESHOLD
                 if (genuineFreefall && rotationOk) {
                     impactDetectedAt = timestamp
@@ -93,7 +103,7 @@ class FallDetectionAlgorithm(
                     logger("freefall rejected (shallow/brief) min=$minFreefallMag dur=${freefallDuration}ms peak=$magnitude")
                 }
             }
-            val largeImpactThreshold = if (hadSustainedMotion) LARGE_IMPACT_THRESHOLD else REST_IMPACT_THRESHOLD
+            val largeImpactThreshold = if (hadSustainedMotion && hasGyroscope) LARGE_IMPACT_THRESHOLD else REST_IMPACT_THRESHOLD
             if (magnitude > largeImpactThreshold) {
                 if (rotationOk) {
                     impactDetectedAt = timestamp
@@ -214,6 +224,7 @@ class FallDetectionAlgorithm(
         const val FREEFALL_THRESHOLD = 6.86f       // ~0.7g — shallow dip still enters free-fall state
         const val DEEP_FREEFALL_THRESHOLD = 3.92f  // ~0.4g — a single deep sample qualifies as genuine
         const val MIN_FREEFALL_DURATION_MS = 40L   // or sustained ≥2 samples at ~50Hz
+        const val NO_GYRO_MIN_FREEFALL_DURATION_MS = 120L // shallow dips must persist without a rotation gate
         const val IMPACT_THRESHOLD = 22.5f         // ~2.3g — with prior free-fall
         const val LARGE_IMPACT_THRESHOLD = 29.4f   // ~3g — requires sustained prior motion
         const val REST_IMPACT_THRESHOLD = 49.0f    // ~5g — fall from rest (chair, bed)
