@@ -18,9 +18,6 @@ import android.os.IBinder
 import android.os.Looper
 import android.os.PowerManager
 import android.os.SystemClock
-import android.os.VibrationEffect
-import android.os.Vibrator
-import android.os.VibratorManager
 import androidx.core.app.NotificationCompat
 import com.virgil.app.BuildConfig
 import com.virgil.app.R
@@ -232,10 +229,10 @@ class FallDetectionService : Service(), SensorEventListener {
             FallVerifyController.Decision.None -> Unit
             FallVerifyController.Decision.EnterHaptic -> {
                 android.util.Log.i(TAG, "fall verify entering haptic phase")
-                postVerifyHeadsUp()
-                buzz()
+                postVerifyHeadsUp(this)
+                verifyBuzz(this)
             }
-            FallVerifyController.Decision.Buzz -> buzz()
+            FallVerifyController.Decision.Buzz -> verifyBuzz(this)
             is FallVerifyController.Decision.Cancel ->
                 cancelVerify(decision.reason)
             is FallVerifyController.Decision.Escalate -> {
@@ -251,64 +248,10 @@ class FallDetectionService : Service(), SensorEventListener {
         if (!verify.isVerifying) return
         val leaveTrace = verify.hapticPhaseEntered && isUserDisarm
         verify.stop()
-        dismissVerifyHeadsUp()
+        dismissVerifyHeadsUp(this)
         android.util.Log.i(TAG, "fall verify canceled: $reason")
-        if (leaveTrace) postVerifyTrace()
+        if (leaveTrace) postVerifyTrace(this)
         if (!alarmInFlight) setNotifState(NotifState.MONITORING)
-    }
-
-    private fun postVerifyHeadsUp() {
-        val cancelIntent = PendingIntent.getService(
-            this, 2,
-            Intent(this, FallDetectionService::class.java).apply { action = ACTION_CANCEL_VERIFY },
-            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
-        )
-        val notif = NotificationCompat.Builder(this, VirgilApp.CHANNEL_VERIFY)
-            .setContentTitle(getString(R.string.verify_notif_title))
-            .setContentText(getString(R.string.verify_notif_body))
-            .setSmallIcon(android.R.drawable.ic_dialog_info)
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
-            .setCategory(NotificationCompat.CATEGORY_ALARM)
-            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-            .setContentIntent(cancelIntent)
-            .setAutoCancel(true)
-            .setOngoing(true)
-            .build()
-        getSystemService(android.app.NotificationManager::class.java)
-            ?.notify(VERIFY_NOTIFICATION_ID, notif)
-    }
-
-    private fun dismissVerifyHeadsUp() {
-        getSystemService(android.app.NotificationManager::class.java)
-            ?.cancel(VERIFY_NOTIFICATION_ID)
-    }
-
-    private fun postVerifyTrace() {
-        val openApp = PendingIntent.getActivity(
-            this, 3,
-            Intent(this, MainActivity::class.java),
-            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
-        )
-        val notif = NotificationCompat.Builder(this, VirgilApp.CHANNEL_FALL_DETECTION)
-            .setContentTitle(getString(R.string.verify_trace_title))
-            .setContentText(getString(R.string.verify_trace_body))
-            .setSmallIcon(android.R.drawable.ic_dialog_info)
-            .setPriority(NotificationCompat.PRIORITY_LOW)
-            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-            .setContentIntent(openApp)
-            .setAutoCancel(true)
-            .build()
-        getSystemService(android.app.NotificationManager::class.java)
-            ?.notify(VERIFY_TRACE_NOTIFICATION_ID, notif)
-    }
-
-    private fun buzz() {
-        val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            getSystemService(VibratorManager::class.java)?.defaultVibrator
-        } else {
-            @Suppress("DEPRECATION") getSystemService(Vibrator::class.java)
-        } ?: return
-        vibrator.vibrate(VibrationEffect.createWaveform(BUZZ_PATTERN, -1))
     }
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
@@ -493,6 +436,5 @@ class FallDetectionService : Service(), SensorEventListener {
         const val EXTRA_DEBUG_DELAYS = "debug_delays"
         const val EXTRA_DEBUG_LABEL = "debug_label"
         private const val TAG = "FallDetectionService"
-        private val BUZZ_PATTERN = longArrayOf(0, 250, 120, 250, 120, 400)
     }
 }
