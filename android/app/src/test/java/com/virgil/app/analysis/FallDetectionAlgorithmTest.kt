@@ -355,15 +355,39 @@ class FallDetectionAlgorithmTest {
     }
 
     @Test
-    fun `without gyro a deep freefall fall still triggers`() {
+    fun `without gyro a sustained deep freefall fall still triggers`() {
         val noGyro = FallDetectionAlgorithm(hasGyroscope = false)
         var time = 1000L
-        assertFalse(noGyro.processSample(3.0f, time))
-        time += 100
+        // Body falling from standing: ~160ms of deep reduced-g.
+        repeat(5) {
+            assertFalse(noGyro.processSample(3.0f, time))
+            time += 40
+        }
+        time += 60
         assertFalse(noGyro.processSample(39.2f, time))
         val impactTime = time
         time = impactTime + FallDetectionAlgorithm.STILLNESS_DELAY_MS + 100
         assertTrue(noGyro.processSample(9.8f, time))
+    }
+
+    @Test
+    fun `without gyro a couch plop with brief deep dip does not trigger`() {
+        // Regression from the 2026-07-04 false alarm (real device trace):
+        // sitting down on a couch, phone in pocket — freefall min=2.23 m/s²
+        // but only 87ms long, impact 22.97 (2% over the bar), then stillness.
+        // Depth alone must not qualify free-fall on gyro-less hardware.
+        val noGyro = FallDetectionAlgorithm(hasGyroscope = false)
+        var time = 1000L
+        repeat(50) {
+            assertFalse(noGyro.processSample(9.8f, time))
+            time += 20
+        }
+        assertFalse(noGyro.processSample(4.5f, time)); time += 40
+        assertFalse(noGyro.processSample(2.23f, time)); time += 47
+        assertFalse(noGyro.processSample(22.97f, time))
+        val impactTime = time
+        time = impactTime + FallDetectionAlgorithm.STILLNESS_DELAY_MS + 100
+        assertFalse(noGyro.processSample(9.8f, time))
     }
 
     @Test

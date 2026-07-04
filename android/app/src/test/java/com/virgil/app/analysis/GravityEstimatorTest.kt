@@ -53,8 +53,9 @@ class GravityEstimatorTest {
             assertFalse(feed(0f, 1.0f, 9.7f, 9.8f))
             time += 20
         }
-        // Downward jab: deep freefall (genuine even on the strict profile).
-        repeat(3) {
+        // Downward jab: sustained deep freefall (genuine on the strict
+        // profile, which requires ≥120ms without a gyro).
+        repeat(8) {
             assertFalse(feed(0f, 0.5f, 1.0f, 1.2f))
             time += 20
         }

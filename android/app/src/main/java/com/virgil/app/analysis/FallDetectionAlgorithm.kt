@@ -21,11 +21,11 @@ import kotlin.math.abs
  *
  * On hardware without a gyroscope ([hasGyroscope] = false) the rotation gate
  * cannot run, so the impact paths it was tuned for tighten instead: impacts
- * without free-fall always need the rest threshold (~5g), and shallow
- * free-fall must last [NO_GYRO_MIN_FREEFALL_DURATION_MS] to count as genuine.
- * Otherwise a phone loose in a handbag — swinging (sustained "motion"), then
- * bumped or set down (>3g), then resting (stillness) — reads exactly like a
- * mid-walk fall.
+ * without free-fall always need the rest threshold (~5g), and free-fall must
+ * last [NO_GYRO_MIN_FREEFALL_DURATION_MS] to count as genuine — depth alone
+ * doesn't qualify. Otherwise a phone loose in a handbag (swing, bump, rest)
+ * or in the pocket of someone plopping onto a couch (brief deep dip, soft
+ * impact, stillness) reads exactly like a fall.
  *
  * Impact thresholds are clamped to [sensorMaxRange]: a ±4g accelerometer
  * (Galaxy A06) rails at ~39.2 m/s², so a 5g threshold would be unreachable
@@ -99,8 +99,12 @@ class FallDetectionAlgorithm(
             if (recentFreefall && magnitude > IMPACT_THRESHOLD) {
                 val freefallDuration = freefallDetectedAt - freefallStartedAt
                 val minDuration = if (hasGyroscope) MIN_FREEFALL_DURATION_MS else NO_GYRO_MIN_FREEFALL_DURATION_MS
-                val genuineFreefall = freefallDuration >= minDuration ||
-                    minFreefallMag < DEEP_FREEFALL_THRESHOLD
+                // Without a gyro the depth shortcut must not stand alone: a
+                // couch plop dips below 0.4g for a single sample (~85ms) and
+                // lands just over the impact bar — only sustained reduced-g
+                // separates it from a body falling from standing (250ms+).
+                val deepQualifies = hasGyroscope && minFreefallMag < DEEP_FREEFALL_THRESHOLD
+                val genuineFreefall = freefallDuration >= minDuration || deepQualifies
                 if (genuineFreefall && rotationOk) {
                     impactDetectedAt = timestamp
                     lastPeakAccel = magnitude
