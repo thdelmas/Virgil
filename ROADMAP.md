@@ -211,7 +211,7 @@ nothing here blocks the Play Store target.
   - **Bios side: shipped.** The three `MetricType.SAFETY` keys, the
     URI whitelist for `com.virgil.app`, and four event-driven
     `ConditionPattern`s consuming them all landed in
-    [Bios Phase 7.1 / 7.2 / 7.3](../Bios/docs/ROADMAP.md). The schema
+    [Bios Phase 7.1 / 7.2 / 7.3](https://github.com/thdelmas/Bios/blob/main/docs/ROADMAP.md). The schema
     is ready; the open work is entirely Virgil-side (keystore decision,
     `BiosClient` writer mirroring the Smokeless pattern, settings
     opt-out, end-to-end verify on a real device with Bios installed).

@@ -7,7 +7,7 @@ work, and the family does not need Virgil. This doc exists to keep that
 boundary honest as the suite grows.
 
 For the suite-wide rule, see Bios's
-[`docs/ECOSYSTEM_BOUNDARIES.md`](../../Bios/docs/ECOSYSTEM_BOUNDARIES.md).
+[`docs/ECOSYSTEM_BOUNDARIES.md`](https://github.com/thdelmas/Bios/blob/main/docs/ECOSYSTEM_BOUNDARIES.md).
 
 ## Standalone first, always
 
@@ -95,7 +95,7 @@ like any other metric; companions correlate against HRV, sleep, activity
 to triage cause. None of this leaves the device.
 
 These keys do not yet exist in Bios's `MetricType` enum. Adding them is a
-Bios-side change ([CONSUMER_API.md](../../Bios/docs/CONSUMER_API.md)
+Bios-side change ([CONSUMER_API.md](https://github.com/thdelmas/Bios/blob/main/docs/CONSUMER_API.md)
 companion-write URI must also be extended to accept them). Until then,
 the toggle in Virgil settings stays hidden.
 
@@ -157,4 +157,4 @@ Before wiring any sibling read, answer all four:
 - [MANIFESTO.md](../MANIFESTO.md) — what Virgil is for
 - [DESIGN.md](../DESIGN.md) — how the code is organized
 - [docs/SCOPE.md](SCOPE.md) — what does not belong in Virgil
-- [Bios/docs/ECOSYSTEM_BOUNDARIES.md](../../Bios/docs/ECOSYSTEM_BOUNDARIES.md) — the suite-wide rule
+- [Bios/docs/ECOSYSTEM_BOUNDARIES.md](https://github.com/thdelmas/Bios/blob/main/docs/ECOSYSTEM_BOUNDARIES.md) — the suite-wide rule

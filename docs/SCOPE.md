@@ -10,7 +10,7 @@ Currently in scope:
 
 - **Fall detection** — sensor-triggered, passive.
 - **Check-in / no-response** — silence-triggered, passive.
-- **Manual panic / aggression** — user-triggered, active. Includes anti-tamper on the panic flow only (see [feedback memory](../.claude/projects/-home-mia-Virgil/memory/feedback_anti_tamper_panic_only.md)).
+- **Manual panic / aggression** — user-triggered, active. Includes anti-tamper (re-asserting siren volume against the rocker) on the panic flow only: fall and no-response sirens must stay muteable so a bystander can lower them to help the user.
 
 All three share the same downstream pipeline: emergency contacts, SMS dispatch with GPS, primary-contact call, foreground-service plumbing, siren, countdown UI.
 
